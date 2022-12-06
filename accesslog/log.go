@@ -4,7 +4,6 @@ import (
 	"github.com/idiomatic-go/middleware/route"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -15,31 +14,31 @@ func DisableServiceUnavailableRemap() {
 	remapStatus = false
 }
 
-type LogFn func(s string)
+type Write func(s string)
 
-var ingressLogFn LogFn
-var egressLogFn LogFn
+var ingressWrite Write
+var egressWrite Write
 
 func init() {
-	SetIngressLogFn(nil)
-	SetEgressLogFn(nil)
+	SetIngressWrite(nil)
+	SetEgressWrite(nil)
 }
 
-func SetIngressLogFn(fn LogFn) {
+func SetIngressWrite(fn Write) {
 	if fn != nil {
-		ingressLogFn = fn
+		ingressWrite = fn
 	} else {
-		ingressLogFn = func(s string) {
+		ingressWrite = func(s string) {
 			log.Println(s)
 		}
 	}
 }
 
-func SetEgressLogFn(fn LogFn) {
+func SetEgressWrite(fn Write) {
 	if fn != nil {
-		egressLogFn = fn
+		egressWrite = fn
 	} else {
-		egressLogFn = func(s string) {
+		egressWrite = func(s string) {
 			log.Println(s)
 		}
 	}
@@ -61,31 +60,76 @@ func SetOrigin(o Origin) {
 
 func LogEgress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, err error) {
 	if route == nil {
-		if egressLogFn != nil {
-			egressLogFn("error : route is nil")
-		}
+		egressWrite("error : route is nil")
 		return
 	}
+	data := &logd{
+		traffic:      egressTraffic,
+		start:        start,
+		duration:     duration,
+		bytesWritten: 0,
+		route:        route,
+		req:          req,
+		resp:         resp,
+		err:          err,
+		code:         0,
+	}
+
 	sb := strings.Builder{}
-	writeStartTime(&sb, start)
-	writeLocation(&sb)
-	writeMarkup(&sb, "traffic", "egress", true)
-	writeMarkup(&sb, "route_name", route.Name, true)
-	writeDuration(&sb, duration)
+	writeMarkup(&sb, startTimeName, data)
+	writeMarkup(&sb, regionName, data)
+	writeMarkup(&sb, zoneName, data)
+	writeMarkup(&sb, subZoneName, data)
+	writeMarkup(&sb, serviceName, data)
+	writeMarkup(&sb, instanceIdName, data)
+	writeMarkup(&sb, trafficName, data)
+	writeMarkup(&sb, routeName, data)
+	writeMarkup(&sb, durationName, data)
 	if req != nil {
-		writeMarkup(&sb, "url", req.URL.String(), true)
-		writeMarkup(&sb, "method", req.Method, true)
+		writeMarkup(&sb, urlName, data)
+		writeMarkup(&sb, methodName, data)
 	}
 	if resp != nil {
-		writeMarkup(&sb, "status", strconv.Itoa(resp.StatusCode), true)
-		writeMarkup(&sb, "protocol", resp.Proto, true)
+		writeMarkup(&sb, statusCodeName, data)
+		writeMarkup(&sb, protocolName, data)
 	}
 	sb.WriteString("}")
-	if route.WriteAccessLog && egressLogFn != nil {
-		egressLogFn(sb.String())
+	if route.WriteAccessLog {
+		egressWrite(sb.String())
 	}
 }
 
-func LogIngress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, code int, written int) {
-	// TODO : determine what to log if route is ping traffic
+func LogIngress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, code int, written int, err error) {
+	if route == nil {
+		ingressWrite("error : route is nil")
+		return
+	}
+	data := &logd{
+		traffic:      ingressTraffic,
+		start:        start,
+		duration:     duration,
+		bytesWritten: written,
+		route:        route,
+		req:          req,
+		resp:         nil,
+		err:          err,
+		code:         code,
+	}
+	if route.WriteAccessLog {
+		sb := strings.Builder{}
+		writeMarkup(&sb, startTimeName, data)
+		writeMarkup(&sb, regionName, data)
+		writeMarkup(&sb, zoneName, data)
+		writeMarkup(&sb, subZoneName, data)
+		writeMarkup(&sb, serviceName, data)
+		writeMarkup(&sb, instanceIdName, data)
+		writeMarkup(&sb, trafficName, data)
+		writeMarkup(&sb, routeName, data)
+		writeMarkup(&sb, durationName, data)
+		sb.WriteString("}")
+		ingressWrite(sb.String())
+	}
+	if route.RedirectAccessLog {
+
+	}
 }

@@ -2,9 +2,7 @@ package accesslog
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
-	"time"
 )
 
 const (
@@ -13,37 +11,19 @@ const (
 	markupValue  = "\"%v\":%v"
 )
 
-func writeMarkup(sb *strings.Builder, name, value string, quotes bool) {
+func writeMarkup(sb *strings.Builder, name string, data *logd) {
 	if sb.Len() == 0 {
 		sb.WriteString("{")
 	} else {
 		sb.WriteString(",")
 	}
-	var format = markupString
-	if !quotes {
-		format = markupValue
+	value, format, err := resolve(name, data)
+	if err != nil {
+		value = err.Error()
 	}
 	if value == "" {
-		format = markupNull
-		sb.WriteString(fmt.Sprintf(format, name))
+		sb.WriteString(fmt.Sprintf(markupNull, name))
 	} else {
 		sb.WriteString(fmt.Sprintf(format, name, value))
 	}
-}
-
-func writeLocation(sb *strings.Builder) {
-	writeMarkup(sb, "region", origin.Region, true)
-	writeMarkup(sb, "zone", origin.Zone, true)
-	writeMarkup(sb, "sub_zone", origin.SubZone, true)
-	writeMarkup(sb, "service", origin.Service, true)
-	writeMarkup(sb, "instance_id", origin.InstanceId, true)
-}
-
-func writeStartTime(sb *strings.Builder, start time.Time) {
-	writeMarkup(sb, "start_time", FmtTimestamp(start), true)
-}
-
-func writeDuration(sb *strings.Builder, duration time.Duration) {
-	d := int(duration / time.Duration(1e6))
-	writeMarkup(sb, "duration_ms", strconv.Itoa(d), false)
 }
