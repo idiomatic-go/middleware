@@ -67,19 +67,18 @@ func LogEgress(route *route.Route, start time.Time, duration time.Duration, req 
 		return
 	}
 	sb := strings.Builder{}
-	sb.WriteString("{")
 	writeStartTime(&sb, start)
 	writeLocation(&sb)
-	writeMarkup(&sb, "traffic", "egress", "")
-	writeMarkup(&sb, "route_name", route.Name, "")
+	writeMarkup(&sb, "traffic", "egress", true)
+	writeMarkup(&sb, "route_name", route.Name, true)
 	writeDuration(&sb, duration)
 	if req != nil {
-		writeMarkup(&sb, "url", req.URL.String(), "")
-		writeMarkup(&sb, "method", req.Method, "")
+		writeMarkup(&sb, "url", req.URL.String(), true)
+		writeMarkup(&sb, "method", req.Method, true)
 	}
 	if resp != nil {
-		writeMarkup(&sb, "status", strconv.Itoa(resp.StatusCode), markupValueComma)
-		writeMarkup(&sb, "protocol", resp.Proto, "")
+		writeMarkup(&sb, "status", strconv.Itoa(resp.StatusCode), true)
+		writeMarkup(&sb, "protocol", resp.Proto, true)
 	}
 	sb.WriteString("}")
 	if route.WriteAccessLog && egressLogFn != nil {
