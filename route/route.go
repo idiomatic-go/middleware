@@ -1,10 +1,8 @@
 package route
 
-import "time"
-
 type Route struct {
 	Name      string
-	Timeout   time.Duration
+	Timeout   int // milliseconds
 	RateLimit int
 	AccessLog bool
 	Ping      bool
@@ -13,9 +11,3 @@ type Route struct {
 func (route *Route) IsTimeout() bool {
 	return route.Timeout != 0
 }
-
-type routeTable struct {
-	m map[string]*Route
-}
-
-//func SetIngressMatchRequest

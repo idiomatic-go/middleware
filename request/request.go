@@ -1,11 +1,6 @@
 package request
 
-import (
-	"context"
-	"github.com/idiomatic-go/middleware/egress"
-	"io"
-	"net/http"
-)
+/*
 
 func NewWithContext(ctx context.Context, url, method string, body io.Reader) (*http.Request, context.CancelFunc, error) {
 	route := egress.LookupRoute(url, method)
@@ -17,3 +12,6 @@ func NewWithContext(ctx context.Context, url, method string, body io.Reader) (*h
 	req, err := http.NewRequestWithContext(ctx, url, method, body)
 	return req, nil, err
 }
+
+
+*/
