@@ -2,11 +2,11 @@ package route
 
 import "sync"
 
-type routes interface {
-	lookup(name string) *Route
-	add(r *Route) bool
-	update(r *Route) bool
-	remove(name string) bool
+type Routes interface {
+	Lookup(name string) *Route
+	Add(r *Route) bool
+	Update(r *Route) bool
+	Remove(name string) bool
 }
 
 type table struct {
@@ -14,11 +14,11 @@ type table struct {
 	routes map[string]*Route
 }
 
-func NewTable() routes {
+func NewTable() Routes {
 	return new(table)
 }
 
-func (t *table) lookup(name string) *Route {
+func (t *table) Lookup(name string) *Route {
 	if t == nil || name == "" {
 		return nil
 	}
@@ -27,7 +27,7 @@ func (t *table) lookup(name string) *Route {
 	return t.routes[name]
 }
 
-func (t *table) add(r *Route) bool {
+func (t *table) Add(r *Route) bool {
 	if t == nil || r == nil || r.Name == "" {
 		return false
 	}
@@ -40,7 +40,7 @@ func (t *table) add(r *Route) bool {
 	return true
 }
 
-func (t *table) update(r *Route) bool {
+func (t *table) Update(r *Route) bool {
 	if t == nil || r == nil || r.Name == "" {
 		return false
 	}
@@ -50,7 +50,7 @@ func (t *table) update(r *Route) bool {
 	return true
 }
 
-func (t *table) remove(name string) bool {
+func (t *table) Remove(name string) bool {
 	if t == nil || name == "" {
 		return false
 	}

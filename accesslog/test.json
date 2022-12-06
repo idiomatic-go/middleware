@@ -1,0 +1,1 @@
+{"region":"us-west" , "zone":"dfw" , "sub_zone":"" , "service":"testservice" , "instance_id":"123456-7890-1234" , "start_time":"2022-12-06 16:51:02.047451" , "traffic":"egress" , "route_name":"Egress-route" , "duration_ms":"0"  }
