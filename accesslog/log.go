@@ -1,20 +1,17 @@
 package accesslog
 
 import (
+	"fmt"
 	"github.com/idiomatic-go/middleware/route"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 )
 
-var remapStatus = true
-
-func DisableServiceUnavailableRemap() {
-	remapStatus = false
-}
-
-type Write func(s string)
+const (
+	errorNilRouteFmt = "{\"error\": \"%v route is nil\"}"
+	errorEmptyFmt    = "{\"error\": \"%v log entries are empty\"}"
+)
 
 var ingressWrite Write
 var egressWrite Write
@@ -24,50 +21,13 @@ func init() {
 	SetEgressWrite(nil)
 }
 
-func SetIngressWrite(fn Write) {
-	if fn != nil {
-		ingressWrite = fn
-	} else {
-		ingressWrite = func(s string) {
-			log.Println(s)
-		}
-	}
-}
-
-func SetEgressWrite(fn Write) {
-	if fn != nil {
-		egressWrite = fn
-	} else {
-		egressWrite = func(s string) {
-			log.Println(s)
-		}
-	}
-}
-
-type Origin struct {
-	Region     string
-	Zone       string
-	SubZone    string
-	Service    string
-	InstanceId string
-}
-
-var origin Origin
-
-func SetOrigin(o Origin) {
-	origin = o
-}
-
 func WriteEgress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, err error) {
 	if route == nil {
-		egressWrite("error : route is nil")
+		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
 		return
 	}
-	if !route.IsLogging() {
-		return
-	}
-	data := &logd{
-		traffic:      egressTraffic,
+	data := &Logd{
+		traffic:      EgressTraffic,
 		start:        start,
 		duration:     duration,
 		bytesWritten: 0,
@@ -76,29 +36,29 @@ func WriteEgress(route *route.Route, start time.Time, duration time.Duration, re
 		resp:         resp,
 		err:          err,
 		code:         0,
+		remapStatus:  remapStatus,
 	}
-	sb := strings.Builder{}
-	for _, attr := range egressAttrs {
-		if attr.IsDirect() {
-			writeJsonMarkup(&sb, attr.name, attr.value, attr.stringValue)
-			continue
-		}
-		writeJsonMarkup(&sb, attr.name, data.resolve(attr), attr.stringValue)
-	}
-	sb.WriteString("}")
-	egressWrite(sb.String())
-}
-
-func WriteIngress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, code int, written int, err error) {
-	if route == nil {
-		ingressWrite("error : route is nil")
-		return
+	if extractFn != nil {
+		extractFn(data)
 	}
 	if !route.IsLogging() {
 		return
 	}
-	data := &logd{
-		traffic:      ingressTraffic,
+	if len(egressAttrs) == 0 {
+		egressWrite(fmt.Sprintf(errorEmptyFmt, EgressTraffic))
+		return
+	}
+	s := formatJson(egressAttrs, data)
+	egressWrite(s)
+}
+
+func WriteIngress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, code int, written int, err error) {
+	if route == nil {
+		ingressWrite(fmt.Sprintf(errorNilRouteFmt, IngressTraffic))
+		return
+	}
+	data := &Logd{
+		traffic:      IngressTraffic,
 		start:        start,
 		duration:     duration,
 		bytesWritten: written,
@@ -107,15 +67,31 @@ func WriteIngress(route *route.Route, start time.Time, duration time.Duration, r
 		resp:         nil,
 		err:          err,
 		code:         code,
+		remapStatus:  remapStatus,
 	}
+	if extractFn != nil {
+		extractFn(data)
+	}
+	if !route.IsLogging() {
+		return
+	}
+	if len(ingressAttrs) == 0 {
+		ingressWrite(fmt.Sprintf(errorEmptyFmt, IngressTraffic))
+		return
+	}
+	s := formatJson(ingressAttrs, data)
+	ingressWrite(s)
+}
+
+func formatJson(attrs []attribute, data *Logd) string {
 	sb := strings.Builder{}
-	for _, attr := range ingressAttrs {
-		if attr.IsDirect() {
-			writeJsonMarkup(&sb, attr.name, attr.value, attr.stringValue)
+	for _, attr := range attrs {
+		if attr.isDirect() {
+			writeJson(&sb, attr.name, attr.value, attr.stringValue)
 			continue
 		}
-		writeJsonMarkup(&sb, attr.name, data.resolve(attr), attr.stringValue)
+		writeJson(&sb, attr.name, data.value(attr), attr.stringValue)
 	}
 	sb.WriteString("}")
-	ingressWrite(sb.String())
+	return sb.String()
 }

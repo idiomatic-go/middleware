@@ -6,11 +6,6 @@ import (
 	"strings"
 )
 
-type Entry struct {
-	Operator string
-	Name     string
-}
-
 var ingressAttrs []attribute
 var egressAttrs []attribute
 
@@ -22,40 +17,61 @@ func AddEgressAttributes(attrs []Entry) error {
 	return addAttributes(&egressAttrs, attrs)
 }
 
-func addAttributes(src *[]attribute, attrs []Entry) error {
-	if attrs == nil || len(attrs) == 0 {
-		return errors.New("log entry slice is empty")
+func addAttributes(attrs *[]attribute, config []Entry) error {
+	if len(config) == 0 {
+		return errors.New("invalid : log entry configuration is empty")
 	}
-	for _, a := range attrs {
-		if a.Operator == "" {
-			return errors.New(fmt.Sprintf("invalid operator : operator is empty %v", a.Operator))
+	dup := map[string]string{}
+	for _, entry := range config {
+		newAttr, err := createAttribute(entry)
+		if err != nil {
+			return err
 		}
-		// User defined attribute constant
-		if !strings.HasPrefix(a.Operator, operatorPrefix) {
-			*src = append(*src, attribute{"direct", a.Operator, a.Name, true})
-			continue
+		if newAttr.operator == "" {
+			return errors.New(fmt.Sprintf("invalid entry : operator is invalid %v", entry.Operator))
 		}
-		config, ok := defaultConfig[a.Operator]
-		if ok {
-			newAttr := attribute{config.operator, config.name, "", config.stringValue}
-			if a.Name != "" {
-				newAttr.name = a.Name
-			}
-			*src = append(*src, newAttr)
-			continue
+		if newAttr.name == "" {
+			return errors.New(fmt.Sprintf("invalid entry : name is empty %v", entry.Operator))
 		}
-		if strings.HasPrefix(a.Operator, requestReferencePrefix) {
-			*src = append(*src, parseHeaderAttribute(a.Operator[len(requestReferencePrefix):], a))
-			continue
+		if _, ok := dup[newAttr.name]; ok {
+			return errors.New(fmt.Sprintf("invalid entry : name is a duplicate %v", newAttr.name))
 		}
-		return errors.New(fmt.Sprintf("invalid operator : operator not found or not a valid reference %v", a.Operator))
+		dup[newAttr.name] = ""
+		*attrs = append(*attrs, newAttr)
 	}
 	return nil
 }
 
-func parseHeaderAttribute(s string, entry Entry) attribute {
+func createAttribute(entry Entry) (attribute, error) {
+	if entry.Operator == "" {
+		return attribute{}, errors.New(fmt.Sprintf("invalid entry : operator is empty %v", entry.Operator))
+	}
+	if !strings.HasPrefix(entry.Operator, operatorPrefix) {
+		return attribute{directOperator, entry.Operator, entry.Name, true}, nil
+	}
+	if config, ok := directory[entry.Operator]; ok {
+		newAttr := attribute{config.operator, config.name, "", config.stringValue}
+		if entry.Name != "" {
+			newAttr.name = entry.Name
+		}
+		return newAttr, nil
+	}
+	if strings.HasPrefix(entry.Operator, requestReferencePrefix) {
+		return parseHeaderAttribute(entry), nil
+	}
+	return attribute{}, errors.New(fmt.Sprintf("invalid operator : operator not found or not a valid reference %v", entry.Operator))
+}
+
+func parseHeaderAttribute(entry Entry) attribute {
+	if entry.Operator == "" || !strings.HasPrefix(entry.Operator, requestReferencePrefix) || len(entry.Operator) <= len(requestReferencePrefix) {
+		return attribute{}
+	}
+	s := entry.Operator[len(requestReferencePrefix):]
 	tokens := strings.Split(s, ")")
-	op := fmt.Sprintf("header:%v", tokens[0])
+	if len(tokens) == 1 || tokens[0] == "" {
+		return attribute{}
+	}
+	op := fmt.Sprintf("%v:%v", headerPrefix, tokens[0])
 	if entry.Name == "" {
 		return attribute{operator: op, name: tokens[0], value: "", stringValue: true}
 	}
@@ -69,17 +85,19 @@ type attribute struct {
 	stringValue bool
 }
 
-func (a attribute) IsHeader() bool {
-	return strings.HasPrefix(a.operator, "header")
+func (a attribute) isHeader() bool {
+	return strings.HasPrefix(a.operator, headerPrefix)
 }
 
-func (a attribute) IsDirect() bool {
-	return a.operator == "direct"
+func (a attribute) isDirect() bool {
+	return a.operator == directOperator
 }
 
 type attributes map[string]*attribute
 
 const (
+	headerPrefix            = "header"
+	directOperator          = "direct"
 	operatorPrefix          = "%"
 	requestReferencePrefix  = "%REQ("
 	responseReferencePrefix = "%RESP("
@@ -127,7 +145,7 @@ const (
 	//%RESPONSE_CODE_DETAILS%: HTTP status details
 )
 
-var defaultConfig = attributes{
+var directory = attributes{
 	trafficOperator:     &attribute{trafficOperator, "traffic", "", true},
 	regionOperator:      &attribute{regionOperator, "region", "", true},
 	zoneOperator:        &attribute{zoneOperator, "zone", "", true},

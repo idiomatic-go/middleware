@@ -1,45 +1,25 @@
 package accesslog
 
 import (
-	"github.com/idiomatic-go/middleware/route"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
 
-const (
-	egressTraffic  = "egress"
-	ingressTraffic = "ingress"
-	pingTraffic    = "ping"
-)
-
-type logd struct {
-	traffic      string
-	start        time.Time
-	duration     time.Duration
-	bytesWritten int
-	route        *route.Route
-	req          *http.Request
-	resp         *http.Response
-	err          error
-	code         int
+func (l Logd) isIngress() bool {
+	return l.traffic == IngressTraffic
 }
 
-func (l logd) isIngress() bool {
-	return l.traffic == ingressTraffic
+func (l Logd) isEgress() bool {
+	return l.traffic == EgressTraffic
 }
 
-func (l logd) isEgress() bool {
-	return l.traffic == egressTraffic
-}
-
-func (l logd) isPing() bool {
+func (l Logd) isPing() bool {
 	return l.isIngress() && l.route.Ping
 }
 
-func (l logd) resolve(attr attribute) string {
-	if attr.IsHeader() {
+func (l Logd) value(attr attribute) string {
+	if attr.isHeader() {
 		if l.req != nil {
 			tokens := strings.Split(attr.operator, ":")
 			values := l.req.Header[tokens[0]]
@@ -53,7 +33,7 @@ func (l logd) resolve(attr attribute) string {
 	switch attr.operator {
 	case trafficOperator:
 		if l.isPing() {
-			return pingTraffic
+			return PingTraffic
 		}
 		return l.traffic
 	case regionOperator:

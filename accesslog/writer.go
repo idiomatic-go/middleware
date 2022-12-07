@@ -11,7 +11,7 @@ const (
 	markupValue  = "\"%v\":%v"
 )
 
-func writeJsonMarkup(sb *strings.Builder, name, value string, stringValue bool) {
+func writeJson(sb *strings.Builder, name, value string, stringValue bool) {
 	if sb.Len() == 0 {
 		sb.WriteString("{")
 	} else {
