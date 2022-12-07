@@ -8,12 +8,11 @@ import (
 type MatchFn func(req *http.Request) (name string)
 
 type Route struct {
-	Name              string
-	Timeout           int // milliseconds
-	RateLimit         int
-	WriteAccessLog    bool
-	RedirectAccessLog bool
-	Ping              bool
+	Name           string
+	Timeout        int // milliseconds
+	RateLimit      int
+	WriteAccessLog bool
+	Ping           bool
 }
 
 func (r *Route) IsTimeout() bool {
@@ -28,5 +27,5 @@ func (r *Route) Duration() time.Duration {
 }
 
 func (r *Route) IsLogging() bool {
-	return r != nil && (r.RedirectAccessLog || r.WriteAccessLog)
+	return r != nil && r.WriteAccessLog
 }

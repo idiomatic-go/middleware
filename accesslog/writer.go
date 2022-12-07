@@ -11,19 +11,19 @@ const (
 	markupValue  = "\"%v\":%v"
 )
 
-func writeMarkup(sb *strings.Builder, name string, data *logd) {
+func writeJsonMarkup(sb *strings.Builder, name, value string, stringValue bool) {
 	if sb.Len() == 0 {
 		sb.WriteString("{")
 	} else {
 		sb.WriteString(",")
 	}
-	value, format, err := resolve(name, data)
-	if err != nil {
-		value = err.Error()
-	}
 	if value == "" {
 		sb.WriteString(fmt.Sprintf(markupNull, name))
 	} else {
+		format := markupString
+		if !stringValue {
+			format = markupValue
+		}
 		sb.WriteString(fmt.Sprintf(format, name, value))
 	}
 }

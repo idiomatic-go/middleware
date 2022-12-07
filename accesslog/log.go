@@ -58,9 +58,12 @@ func SetOrigin(o Origin) {
 	origin = o
 }
 
-func LogEgress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, err error) {
+func WriteEgress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, err error) {
 	if route == nil {
 		egressWrite("error : route is nil")
+		return
+	}
+	if !route.IsLogging() {
 		return
 	}
 	data := &logd{
@@ -74,34 +77,24 @@ func LogEgress(route *route.Route, start time.Time, duration time.Duration, req 
 		err:          err,
 		code:         0,
 	}
-
 	sb := strings.Builder{}
-	writeMarkup(&sb, startTimeName, data)
-	writeMarkup(&sb, regionName, data)
-	writeMarkup(&sb, zoneName, data)
-	writeMarkup(&sb, subZoneName, data)
-	writeMarkup(&sb, serviceName, data)
-	writeMarkup(&sb, instanceIdName, data)
-	writeMarkup(&sb, trafficName, data)
-	writeMarkup(&sb, routeName, data)
-	writeMarkup(&sb, durationName, data)
-	if req != nil {
-		writeMarkup(&sb, urlName, data)
-		writeMarkup(&sb, methodName, data)
-	}
-	if resp != nil {
-		writeMarkup(&sb, statusCodeName, data)
-		writeMarkup(&sb, protocolName, data)
+	for _, attr := range egressAttrs {
+		if attr.IsDirect() {
+			writeJsonMarkup(&sb, attr.name, attr.value, attr.stringValue)
+			continue
+		}
+		writeJsonMarkup(&sb, attr.name, data.resolve(attr), attr.stringValue)
 	}
 	sb.WriteString("}")
-	if route.WriteAccessLog {
-		egressWrite(sb.String())
-	}
+	egressWrite(sb.String())
 }
 
-func LogIngress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, code int, written int, err error) {
+func WriteIngress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, code int, written int, err error) {
 	if route == nil {
 		ingressWrite("error : route is nil")
+		return
+	}
+	if !route.IsLogging() {
 		return
 	}
 	data := &logd{
@@ -115,21 +108,14 @@ func LogIngress(route *route.Route, start time.Time, duration time.Duration, req
 		err:          err,
 		code:         code,
 	}
-	if route.WriteAccessLog {
-		sb := strings.Builder{}
-		writeMarkup(&sb, startTimeName, data)
-		writeMarkup(&sb, regionName, data)
-		writeMarkup(&sb, zoneName, data)
-		writeMarkup(&sb, subZoneName, data)
-		writeMarkup(&sb, serviceName, data)
-		writeMarkup(&sb, instanceIdName, data)
-		writeMarkup(&sb, trafficName, data)
-		writeMarkup(&sb, routeName, data)
-		writeMarkup(&sb, durationName, data)
-		sb.WriteString("}")
-		ingressWrite(sb.String())
+	sb := strings.Builder{}
+	for _, attr := range ingressAttrs {
+		if attr.IsDirect() {
+			writeJsonMarkup(&sb, attr.name, attr.value, attr.stringValue)
+			continue
+		}
+		writeJsonMarkup(&sb, attr.name, data.resolve(attr), attr.stringValue)
 	}
-	if route.RedirectAccessLog {
-
-	}
+	sb.WriteString("}")
+	ingressWrite(sb.String())
 }
