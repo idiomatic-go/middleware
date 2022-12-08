@@ -6,94 +6,77 @@ import (
 	"strings"
 )
 
-var ingressAttrs []attribute
-var egressAttrs []attribute
+var ingressEntries []Entry
+var egressEntries []Entry
 
-func AddIngressAttributes(attrs []Entry) error {
-	return addAttributes(&ingressAttrs, attrs)
+func CreateIngressEntries(config []Reference) error {
+	return CreateEntries(&ingressEntries, config)
 }
 
-func AddEgressAttributes(attrs []Entry) error {
-	return addAttributes(&egressAttrs, attrs)
+func CreateEgressEntries(config []Reference) error {
+	return CreateEntries(&egressEntries, config)
 }
 
-func addAttributes(attrs *[]attribute, config []Entry) error {
+func CreateEntries(items *[]Entry, config []Reference) error {
 	if len(config) == 0 {
-		return errors.New("invalid : log entry configuration is empty")
+		return errors.New("invalid configuration : configuration is empty")
 	}
 	dup := map[string]string{}
-	for _, entry := range config {
-		newAttr, err := createAttribute(entry)
+	for _, ref := range config {
+		entry, err := createEntry(ref)
 		if err != nil {
 			return err
 		}
-		if newAttr.operator == "" {
-			return errors.New(fmt.Sprintf("invalid entry : operator is invalid %v", entry.Operator))
+		if entry.Operator() == "" {
+			return errors.New(fmt.Sprintf("invalid reference : operator is invalid %v", ref.Operator))
 		}
-		if newAttr.name == "" {
-			return errors.New(fmt.Sprintf("invalid entry : name is empty %v", entry.Operator))
+		if entry.Ref.Name == "" {
+			return errors.New(fmt.Sprintf("invalid reference : name is empty %v", ref.Operator))
 		}
-		if _, ok := dup[newAttr.name]; ok {
-			return errors.New(fmt.Sprintf("invalid entry : name is a duplicate %v", newAttr.name))
+		if _, ok := dup[entry.Name()]; ok {
+			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate %v", entry.Name()))
 		}
-		dup[newAttr.name] = ""
-		*attrs = append(*attrs, newAttr)
+		dup[entry.Name()] = ""
+		*items = append(*items, entry)
 	}
 	return nil
 }
 
-func createAttribute(entry Entry) (attribute, error) {
-	if entry.Operator == "" {
-		return attribute{}, errors.New(fmt.Sprintf("invalid entry : operator is empty %v", entry.Operator))
+func createEntry(ref Reference) (Entry, error) {
+	if ref.Operator == "" {
+		return Entry{}, errors.New(fmt.Sprintf("invalid entry reference : operator is empty %v", ref.Operator))
 	}
-	if !strings.HasPrefix(entry.Operator, operatorPrefix) {
-		return attribute{directOperator, entry.Operator, entry.Name, true}, nil
+	if !strings.HasPrefix(ref.Operator, operatorPrefix) {
+		return NewEntry(directOperator, ref.Operator, ref.Name, true), nil
 	}
-	if config, ok := directory[entry.Operator]; ok {
-		newAttr := attribute{config.operator, config.name, "", config.stringValue}
-		if entry.Name != "" {
-			newAttr.name = entry.Name
+	if entry, ok := directory[ref.Operator]; ok {
+		item := NewEntry(entry.Operator(), entry.Name(), "", entry.StringValue)
+		if ref.Name != "" {
+			item.Ref.Name = ref.Name
 		}
-		return newAttr, nil
+		return item, nil
 	}
-	if strings.HasPrefix(entry.Operator, requestReferencePrefix) {
-		return parseHeaderAttribute(entry), nil
+	if strings.HasPrefix(ref.Operator, requestReferencePrefix) {
+		return createHeaderEntry(ref), nil
 	}
-	return attribute{}, errors.New(fmt.Sprintf("invalid operator : operator not found or not a valid reference %v", entry.Operator))
+	return Entry{}, errors.New(fmt.Sprintf("invalid entry reference : operator not found %v", ref.Operator))
 }
 
-func parseHeaderAttribute(entry Entry) attribute {
-	if entry.Operator == "" || !strings.HasPrefix(entry.Operator, requestReferencePrefix) || len(entry.Operator) <= len(requestReferencePrefix) {
-		return attribute{}
+func createHeaderEntry(ref Reference) Entry {
+	if ref.Operator == "" || !strings.HasPrefix(ref.Operator, requestReferencePrefix) || len(ref.Operator) <= len(requestReferencePrefix) {
+		return Entry{}
 	}
-	s := entry.Operator[len(requestReferencePrefix):]
+	s := ref.Operator[len(requestReferencePrefix):]
 	tokens := strings.Split(s, ")")
 	if len(tokens) == 1 || tokens[0] == "" {
-		return attribute{}
+		return Entry{}
 	}
 	op := fmt.Sprintf("%v:%v", headerPrefix, tokens[0])
-	if entry.Name == "" {
-		return attribute{operator: op, name: tokens[0], value: "", stringValue: true}
+	if ref.Name == "" {
+		return NewEntry(op, tokens[0], "", true)
 	}
-	return attribute{operator: op, name: entry.Name, value: "", stringValue: true}
+	return NewEntry(op, ref.Name, "", true)
 }
-
-type attribute struct {
-	operator    string
-	name        string
-	value       string
-	stringValue bool
-}
-
-func (a attribute) isHeader() bool {
-	return strings.HasPrefix(a.operator, headerPrefix)
-}
-
-func (a attribute) isDirect() bool {
-	return a.operator == directOperator
-}
-
-type attributes map[string]*attribute
 
 const (
 	headerPrefix            = "header"
@@ -103,37 +86,37 @@ const (
 	responseReferencePrefix = "%RESP("
 
 	// Application
-	trafficOperator     = "%TRAFFIC%"     //  ingress, egress, ping
-	regionOperator      = "%REGION%"      //, origin region
-	zoneOperator        = "%ZONE%"        //, origin zone
-	subZoneOperator     = "%SUB_ZONE%"    // origin sub zone
-	serviceNameOperator = "%SERVICE%"     // origin service
-	instanceIdOperator  = "%INSTANCE_ID%" // origin instance id
+	TrafficOperator     = "%TRAFFIC%"     //  ingress, egress, ping
+	RegionOperator      = "%REGION%"      //, origin region
+	ZoneOperator        = "%ZONE%"        //, origin zone
+	SubZoneOperator     = "%SUB_ZONE%"    // origin sub zone
+	ServiceNameOperator = "%SERVICE%"     // origin service
+	InstanceIdOperator  = "%INSTANCE_ID%" // origin instance id
 
 	// Envoy
-	routeNameOperator = "%ROUTE_NAME%" // route name
-	startTimeOperator = "%START_TIME%" // start time
-	durationOperator  = "%DURATION%"   // Total duration in milliseconds of the request from the start time to the last byte out.
+	RouteNameOperator = "%ROUTE_NAME%" // route name
+	StartTimeOperator = "%START_TIME%" // start time
+	DurationOperator  = "%DURATION%"   // Total duration in milliseconds of the request from the start time to the last byte out.
 
 	// Response
-	responseCodeOperator  = "%RESPONSE_CODE%"  // HTTP status code
-	bytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
-	bytesSentOperator     = "%BYTES_SENT%"     // bytes sent
-	responseFlagsOperator = "%RESPONSE_FLAGS%" // response flags
-	upstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
+	ResponseCodeOperator  = "%RESPONSE_CODE%"  // HTTP status code
+	BytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
+	BytesSentOperator     = "%BYTES_SENT%"     // bytes sent
+	ResponseFlagsOperator = "%RESPONSE_FLAGS%" // response flags
+	UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
 
 	// Request
-	protocolOperator     = "%PROTOCOL%"          // HTTP Protocol
-	requestIdOperator    = "%REQ(X-REQUEST-ID)%" // X-REQUEST-ID request header value
-	userAgentOperator    = "%REQ(USER-AGENT)%"   // user agent request header value
-	authorityOperator    = "%REQ(:AUTHORITY)%"   // authority request header value
-	httpMethodOperator   = "%REQ(:METHOD)%"      // HTTP method
-	pathOperator         = "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
-	forwardedForOperator = "%REQ(X-FORWARDED-FOR)%" // client IP address (X-FORWARDED-FOR request header value)
+	ProtocolOperator     = "%PROTOCOL%"          // HTTP Protocol
+	RequestIdOperator    = "%REQ(X-REQUEST-ID)%" // X-REQUEST-ID request header value
+	UserAgentOperator    = "%REQ(USER-AGENT)%"   // user agent request header value
+	AuthorityOperator    = "%REQ(:AUTHORITY)%"   // authority request header value
+	HttpMethodOperator   = "%REQ(:METHOD)%"      // HTTP method
+	PathOperator         = "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
+	ForwardedForOperator = "%REQ(X-FORWARDED-FOR)%" // client IP address (X-FORWARDED-FOR request header value)
 
 	// gRPC
-	grpcStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
-	grpcStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
+	GRPCStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
+	GRPCStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
 
 	//%REQUESTED_SERVER_NAME%: SNI host
 	//%DYNAMIC_METADATA(envoy.lua)%: Apigee dynamic metadata
@@ -145,35 +128,36 @@ const (
 	//%RESPONSE_CODE_DETAILS%: HTTP status details
 )
 
-var directory = attributes{
-	trafficOperator:     &attribute{trafficOperator, "traffic", "", true},
-	regionOperator:      &attribute{regionOperator, "region", "", true},
-	zoneOperator:        &attribute{zoneOperator, "zone", "", true},
-	subZoneOperator:     &attribute{subZoneOperator, "sub_zone", "", true},
-	serviceNameOperator: &attribute{serviceNameOperator, "service", "", true},
-	instanceIdOperator:  &attribute{instanceIdOperator, "instance_id", "", true},
+var directory = Directory{
+	TrafficOperator: &Entry{Reference{RegionOperator, "region"}, "", true},
 
-	routeNameOperator: &attribute{routeNameOperator, "route_name", "", true},
-	startTimeOperator: &attribute{startTimeOperator, "start_time", "", true},
-	durationOperator:  &attribute{durationOperator, "duration_ms", "", false},
+	RegionOperator:      &Entry{Reference{RegionOperator, "region"}, "", true},
+	ZoneOperator:        &Entry{Reference{ZoneOperator, "zone"}, "", true},
+	SubZoneOperator:     &Entry{Reference{SubZoneOperator, "sub_zone"}, "", true},
+	ServiceNameOperator: &Entry{Reference{ServiceNameOperator, "service"}, "", true},
+	InstanceIdOperator:  &Entry{Reference{InstanceIdOperator, "instance_id"}, "", true},
+
+	RouteNameOperator: &Entry{Reference{RouteNameOperator, "route_name"}, "", true},
+	StartTimeOperator: &Entry{Reference{StartTimeOperator, "start_time"}, "", true},
+	DurationOperator:  &Entry{Reference{DurationOperator, "duration_ms"}, "", false},
 
 	// Response
-	responseCodeOperator:  &attribute{responseCodeOperator, "status_code", "", true},
-	bytesReceivedOperator: &attribute{bytesReceivedOperator, "bytes_received", "", true},
-	bytesSentOperator:     &attribute{bytesSentOperator, "bytes_sent", "", true},
-	responseFlagsOperator: &attribute{responseFlagsOperator, "response_flags", "", true},
-	upstreamHostOperator:  &attribute{upstreamHostOperator, "upstream_host", "", true},
-	pathOperator:          &attribute{pathOperator, "path", "", true},
-	forwardedForOperator:  &attribute{forwardedForOperator, "forwarded", "", true},
+	ResponseCodeOperator:  &Entry{Reference{ResponseCodeOperator, "status_code"}, "", true},
+	BytesReceivedOperator: &Entry{Reference{BytesReceivedOperator, "bytes_received"}, "", true},
+	BytesSentOperator:     &Entry{Reference{BytesSentOperator, "bytes_sent"}, "", true},
+	ResponseFlagsOperator: &Entry{Reference{ResponseFlagsOperator, "response_flags"}, "", true},
+	UpstreamHostOperator:  &Entry{Reference{UpstreamHostOperator, "upstream_host"}, "", true},
+	PathOperator:          &Entry{Reference{PathOperator, "path"}, "", true},
+	ForwardedForOperator:  &Entry{Reference{ForwardedForOperator, "forwarded"}, "", true},
 
 	// Request
-	protocolOperator:   &attribute{protocolOperator, "protocol", "", true},
-	requestIdOperator:  &attribute{requestIdOperator, "request_id", "", true},
-	userAgentOperator:  &attribute{userAgentOperator, "user_agent", "", true},
-	authorityOperator:  &attribute{authorityOperator, "authority", "", true},
-	httpMethodOperator: &attribute{httpMethodOperator, "method", "", true},
+	ProtocolOperator:   &Entry{Reference{ProtocolOperator, "protocol"}, "", true},
+	RequestIdOperator:  &Entry{Reference{RequestIdOperator, "request_id"}, "", true},
+	UserAgentOperator:  &Entry{Reference{UserAgentOperator, "user_agent"}, "", true},
+	AuthorityOperator:  &Entry{Reference{AuthorityOperator, "authority"}, "", true},
+	HttpMethodOperator: &Entry{Reference{HttpMethodOperator, "method"}, "", true},
 
 	// gRPC
-	grpcStatusOperator:       &attribute{grpcStatusOperator, "grpc_status", "", true},
-	grpcStatusNumberOperator: &attribute{grpcStatusNumberOperator, "grpc_number", "", true},
+	GRPCStatusOperator:       &Entry{Reference{GRPCStatusOperator, "grpc_status"}, "", true},
+	GRPCStatusNumberOperator: &Entry{Reference{GRPCStatusNumberOperator, "grpc_number"}, "", true},
 }

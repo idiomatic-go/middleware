@@ -27,16 +27,17 @@ func WriteEgress(route *route.Route, start time.Time, duration time.Duration, re
 		return
 	}
 	data := &Logd{
-		traffic:      EgressTraffic,
-		start:        start,
-		duration:     duration,
-		bytesWritten: 0,
-		route:        route,
-		req:          req,
-		resp:         resp,
-		err:          err,
-		code:         0,
-		remapStatus:  remapStatus,
+		Origin:       origin,
+		Traffic:      EgressTraffic,
+		Start:        start,
+		Duration:     duration,
+		BytesWritten: 0,
+		Route:        route,
+		Req:          req,
+		Resp:         resp,
+		Err:          err,
+		Code:         0,
+		RemapStatus:  remapStatus,
 	}
 	if extractFn != nil {
 		extractFn(data)
@@ -44,11 +45,11 @@ func WriteEgress(route *route.Route, start time.Time, duration time.Duration, re
 	if !route.IsLogging() {
 		return
 	}
-	if len(egressAttrs) == 0 {
+	if len(egressEntries) == 0 {
 		egressWrite(fmt.Sprintf(errorEmptyFmt, EgressTraffic))
 		return
 	}
-	s := formatJson(egressAttrs, data)
+	s := FormatJson(egressEntries, data)
 	egressWrite(s)
 }
 
@@ -58,16 +59,17 @@ func WriteIngress(route *route.Route, start time.Time, duration time.Duration, r
 		return
 	}
 	data := &Logd{
-		traffic:      IngressTraffic,
-		start:        start,
-		duration:     duration,
-		bytesWritten: written,
-		route:        route,
-		req:          req,
-		resp:         nil,
-		err:          err,
-		code:         code,
-		remapStatus:  remapStatus,
+		Origin:       origin,
+		Traffic:      IngressTraffic,
+		Start:        start,
+		Duration:     duration,
+		BytesWritten: written,
+		Route:        route,
+		Req:          req,
+		Resp:         nil,
+		Err:          err,
+		Code:         code,
+		RemapStatus:  remapStatus,
 	}
 	if extractFn != nil {
 		extractFn(data)
@@ -75,22 +77,22 @@ func WriteIngress(route *route.Route, start time.Time, duration time.Duration, r
 	if !route.IsLogging() {
 		return
 	}
-	if len(ingressAttrs) == 0 {
+	if len(ingressEntries) == 0 {
 		ingressWrite(fmt.Sprintf(errorEmptyFmt, IngressTraffic))
 		return
 	}
-	s := formatJson(ingressAttrs, data)
+	s := FormatJson(ingressEntries, data)
 	ingressWrite(s)
 }
 
-func formatJson(attrs []attribute, data *Logd) string {
+func FormatJson(items []Entry, data *Logd) string {
 	sb := strings.Builder{}
-	for _, attr := range attrs {
-		if attr.isDirect() {
-			writeJson(&sb, attr.name, attr.value, attr.stringValue)
+	for _, entry := range items {
+		if entry.IsDirect() {
+			writeJson(&sb, entry.Name(), entry.Value, entry.StringValue)
 			continue
 		}
-		writeJson(&sb, attr.name, data.value(attr), attr.stringValue)
+		writeJson(&sb, entry.Name(), data.Value(entry), entry.StringValue)
 	}
 	sb.WriteString("}")
 	return sb.String()

@@ -31,16 +31,17 @@ const (
 
 // Logd - struct for all logging information
 type Logd struct {
-	traffic      string
-	start        time.Time
-	duration     time.Duration
-	bytesWritten int
-	route        *route.Route
-	req          *http.Request
-	resp         *http.Response
-	err          error
-	code         int
-	remapStatus  bool
+	Origin       Origin
+	Traffic      string
+	Start        time.Time
+	Duration     time.Duration
+	BytesWritten int
+	Route        *route.Route
+	Req          *http.Request
+	Resp         *http.Response
+	Err          error
+	Code         int
+	RemapStatus  bool
 }
 
 // Extract - optionally allows extraction of log data
@@ -50,12 +51,6 @@ var extractFn Extract
 
 func SetExtract(fn Extract) {
 	extractFn = fn
-}
-
-// Entry - configuration of logging attributes
-type Entry struct {
-	Operator string
-	Name     string
 }
 
 // DisableServiceUnavailableRemap - optionally disables HTTP status code remapping
