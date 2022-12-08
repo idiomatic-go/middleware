@@ -124,14 +124,10 @@ const (
 	GRPCStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
 	GRPCStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
 
-	//%REQUESTED_SERVER_NAME%: SNI host
-	//%DYNAMIC_METADATA(envoy.lua)%: Apigee dynamic metadata
-	//%DOWNSTREAM_TLS_VERSION%: TLS protocol
-	//%DOWNSTREAM_DIRECT_REMOTE_ADDRESS%: remote address
-	//%RESPONSE_DURATION%: response duration
-	//%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%: X-ENVOY-UPSTREAM-SERVICE-TIME response header value
-	//%UPSTREAM_CLUSTER%: upstream cluster
-	//%RESPONSE_CODE_DETAILS%: HTTP status details
+	// Rate Limiting
+	rateLimitTokensOperator = "%RATE_LIMIT_TOKENS%"
+	rateLimitLimitOperator  = "%RATE_LIMIT_LIMIT%"
+	rateLimitBurstOperator  = "%RATE_LIMIT_BURST%"
 )
 
 var directory = Directory{

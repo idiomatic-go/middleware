@@ -58,12 +58,10 @@ func Initialize(uri string, newClient *http.Client, fn LogError) error {
 		return err1
 	}
 	url = u.String()
-
 	err = accesslog.CreateEntries(&entries, config)
 	if err != nil {
 		return err
 	}
-
 	c = make(chan *accesslog.Logd, 100)
 	go receive()
 	if newClient != nil {
