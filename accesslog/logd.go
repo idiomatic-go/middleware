@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 func (l Logd) IsIngress() bool {
@@ -21,8 +22,16 @@ func (l Logd) IsPing() bool {
 func (l Logd) Value(entry Entry) string {
 	if entry.IsHeader() {
 		if l.Req != nil {
+			// TODO: normalize Http header names. There is code in the net/http package
+			var name = ""
 			tokens := strings.Split(entry.Operator(), ":")
-			values := l.Req.Header[tokens[0]]
+			if !unicode.IsUpper(rune(tokens[1][0])) {
+				var s = string(unicode.ToUpper(rune(tokens[1][0])))
+				name = s + tokens[1][1:]
+			} else {
+				name = tokens[1]
+			}
+			values := l.Req.Header[name]
 			if values != nil {
 				return values[0]
 			}
@@ -46,22 +55,32 @@ func (l Logd) Value(entry Entry) string {
 		return l.Origin.Service
 	case InstanceIdOperator:
 		return l.Origin.InstanceId
-
 	case StartTimeOperator:
 		return FmtTimestamp(l.Start)
-	case RouteNameOperator:
-		return l.Route.Name
 	case DurationOperator:
 		d := int(l.Duration / time.Duration(1e6))
 		return strconv.Itoa(d)
 
+	// Route - check for nil
+	case RouteNameOperator:
+		if l.Route != nil {
+			return l.Route.Name
+		}
+
+	// Http Request - check for nil
 	case HttpMethodOperator:
-		return l.Req.Method
+		if l.Req != nil {
+			return ""
+		}
+
+	// Http Response - check for nil
 	case ResponseCodeOperator:
 		if l.IsIngress() {
 			return strconv.Itoa(l.Code)
 		} else {
-			return strconv.Itoa(l.Resp.StatusCode)
+			if l.Resp != nil {
+				return strconv.Itoa(l.Resp.StatusCode)
+			}
 		}
 	}
 	return ""
