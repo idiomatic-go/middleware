@@ -10,37 +10,42 @@ import (
 )
 
 type LogError func(err error)
+type messageHandler func(l *accesslog.Logd) bool
 
-var client = http.DefaultClient
-var url string
-var logError = func(err error) {
-	log.Println(err)
-}
-var c chan *accesslog.Logd
-var entries []accesslog.Entry
-var config = []accesslog.Reference{
-	{Operator: accesslog.StartTimeOperator},
-	{Operator: accesslog.DurationOperator},
-	{Operator: accesslog.RouteNameOperator},
-	{Operator: accesslog.TrafficOperator},
+var (
+	url     string
+	c       chan *accesslog.Logd
+	entries []accesslog.Entry
+	client                 = http.DefaultClient
+	handler messageHandler = do
 
-	{Operator: accesslog.RegionOperator},
-	{Operator: accesslog.ZoneOperator},
-	{Operator: accesslog.SubZoneOperator},
-	{Operator: accesslog.ServiceNameOperator},
-	{Operator: accesslog.InstanceIdOperator},
+	logError = func(err error) {
+		log.Println(err)
+	}
+	config = []accesslog.Reference{
+		{Operator: accesslog.StartTimeOperator},
+		{Operator: accesslog.DurationOperator},
+		{Operator: accesslog.RouteNameOperator},
+		{Operator: accesslog.TrafficOperator},
 
-	{Operator: accesslog.HttpMethodOperator},
-	{Operator: accesslog.AuthorityOperator},
-	{Operator: accesslog.PathOperator},
-	{Operator: accesslog.ProtocolOperator},
-	{Operator: accesslog.RequestIdOperator},
-	{Operator: accesslog.ForwardedForOperator},
+		{Operator: accesslog.RegionOperator},
+		{Operator: accesslog.ZoneOperator},
+		{Operator: accesslog.SubZoneOperator},
+		{Operator: accesslog.ServiceNameOperator},
+		{Operator: accesslog.InstanceIdOperator},
 
-	{Operator: accesslog.ResponseCodeOperator},
-	{Operator: accesslog.ResponseFlagsOperator},
-	{Operator: accesslog.BytesReceivedOperator},
-}
+		{Operator: accesslog.HttpMethodOperator},
+		{Operator: accesslog.AuthorityOperator},
+		{Operator: accesslog.PathOperator},
+		{Operator: accesslog.ProtocolOperator},
+		{Operator: accesslog.RequestIdOperator},
+		{Operator: accesslog.ForwardedForOperator},
+
+		{Operator: accesslog.ResponseCodeOperator},
+		{Operator: accesslog.ResponseFlagsOperator},
+		{Operator: accesslog.BytesReceivedOperator},
+	}
+)
 
 func Initialize(uri string, newClient *http.Client, fn LogError) error {
 	var err error
@@ -83,22 +88,14 @@ func extract(l *accesslog.Logd) {
 	}
 }
 
-func sameUrl(l *accesslog.Logd) bool {
-	if l == nil || l.Req == nil || l.Req.URL == nil {
-		return false
-	}
-	s := l.Req.URL.String()
-	return url == s
-}
-
-func do(l *accesslog.Logd) {
+func do(l *accesslog.Logd) bool {
 	if l == nil {
 		logError(errors.New("invalid argument : acessLog data is nil"))
-		return
+		return false
 	}
-	// Guard against infinite loop
-	if sameUrl(l) {
-		return
+	// let's not extract the extract, the extract, the extract ...
+	if l.Req != nil && l.Req.URL != nil && url == l.Req.URL.String() {
+		return false
 	}
 	var req *http.Request
 	var err error
@@ -110,7 +107,9 @@ func do(l *accesslog.Logd) {
 	}
 	if err != nil {
 		logError(err)
+		return false
 	}
+	return true
 }
 
 func receive() {
@@ -121,7 +120,7 @@ func receive() {
 			if !open {
 				return
 			}
-			do(msg)
+			handler(msg)
 		}
 	}
 }
