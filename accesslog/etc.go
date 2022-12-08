@@ -19,7 +19,7 @@ func CreateEgressEntries(config []Reference) error {
 
 func CreateEntries(items *[]Entry, config []Reference) error {
 	if items == nil {
-		return errors.New("invalid configuration : entry slice is nil")
+		return errors.New("invalid configuration : entries are nil")
 	}
 	if len(config) == 0 {
 		return errors.New("invalid configuration : configuration is empty")
@@ -56,7 +56,7 @@ func createEntry(ref Reference) (Entry, error) {
 		return NewEntry(directOperator, ref.Operator, ref.Name, true), nil
 	}
 	if entry, ok := directory[ref.Operator]; ok {
-		item := NewEntry(entry.Ref.Operator, entry.Ref.Name, "", entry.StringValue)
+		item := NewEntry(entry.Operator(), entry.Name(), "", entry.StringValue)
 		if !IsEmpty(ref.Name) {
 			item.Ref.Name = ref.Name
 		}

@@ -57,6 +57,9 @@ func (l Logd) Value(entry Entry) string {
 		}
 
 	// Http Response - check for nil
+	case ResponseFlagsOperator:
+		return l.ResponseFlags
+
 	case ResponseCodeOperator:
 		if l.IsIngress() {
 			return strconv.Itoa(l.Code)

@@ -63,7 +63,7 @@ func _ExampleCreateEntry() {
 //Entry  : {{%TRAFFIC% traffic}  true}  Error  : <nil>
 //Entry  : {{%TRAFFIC% new-name}  true}  Error  : <nil>
 
-func _ExampleCreateEntries() {
+func ExampleCreateEntries() {
 	var items []Entry
 
 	err := CreateEntries(nil, []Reference{{Operator: "", Name: "name"}})

@@ -31,17 +31,18 @@ const (
 
 // Logd - struct for all logging information
 type Logd struct {
-	Origin       Origin
-	Traffic      string
-	Start        time.Time
-	Duration     time.Duration
-	BytesWritten int
-	Route        *route.Route
-	Req          *http.Request
-	Resp         *http.Response
-	Err          error
-	Code         int
-	RemapStatus  bool
+	Origin        Origin
+	Traffic       string
+	Start         time.Time
+	Duration      time.Duration
+	BytesWritten  int
+	Route         *route.Route
+	Req           *http.Request
+	Resp          *http.Response
+	Err           error
+	Code          int
+	RemapStatus   bool
+	ResponseFlags string
 }
 
 // Extract - optionally allows extraction of log data
