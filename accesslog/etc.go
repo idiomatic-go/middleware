@@ -18,40 +18,46 @@ func CreateEgressEntries(config []Reference) error {
 }
 
 func CreateEntries(items *[]Entry, config []Reference) error {
+	if items == nil {
+		return errors.New("invalid configuration : entry slice is nil")
+	}
 	if len(config) == 0 {
 		return errors.New("invalid configuration : configuration is empty")
 	}
-	dup := map[string]string{}
+	dup := make(map[string]string)
 	for _, ref := range config {
 		entry, err := createEntry(ref)
 		if err != nil {
 			return err
 		}
-		if entry.Operator() == "" {
+		if IsEmpty(entry.Operator()) {
 			return errors.New(fmt.Sprintf("invalid reference : operator is invalid %v", ref.Operator))
 		}
-		if entry.Ref.Name == "" {
+		if IsEmpty(entry.Ref.Name) {
 			return errors.New(fmt.Sprintf("invalid reference : name is empty %v", ref.Operator))
 		}
 		if _, ok := dup[entry.Name()]; ok {
-			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate %v", entry.Name()))
+			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate [%v]", entry.Name()))
 		}
-		dup[entry.Name()] = ""
+		dup[entry.Name()] = entry.Name()
 		*items = append(*items, entry)
 	}
 	return nil
 }
 
 func createEntry(ref Reference) (Entry, error) {
-	if ref.Operator == "" {
+	if IsEmpty(ref.Operator) {
 		return Entry{}, errors.New(fmt.Sprintf("invalid entry reference : operator is empty %v", ref.Operator))
 	}
 	if !strings.HasPrefix(ref.Operator, operatorPrefix) {
+		if IsEmpty(ref.Name) {
+			return Entry{}, errors.New(fmt.Sprintf("invalid entry reference : name is empty [operator=%v]", ref.Operator))
+		}
 		return NewEntry(directOperator, ref.Operator, ref.Name, true), nil
 	}
 	if entry, ok := directory[ref.Operator]; ok {
-		item := NewEntry(entry.Operator(), entry.Name(), "", entry.StringValue)
-		if ref.Name != "" {
+		item := NewEntry(entry.Ref.Operator, entry.Ref.Name, "", entry.StringValue)
+		if !IsEmpty(ref.Name) {
 			item.Ref.Name = ref.Name
 		}
 		return item, nil
@@ -63,7 +69,7 @@ func createEntry(ref Reference) (Entry, error) {
 }
 
 func createHeaderEntry(ref Reference) Entry {
-	if ref.Operator == "" || !strings.HasPrefix(ref.Operator, requestReferencePrefix) || len(ref.Operator) <= len(requestReferencePrefix) {
+	if IsEmpty(ref.Operator) || !strings.HasPrefix(ref.Operator, requestReferencePrefix) || len(ref.Operator) <= len(requestReferencePrefix) {
 		return Entry{}
 	}
 	s := ref.Operator[len(requestReferencePrefix):]
@@ -72,7 +78,7 @@ func createHeaderEntry(ref Reference) Entry {
 		return Entry{}
 	}
 	op := fmt.Sprintf("%v:%v", headerPrefix, tokens[0])
-	if ref.Name == "" {
+	if IsEmpty(ref.Name) {
 		return NewEntry(op, tokens[0], "", true)
 	}
 	return NewEntry(op, ref.Name, "", true)
@@ -129,7 +135,7 @@ const (
 )
 
 var directory = Directory{
-	TrafficOperator: &Entry{Reference{RegionOperator, "region"}, "", true},
+	TrafficOperator: &Entry{Reference{TrafficOperator, "traffic"}, "", true},
 
 	RegionOperator:      &Entry{Reference{RegionOperator, "region"}, "", true},
 	ZoneOperator:        &Entry{Reference{ZoneOperator, "zone"}, "", true},

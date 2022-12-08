@@ -1,6 +1,13 @@
 package accesslog
 
-import "time"
+import (
+	"strings"
+	"time"
+)
+
+func IsEmpty(s string) bool {
+	return strings.TrimLeft(s, " ") == ""
+}
 
 func FmtTimestamp(t time.Time) string {
 	buf := []byte{}

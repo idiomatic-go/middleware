@@ -30,62 +30,78 @@ func ExampleCreateHeaderEntry() {
 
 func _ExampleCreateEntry() {
 	entry, err := createEntry(Reference{})
-	fmt.Printf("entry  : %v  Error  : %v\n", entry, err)
+	fmt.Printf("Entry  : %v  Error  : %v\n", entry, err)
 
-	entry, err = createEntry(Reference{Operator: "static"})
-	fmt.Printf("entry  : %v  Error  : %v\n", entry, err)
+	entry, err = createEntry(Reference{Operator: "static", Name: " "})
+	fmt.Printf("Entry  : %v  Error  : %v\n", entry, err)
 
 	entry, err = createEntry(Reference{Operator: "%REQ(static)"})
-	fmt.Printf("entry  : %v  Error  : %v\n", entry, err)
+	fmt.Printf("Entry  : %v  Error  : %v\n", entry, err)
 
 	entry, err = createEntry(Reference{Operator: "%REQ(static)", Name: "new-name"})
-	fmt.Printf("entry  : %v  Error  : %v\n", entry, err)
+	fmt.Printf("Entry  : %v  Error  : %v\n", entry, err)
 
 	entry, err = createEntry(Reference{Operator: "%TRAFFIC__%", Name: ""})
-	fmt.Printf("entry  : %v  Error  : %v\n", entry, err)
+	fmt.Printf("Entry  : %v  Error  : %v\n", entry, err)
 
 	entry, err = createEntry(Reference{Operator: "%TRAFFIC%", Name: ""})
-	fmt.Printf("entry  : %v  Error  : %v\n", entry, err)
+	fmt.Printf("Entry  : %v  Error  : %v\n", entry, err)
 
 	entry, err = createEntry(Reference{Operator: "%TRAFFIC%", Name: "new-name"})
-	fmt.Printf("entry  : %v  Error  : %v\n", entry, err)
+	fmt.Printf("Entry  : %v  Error  : %v\n", entry, err)
 
 	//Output:
-	//entry  : {   false}  Error  : invalid entry : operator is empty
-	//entry  : {direct static  true}  Error  : <nil>
-	//entry  : {header:static static  true}  Error  : <nil>
-	//entry  : {header:static new-name  true}  Error  : <nil>
-	//entry  : {   false}  Error  : invalid operator : operator not found or not a valid reference %TRAFFIC__%
-	//entry  : {%TRAFFIC% traffic  true}  Error  : <nil>
-	//entry  : {%TRAFFIC% new-name  true}  Error  : <nil>
+	//Entry  : {{ }  false}  Error  : invalid entry reference : operator is empty
+	//Entry  : {{ }  false}  Error  : invalid entry reference : name is empty [operator=static]
 }
+
+//Entry  : {{ }  false}  Error  : invalid entry reference : operator is empty
+//Entry  : {{ }  false}  Error  : invalid entry reference : name is empty [operator=static]
+//Entry  : {{header:static static}  true}  Error  : <nil>
+//Entry  : {{header:static new-name}  true}  Error  : <nil>
+//Entry  : {{ }  false}  Error  : invalid entry reference : operator not found %TRAFFIC__%
+//Entry  : {{%TRAFFIC% traffic}  true}  Error  : <nil>
+//Entry  : {{%TRAFFIC% new-name}  true}  Error  : <nil>
 
 func _ExampleCreateEntries() {
 	var items []Entry
 
-	err := CreateEntries(&items, []Reference{{Operator: "", Name: "name"}})
+	err := CreateEntries(nil, []Reference{{Operator: "", Name: "name"}})
+	fmt.Printf("Entries  : %v  Error  : %v\n", items, err)
+
+	err = CreateEntries(&items, []Reference{})
+	fmt.Printf("Entries  : %v  Error  : %v\n", items, err)
+
+	err = CreateEntries(&items, []Reference{{Operator: "", Name: "name"}})
 	fmt.Printf("Entries  : %v  Error  : %v\n", items, err)
 
 	err = CreateEntries(&items, []Reference{{Operator: "%INVALID", Name: ""}})
 	fmt.Printf("Entries  : %v  Error  : %v\n", items, err)
 
-	//err = addAttributes(&attrs, []Entry{{Operator: "static", Name: "name"}})
-	//fmt.Printf("Attrs  : %v  Error  : %v\n", attrs, err)
+	err = CreateEntries(&items, []Reference{{Operator: "static", Name: "name"}})
+	fmt.Printf("Entries  : %v  Error  : %v\n", items, err)
 
-	//err = addAttributes(&attrs, []Entry{{Operator: "%START_TIME%", Name: ""}})
-	//fmt.Printf("Attrs  : %v  Error  : %v\n", attrs, err)
+	err = CreateEntries(&items, []Reference{{Operator: "%START_TIME%", Name: ""}})
+	fmt.Printf("Entries  : %v  Error  : %v\n", items, err)
 
-	//err = addAttributes(&attrs, []Entry{{Operator: "%START_TIME%", Name: "timestamp"}})
-	//fmt.Printf("Attrs  : %v  Error  : %v\n", attrs, err)
+	err = CreateEntries(&items, []Reference{{Operator: "%START_TIME%", Name: "timestamp"}})
+	fmt.Printf("Entries  : %v  Error  : %v\n", items, err)
+
+	var newItems []Entry
+
+	err = CreateEntries(&newItems, []Reference{{Operator: "%START_TIME%", Name: "timestamp"}, {Operator: "%START_TIME%", Name: "timestamp"}})
+	fmt.Printf("Entries  : %v  Error  : %v\n", newItems, err)
 
 	//Output:
-	//Attrs  : []  Error  : invalid entry : operator is empty
-	//Attrs  : []  Error  : invalid operator : operator not found or not a valid reference %INVALID
+	//Entries  : []  Error  : invalid configuration : entry slice is nil
+	//Entries  : []  Error  : invalid configuration : configuration is empty
+	//Entries  : []  Error  : invalid entry reference : operator is empty
+	//Entries  : []  Error  : invalid entry reference : operator not found %INVALID
+	//Entries  : [{{direct static} name true}]  Error  : <nil>
+	//Entries  : [{{direct static} name true} {{%START_TIME% start_time}  true}]  Error  : <nil>
+	//Entries  : [{{direct static} name true} {{%START_TIME% start_time}  true} {{%START_TIME% timestamp}  true}]  Error  : <nil>
+	//Entries  : [{{%START_TIME% timestamp}  true}]  Error  : invalid reference : name is a duplicate [timestamp]
 }
-
-//Attrs  : [{direct static name true}]  Error  : <nil>
-//Attrs  : [{direct static name true} {%START_TIME% start_time  true}]  Error  : <nil>
-//Attrs  : [{direct static name true} {%START_TIME% start_time  true} {%START_TIME% timestamp  true}]  Error
 
 func ExampleCreateEntriesReq() {
 	var items []Entry
