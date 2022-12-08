@@ -3,10 +3,22 @@ package accesslog
 import (
 	"strings"
 	"time"
+	"unicode"
 )
 
 func IsEmpty(s string) bool {
 	return strings.TrimLeft(s, " ") == ""
+}
+
+func NormalizeHttpHeaderName(name string) string {
+	if IsEmpty(name) {
+		return ""
+	}
+	if !unicode.IsUpper(rune(name[0])) {
+		var s = string(unicode.ToUpper(rune(name[0])))
+		return s + name[1:]
+	}
+	return name
 }
 
 func FmtTimestamp(t time.Time) string {

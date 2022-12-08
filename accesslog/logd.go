@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 )
 
 func (l Logd) IsIngress() bool {
@@ -21,23 +20,7 @@ func (l Logd) IsPing() bool {
 
 func (l Logd) Value(entry Entry) string {
 	if entry.IsHeader() {
-		if l.Req != nil {
-			// TODO: normalize Http header names. There is code in the net/http package
-			var name = ""
-			tokens := strings.Split(entry.Operator(), ":")
-			if !unicode.IsUpper(rune(tokens[1][0])) {
-				var s = string(unicode.ToUpper(rune(tokens[1][0])))
-				name = s + tokens[1][1:]
-			} else {
-				name = tokens[1]
-			}
-			values := l.Req.Header[name]
-			if values != nil {
-				return values[0]
-			}
-			return ""
-		}
-		return ""
+		return l.HeaderValue(entry)
 	}
 	switch entry.Operator() {
 	case TrafficOperator:
@@ -82,6 +65,22 @@ func (l Logd) Value(entry Entry) string {
 				return strconv.Itoa(l.Resp.StatusCode)
 			}
 		}
+	}
+	return ""
+}
+
+func (l Logd) HeaderValue(entry Entry) string {
+	if l.Req == nil {
+		return ""
+	}
+	tokens := strings.Split(entry.Operator(), ":")
+	if len(tokens) == 1 {
+		return ""
+	}
+	name := NormalizeHttpHeaderName(tokens[1])
+	values := l.Req.Header[name]
+	if values != nil {
+		return values[0]
 	}
 	return ""
 }
