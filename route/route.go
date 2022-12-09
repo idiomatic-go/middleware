@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	DefaultName = "*"
+	DefaultName    = "*"
+	NilConfigValue = -1
 )
 
 type MatchFn func(req *http.Request) (name string)
@@ -21,6 +22,7 @@ type Route interface {
 	Name() string
 	Limit() rate.Limit
 	Burst() int
+	t() route
 }
 
 type config struct {
@@ -42,14 +44,14 @@ func NewRoute(name string) Route {
 	if IsEmpty(name) {
 		return nil
 	}
-	return &route{name: name, writeAccessLog: true}
+	return &route{name: name}
 }
 
-func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int) Route {
+func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, accessLog, pingTraffic bool) Route {
 	if IsEmpty(name) {
 		return nil
 	}
-	route := &route{name: name}
+	route := &route{name: name, writeAccessLog: accessLog, pingTraffic: pingTraffic}
 	route.original.timeout = timeout
 	route.original.limit = limit
 	route.original.burst = burst
@@ -103,4 +105,8 @@ func (r *route) Burst() int {
 
 func (r *route) Name() string {
 	return r.name
+}
+
+func (r *route) t() route {
+	return *r
 }

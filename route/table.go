@@ -3,15 +3,14 @@ package route
 import (
 	"golang.org/x/time/rate"
 	"net/http"
-	"reflect"
 	"sync"
 )
 
 type Routes interface {
-	SetDefault(r *Route)
+	SetDefault(r Route)
 	SetMatchFn(fn MatchFn)
 	Lookup(req *http.Request) Route
-	LookupByName(name string) (Route, bool)
+	LookupByName(name string) Route
 	Add(r Route) bool
 	//AddWithLimiter(r *Route, max rate.Limit, b int) bool
 	UpdateTimeout(name string, timeout int) bool
@@ -43,7 +42,6 @@ func (t *table) SetDefault(r Route) {
 	}
 	t.mu.Lock()
 	t.defaultRoute = r
-	//if rt,ok :=
 	t.mu.Unlock()
 }
 
@@ -59,7 +57,7 @@ func (t *table) SetMatchFn(fn MatchFn) {
 func (t *table) Lookup(req *http.Request) Route {
 	name := t.match(req)
 	if name != "" {
-		if r, ok := t.LookupByName(name); ok {
+		if r := t.LookupByName(name); r != nil {
 			return r
 		}
 	}
@@ -75,9 +73,9 @@ func (t *table) LookupByName(name string) Route {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	if r, ok := t.routes[name]; ok {
-		return *r, true
+		return &r
 	}
-	return Route{}, false
+	return nil
 }
 
 func (t *table) Add(r Route) bool {
@@ -86,17 +84,18 @@ func (t *table) Add(r Route) bool {
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	a := reflect.TypeOf(r)
-	if rt, ok := a.(route); ok {
-
-	}
 	if _, ok := t.routes[r.Name()]; ok {
 		return false
 	}
-	t.routes[r.Name()] = r
+	route := r.t()
+	if route.original.limit != 0 {
+		route.rateLimiter = rate.NewLimiter(route.original.limit, route.original.burst)
+	}
+	t.routes[r.Name()] = r.t()
 	return true
 }
 
+/*
 func (t *table) AddWithLimiter(r Route, max rate.Limit, b int) bool {
 	if t == nil || r == nil || IsEmpty(r.Name()) {
 		return false
@@ -115,33 +114,75 @@ func (t *table) AddWithLimiter(r Route, max rate.Limit, b int) bool {
 	return true
 }
 
-func (t *table) UpdateTimeout(name string, timeout int) bool {
-	if t == nil || name == "" || timeout <= 0 {
+*/
+
+func (t *table) SetTimeout(name string, timeout int) bool {
+	if t == nil || IsEmpty(name) || timeout <= 0 {
 		return false
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
-		r.Current.Timeout = timeout
+		r.current.timeout = timeout
 	}
 	t.mu.Unlock()
 	return true
 }
 
-func (t *table) UpdateLimit(name string, max rate.Limit) bool {
-	if t == nil || name == "" {
+func (t *table) ResetTimeout(name string) bool {
+	if t == nil || IsEmpty(name) {
 		return false
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
-		if r.IsRateLimiter() {
-			r.Limit = max
-			r.rateLimiter.SetLimit(max)
+		r.current.timeout = r.original.timeout
+	}
+	t.mu.Unlock()
+	return true
+}
+
+func (t *table) SetLimiter(name string, max rate.Limit, burst int) bool {
+	if t == nil || IsEmpty(name) {
+		return false
+	}
+	t.mu.Lock()
+	if r, ok := t.routes[name]; ok {
+		if r.rateLimiter != nil {
+			if max >= 0 {
+				r.current.limit = max
+				r.rateLimiter.SetLimit(max)
+			}
+			if burst > 0 {
+				r.current.burst = burst
+				r.rateLimiter.SetBurst(burst)
+			}
 		}
 	}
 	t.mu.Unlock()
 	return true
 }
 
+func (t *table) ResetLimiter(name string, max rate.Limit, burst int) bool {
+	if t == nil || IsEmpty(name) {
+		return false
+	}
+	t.mu.Lock()
+	if r, ok := t.routes[name]; ok {
+		if r.rateLimiter != nil {
+			if max >= 0 {
+				r.current.limit = max
+				r.rateLimiter.SetLimit(max)
+			}
+			if burst > 0 {
+				r.current.burst = burst
+				r.rateLimiter.SetBurst(burst)
+			}
+		}
+	}
+	t.mu.Unlock()
+	return true
+}
+
+/*
 func (t *table) UpdateBurst(name string, b int) bool {
 	if t == nil || name == "" || b < 0 {
 		return false
@@ -157,8 +198,10 @@ func (t *table) UpdateBurst(name string, b int) bool {
 	return true
 }
 
+*/
+
 func (t *table) Remove(name string) bool {
-	if t == nil || name == "" {
+	if t == nil || IsEmpty(name) {
 		return false
 	}
 	t.mu.Lock()
