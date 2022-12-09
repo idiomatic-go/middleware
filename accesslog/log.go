@@ -21,7 +21,7 @@ func init() {
 	SetEgressWrite(nil)
 }
 
-func WriteEgress(start time.Time, duration time.Duration, route *route.Route, req *http.Request, resp *http.Response, responseFlags string) {
+func WriteEgress(start time.Time, duration time.Duration, route route.Route, req *http.Request, resp *http.Response, responseFlags string) {
 	if route == nil {
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
 		return
@@ -30,8 +30,8 @@ func WriteEgress(start time.Time, duration time.Duration, route *route.Route, re
 		Traffic:     EgressTraffic,
 		Start:       start,
 		Duration:    duration,
-		RouteName:   route.Name,
-		PingTraffic: route.PingTraffic,
+		RouteName:   route.Name(),
+		PingTraffic: route.IsPingTraffic(),
 
 		Origin:        &origin,
 		Req:           req,
@@ -55,7 +55,7 @@ func WriteEgress(start time.Time, duration time.Duration, route *route.Route, re
 	egressWrite(s)
 }
 
-func WriteIngress(start time.Time, duration time.Duration, route *route.Route, req *http.Request, code int, bytesSent int, responseFlags string) {
+func WriteIngress(start time.Time, duration time.Duration, route route.Route, req *http.Request, code int, bytesSent int, responseFlags string) {
 	if route == nil {
 		ingressWrite(fmt.Sprintf(errorNilRouteFmt, IngressTraffic))
 		return
@@ -64,8 +64,8 @@ func WriteIngress(start time.Time, duration time.Duration, route *route.Route, r
 		Traffic:     IngressTraffic,
 		Start:       start,
 		Duration:    duration,
-		RouteName:   route.Name,
-		PingTraffic: route.PingTraffic,
+		RouteName:   route.Name(),
+		PingTraffic: route.IsPingTraffic(),
 
 		Origin:        &origin,
 		Req:           req,

@@ -95,33 +95,12 @@ func (t *table) Add(r Route) bool {
 		return false
 	}
 	route := r.t()
-	if route.original.limit != 0 {
+	if route.original.limit > 0 {
 		route.rateLimiter = rate.NewLimiter(route.original.limit, route.original.burst)
 	}
-	t.routes[r.Name()] = r.t()
+	t.routes[r.Name()] = route
 	return true
 }
-
-/*
-func (t *table) AddWithLimiter(r Route, max rate.Limit, b int) bool {
-	if t == nil || r == nil || IsEmpty(r.Name()) {
-		return false
-	}
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	if _, ok := t.routes[r.Name]; ok {
-		return false
-	}
-	r.Current.Limit = max
-	r.Current.Burst = b
-	r.Original.Limit = max
-	r.Original.Burst = b
-	r.rateLimiter = rate.NewLimiter(max, b)
-	t.routes[r.Name] = r
-	return true
-}
-
-*/
 
 func (t *table) SetTimeout(name string, timeout int) bool {
 	if t == nil || IsEmpty(name) {
@@ -199,10 +178,8 @@ func (t *table) DisableLimiter(name string) bool {
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
 		if r.rateLimiter != nil {
-			r.current.limit = r.original.limit
-			r.current.burst = r.original.burst
+			r.current.limit = rate.Inf
 			r.rateLimiter.SetLimit(r.current.limit)
-			r.rateLimiter.SetBurst(r.current.burst)
 		}
 	}
 	t.mu.Unlock()
