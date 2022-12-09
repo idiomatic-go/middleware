@@ -14,6 +14,7 @@ const (
 type MatchFn func(req *http.Request) (name string)
 
 type Route interface {
+	IsDefault() bool
 	IsTimeout() bool
 	IsLogging() bool
 	IsRateLimiter() bool
@@ -75,6 +76,10 @@ func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, a
 	route.original.burst = burst
 	route.current = route.original
 	return route
+}
+
+func (r *route) IsDefault() bool {
+	return r != nil && r.name == DefaultName
 }
 
 func (r *route) IsTimeout() bool {
