@@ -1,6 +1,7 @@
 package accesslog
 
 import (
+	"golang.org/x/time/rate"
 	"strconv"
 	"strings"
 	"time"
@@ -35,8 +36,8 @@ func (l Logd) Value(entry Entry) string {
 	case DurationOperator:
 		d := int(l.Duration / time.Duration(1e6))
 		return strconv.Itoa(d)
-		// Route - check for nil
 
+		// Origin
 	case OriginRegionOperator:
 		return l.Origin.Region
 	case OriginZoneOperator:
@@ -48,19 +49,36 @@ func (l Logd) Value(entry Entry) string {
 	case OriginInstanceIdOperator:
 		return l.Origin.InstanceId
 
-	// Http Request - check for nil
+		// Request - check for nil
 	case RequestMethodOperator:
 		if l.Req == nil {
 			return ""
 		}
 		return l.Req.Method
 
+		// Response
 	case ResponseFlagsOperator:
 		return l.ResponseFlags
+	case ResponseBytesReceivedOperator:
+		return strconv.Itoa(int(l.BytesReceived))
 	case ResponseBytesSentOperator:
 		return strconv.Itoa(l.BytesSent)
 	case ResponseCodeOperator:
 		return strconv.Itoa(l.RespCode)
+
+	// Timeout
+	case TimeoutOperator:
+		return strconv.Itoa(l.Timeout)
+
+		// Rate Limiting
+	case RateLimitOperator:
+		if l.RateLimit == rate.Inf {
+			return "inf"
+		}
+		return strconv.Itoa(int(l.RateLimit))
+	case RateBurstOperator:
+		return strconv.Itoa(l.RateBurst)
+
 	}
 	return ""
 }

@@ -109,7 +109,7 @@ func (t *table) SetTimeout(name string, timeout int) bool {
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
 		if timeout <= 0 {
-			timeout = NilConfigValue
+			timeout = NotConfiguredValue
 		}
 		r.current.timeout = timeout
 	}
@@ -130,7 +130,7 @@ func (t *table) ResetTimeout(name string) bool {
 }
 
 func (t *table) DisableTimeout(name string) bool {
-	return t.SetTimeout(name, NilConfigValue)
+	return t.SetTimeout(name, NotConfiguredValue)
 }
 
 func (t *table) SetLimiter(name string, max rate.Limit, burst int) bool {

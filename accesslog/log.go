@@ -32,6 +32,9 @@ func WriteEgress(start time.Time, duration time.Duration, route route.Route, req
 		Duration:    duration,
 		RouteName:   route.Name(),
 		PingTraffic: route.IsPingTraffic(),
+		RateLimit:   route.Limit(),
+		RateBurst:   route.Burst(),
+		Timeout:     route.Timeout(),
 
 		Origin:        &origin,
 		Req:           req,
@@ -66,6 +69,9 @@ func WriteIngress(start time.Time, duration time.Duration, route route.Route, re
 		Duration:    duration,
 		RouteName:   route.Name(),
 		PingTraffic: route.IsPingTraffic(),
+		RateLimit:   route.Limit(),
+		RateBurst:   route.Burst(),
+		Timeout:     route.Timeout(),
 
 		Origin:        &origin,
 		Req:           req,

@@ -28,22 +28,27 @@ var (
 		{Operator: accesslog.RouteNameOperator},
 		{Operator: accesslog.TrafficOperator},
 
-		{Operator: accesslog.RegionOperator},
-		{Operator: accesslog.ZoneOperator},
-		{Operator: accesslog.SubZoneOperator},
-		{Operator: accesslog.ServiceNameOperator},
-		{Operator: accesslog.InstanceIdOperator},
+		{Operator: accesslog.OriginRegionOperator},
+		{Operator: accesslog.OriginZoneOperator},
+		{Operator: accesslog.OriginSubZoneOperator},
+		{Operator: accesslog.OriginServiceOperator},
+		{Operator: accesslog.OriginInstanceIdOperator},
 
-		{Operator: accesslog.HttpMethodOperator},
-		{Operator: accesslog.AuthorityOperator},
-		{Operator: accesslog.PathOperator},
-		{Operator: accesslog.ProtocolOperator},
+		{Operator: accesslog.RequestMethodOperator},
+		{Operator: accesslog.RequestAuthorityOperator},
+		{Operator: accesslog.RequestPathOperator},
+		{Operator: accesslog.RequestProtocolOperator},
 		{Operator: accesslog.RequestIdOperator},
-		{Operator: accesslog.ForwardedForOperator},
+		{Operator: accesslog.RequestForwardedForOperator},
 
 		{Operator: accesslog.ResponseCodeOperator},
 		{Operator: accesslog.ResponseFlagsOperator},
-		{Operator: accesslog.BytesReceivedOperator},
+		{Operator: accesslog.ResponseBytesReceivedOperator},
+		{Operator: accesslog.ResponseBytesSentOperator},
+
+		{Operator: accesslog.TimeoutOperator},
+		{Operator: accesslog.RateLimitLimitOperator},
+		{Operator: accesslog.RateLimitBurstOperator},
 	}
 )
 

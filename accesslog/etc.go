@@ -125,9 +125,12 @@ const (
 	GRPCStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
 
 	// Rate Limiting
-	RateLimitTokensOperator = "%RATE_LIMIT_TOKENS%"
-	RateLimitLimitOperator  = "%RATE_LIMIT_LIMIT%"
-	RateLimitBurstOperator  = "%RATE_LIMIT_BURST%"
+	RateTokensOperator = "%RATE_LIMIT_TOKENS%"
+	RateLimitOperator  = "%RATE_LIMIT_LIMIT%"
+	RateBurstOperator  = "%RATE_LIMIT_BURST%"
+
+	// Timeout
+	TimeoutOperator = "%TIMEOUT"
 )
 
 var directory = Directory{

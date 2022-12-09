@@ -1,6 +1,7 @@
 package accesslog
 
 import (
+	"golang.org/x/time/rate"
 	"log"
 	"net/http"
 	"time"
@@ -37,6 +38,9 @@ type Logd struct {
 	Duration    time.Duration
 	RouteName   string
 	PingTraffic bool
+	RateLimit   rate.Limit
+	RateBurst   int
+	Timeout     int
 
 	Origin *Origin
 	Req    *http.Request
