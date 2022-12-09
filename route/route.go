@@ -11,7 +11,7 @@ const (
 	NilValue    = -1
 )
 
-type MatchFn func(req *http.Request) (name string)
+type Matcher func(req *http.Request) (name string)
 
 type Route interface {
 	IsDefault() bool

@@ -8,7 +8,7 @@ import (
 
 type Routes interface {
 	SetDefault(r Route)
-	SetMatchFn(fn MatchFn)
+	SetMatcher(fn Matcher)
 
 	Lookup(req *http.Request) Route
 	LookupByName(name string) Route
@@ -24,13 +24,15 @@ type Routes interface {
 	SetLimiter(name string, max rate.Limit, burst int) bool
 	ResetLimiter(name string) bool
 	DisableLimiter(name string) bool
+
+	t() *table
 }
 
 type table struct {
 	mu           sync.RWMutex
 	routes       map[string]route
 	defaultRoute Route
-	match        MatchFn
+	match        Matcher
 }
 
 func NewTable() Routes {
@@ -51,7 +53,7 @@ func (t *table) SetDefault(r Route) {
 	t.mu.Unlock()
 }
 
-func (t *table) SetMatchFn(fn MatchFn) {
+func (t *table) SetMatcher(fn Matcher) {
 	if t == nil || fn == nil {
 		return
 	}
@@ -131,4 +133,8 @@ func (t *table) count() int {
 
 func (t *table) isEmpty() bool {
 	return t.count() == 0
+}
+
+func (t *table) t() *table {
+	return t
 }
