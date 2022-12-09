@@ -13,7 +13,7 @@ type Route struct {
 	Timeout        int // milliseconds
 	RateLimiter    *rate.Limiter
 	WriteAccessLog bool
-	Ping           bool
+	PingTraffic    bool
 }
 
 func (r *Route) IsTimeout() bool {

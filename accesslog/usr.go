@@ -1,7 +1,6 @@
 package accesslog
 
 import (
-	"github.com/idiomatic-go/middleware/route"
 	"log"
 	"net/http"
 	"time"
@@ -31,17 +30,18 @@ const (
 
 // Logd - struct for all logging information
 type Logd struct {
-	Origin        Origin
-	Traffic       string
-	Start         time.Time
-	Duration      time.Duration
-	BytesWritten  int
-	Route         *route.Route
-	Req           *http.Request
-	Resp          *http.Response
-	Err           error
-	Code          int
-	RemapStatus   bool
+	Traffic     string
+	Start       time.Time
+	Duration    time.Duration
+	RouteName   string
+	PingTraffic bool
+
+	Origin *Origin
+	Req    *http.Request
+
+	RespCode      int
+	BytesSent     int   // ingress response
+	BytesReceived int64 // egress response content length
 	ResponseFlags string
 }
 

@@ -15,59 +15,52 @@ func (l Logd) IsEgress() bool {
 }
 
 func (l Logd) IsPing() bool {
-	return l.IsIngress() && l.Route != nil && l.Route.Ping
+	return l.IsIngress() && l.PingTraffic
 }
 
 func (l Logd) Value(entry Entry) string {
 	if entry.IsHeader() {
 		return l.HeaderValue(entry)
 	}
-	switch entry.Operator() {
+	switch entry.Operator {
 	case TrafficOperator:
 		if l.IsPing() {
 			return PingTraffic
 		}
 		return l.Traffic
-	case RegionOperator:
-		return l.Origin.Region
-	case ZoneOperator:
-		return l.Origin.Zone
-	case SubZoneOperator:
-		return l.Origin.SubZone
-	case ServiceNameOperator:
-		return l.Origin.Service
-	case InstanceIdOperator:
-		return l.Origin.InstanceId
+	case RouteNameOperator:
+		return l.RouteName
 	case StartTimeOperator:
 		return FmtTimestamp(l.Start)
 	case DurationOperator:
 		d := int(l.Duration / time.Duration(1e6))
 		return strconv.Itoa(d)
+		// Route - check for nil
 
-	// Route - check for nil
-	case RouteNameOperator:
-		if l.Route != nil {
-			return l.Route.Name
-		}
+	case OriginRegionOperator:
+		return l.Origin.Region
+	case OriginZoneOperator:
+		return l.Origin.Zone
+	case OriginSubZoneOperator:
+		return l.Origin.SubZone
+	case OriginServiceOperator:
+		return l.Origin.Service
+	case OriginInstanceIdOperator:
+		return l.Origin.InstanceId
 
 	// Http Request - check for nil
-	case HttpMethodOperator:
-		if l.Req != nil {
+	case RequestMethodOperator:
+		if l.Req == nil {
 			return ""
 		}
+		return l.Req.Method
 
-	// Http Response - check for nil
 	case ResponseFlagsOperator:
 		return l.ResponseFlags
-
+	case ResponseBytesSentOperator:
+		return strconv.Itoa(l.BytesSent)
 	case ResponseCodeOperator:
-		if l.IsIngress() {
-			return strconv.Itoa(l.Code)
-		} else {
-			if l.Resp != nil {
-				return strconv.Itoa(l.Resp.StatusCode)
-			}
-		}
+		return strconv.Itoa(l.RespCode)
 	}
 	return ""
 }
@@ -76,7 +69,7 @@ func (l Logd) HeaderValue(entry Entry) string {
 	if l.Req == nil {
 		return ""
 	}
-	tokens := strings.Split(entry.Operator(), ":")
+	tokens := strings.Split(entry.Operator, ":")
 	if len(tokens) == 1 {
 		return ""
 	}

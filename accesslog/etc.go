@@ -30,16 +30,16 @@ func CreateEntries(items *[]Entry, config []Reference) error {
 		if err != nil {
 			return err
 		}
-		if IsEmpty(entry.Operator()) {
+		if IsEmpty(entry.Operator) {
 			return errors.New(fmt.Sprintf("invalid reference : operator is invalid %v", ref.Operator))
 		}
-		if IsEmpty(entry.Ref.Name) {
+		if IsEmpty(entry.Name) {
 			return errors.New(fmt.Sprintf("invalid reference : name is empty %v", ref.Operator))
 		}
-		if _, ok := dup[entry.Name()]; ok {
-			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate [%v]", entry.Name()))
+		if _, ok := dup[entry.Name]; ok {
+			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate [%v]", entry.Name))
 		}
-		dup[entry.Name()] = entry.Name()
+		dup[entry.Name] = entry.Name
 		*items = append(*items, entry)
 	}
 	return nil
@@ -56,9 +56,9 @@ func createEntry(ref Reference) (Entry, error) {
 		return NewEntry(directOperator, ref.Operator, ref.Name, true), nil
 	}
 	if entry, ok := directory[ref.Operator]; ok {
-		item := NewEntry(entry.Operator(), entry.Name(), "", entry.StringValue)
+		item := NewEntry(entry.Operator, entry.Name, "", entry.StringValue)
 		if !IsEmpty(ref.Name) {
-			item.Ref.Name = ref.Name
+			item.Name = ref.Name
 		}
 		return item, nil
 	}
@@ -91,75 +91,74 @@ const (
 	requestReferencePrefix  = "%REQ("
 	responseReferencePrefix = "%RESP("
 
-	// Application
-	TrafficOperator     = "%TRAFFIC%"     //  ingress, egress, ping
-	RegionOperator      = "%REGION%"      //, origin region
-	ZoneOperator        = "%ZONE%"        //, origin zone
-	SubZoneOperator     = "%SUB_ZONE%"    // origin sub zone
-	ServiceNameOperator = "%SERVICE%"     // origin service
-	InstanceIdOperator  = "%INSTANCE_ID%" // origin instance id
-
 	// Envoy
+	TrafficOperator   = "%TRAFFIC%"    //  ingress, egress, ping
 	RouteNameOperator = "%ROUTE_NAME%" // route name
 	StartTimeOperator = "%START_TIME%" // start time
 	DurationOperator  = "%DURATION%"   // Total duration in milliseconds of the request from the start time to the last byte out.
 
+	// Application
+	OriginRegionOperator     = "%REGION%"      // origin region
+	OriginZoneOperator       = "%ZONE%"        // origin zone
+	OriginSubZoneOperator    = "%SUB_ZONE%"    // origin sub zone
+	OriginServiceOperator    = "%SERVICE%"     // origin service
+	OriginInstanceIdOperator = "%INSTANCE_ID%" // origin instance id
+
 	// Response
-	ResponseCodeOperator  = "%RESPONSE_CODE%"  // HTTP status code
-	BytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
-	BytesSentOperator     = "%BYTES_SENT%"     // bytes sent
-	ResponseFlagsOperator = "%RESPONSE_FLAGS%" // response flags
-	UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
+	ResponseCodeOperator          = "%RESPONSE_CODE%"  // HTTP status code
+	ResponseBytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
+	ResponseBytesSentOperator     = "%BYTES_SENT%"     // bytes sent
+	ResponseFlagsOperator         = "%RESPONSE_FLAGS%" // response flags
+	//UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
 
 	// Request
-	ProtocolOperator     = "%PROTOCOL%"          // HTTP Protocol
-	RequestIdOperator    = "%REQ(X-REQUEST-ID)%" // X-REQUEST-ID request header value
-	UserAgentOperator    = "%REQ(USER-AGENT)%"   // user agent request header value
-	AuthorityOperator    = "%REQ(:AUTHORITY)%"   // authority request header value
-	HttpMethodOperator   = "%REQ(:METHOD)%"      // HTTP method
-	PathOperator         = "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
-	ForwardedForOperator = "%REQ(X-FORWARDED-FOR)%" // client IP address (X-FORWARDED-FOR request header value)
+	RequestProtocolOperator     = "%PROTOCOL%"          // HTTP Protocol
+	RequestIdOperator           = "%REQ(X-REQUEST-ID)%" // X-REQUEST-ID request header value
+	RequestUserAgentOperator    = "%REQ(USER-AGENT)%"   // user agent request header value
+	RequestAuthorityOperator    = "%REQ(:AUTHORITY)%"   // authority request header value
+	RequestMethodOperator       = "%REQ(:METHOD)%"      // HTTP method
+	RequestPathOperator         = "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
+	RequestForwardedForOperator = "%REQ(X-FORWARDED-FOR)%" // client IP address (X-FORWARDED-FOR request header value)
 
 	// gRPC
 	GRPCStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
 	GRPCStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
 
 	// Rate Limiting
-	rateLimitTokensOperator = "%RATE_LIMIT_TOKENS%"
-	rateLimitLimitOperator  = "%RATE_LIMIT_LIMIT%"
-	rateLimitBurstOperator  = "%RATE_LIMIT_BURST%"
+	RateLimitTokensOperator = "%RATE_LIMIT_TOKENS%"
+	RateLimitLimitOperator  = "%RATE_LIMIT_LIMIT%"
+	RateLimitBurstOperator  = "%RATE_LIMIT_BURST%"
 )
 
 var directory = Directory{
-	TrafficOperator: &Entry{Reference{TrafficOperator, "traffic"}, "", true},
+	TrafficOperator:   &Entry{TrafficOperator, "traffic", "", true},
+	RouteNameOperator: &Entry{RouteNameOperator, "route_name", "", true},
+	StartTimeOperator: &Entry{StartTimeOperator, "start_time", "", true},
+	DurationOperator:  &Entry{DurationOperator, "duration_ms", "", false},
 
-	RegionOperator:      &Entry{Reference{RegionOperator, "region"}, "", true},
-	ZoneOperator:        &Entry{Reference{ZoneOperator, "zone"}, "", true},
-	SubZoneOperator:     &Entry{Reference{SubZoneOperator, "sub_zone"}, "", true},
-	ServiceNameOperator: &Entry{Reference{ServiceNameOperator, "service"}, "", true},
-	InstanceIdOperator:  &Entry{Reference{InstanceIdOperator, "instance_id"}, "", true},
-
-	RouteNameOperator: &Entry{Reference{RouteNameOperator, "route_name"}, "", true},
-	StartTimeOperator: &Entry{Reference{StartTimeOperator, "start_time"}, "", true},
-	DurationOperator:  &Entry{Reference{DurationOperator, "duration_ms"}, "", false},
+	OriginRegionOperator:     &Entry{OriginRegionOperator, "region", "", true},
+	OriginZoneOperator:       &Entry{OriginZoneOperator, "zone", "", true},
+	OriginSubZoneOperator:    &Entry{OriginSubZoneOperator, "sub_zone", "", true},
+	OriginServiceOperator:    &Entry{OriginServiceOperator, "service", "", true},
+	OriginInstanceIdOperator: &Entry{OriginInstanceIdOperator, "instance_id", "", true},
 
 	// Response
-	ResponseCodeOperator:  &Entry{Reference{ResponseCodeOperator, "status_code"}, "", true},
-	BytesReceivedOperator: &Entry{Reference{BytesReceivedOperator, "bytes_received"}, "", true},
-	BytesSentOperator:     &Entry{Reference{BytesSentOperator, "bytes_sent"}, "", true},
-	ResponseFlagsOperator: &Entry{Reference{ResponseFlagsOperator, "response_flags"}, "", true},
-	UpstreamHostOperator:  &Entry{Reference{UpstreamHostOperator, "upstream_host"}, "", true},
-	PathOperator:          &Entry{Reference{PathOperator, "path"}, "", true},
-	ForwardedForOperator:  &Entry{Reference{ForwardedForOperator, "forwarded"}, "", true},
+	ResponseCodeOperator: &Entry{ResponseCodeOperator, "status_code", "", true},
+	//BytesReceivedOperator: &Entry{BytesReceivedOperator, "bytes_received", "", true},
+	//BytesSentOperator:     &Entry{BytesSentOperator, "bytes_sent", "", true},
+	ResponseFlagsOperator: &Entry{ResponseFlagsOperator, "response_flags", "", true},
+	//UpstreamHostOperator:  &Entry{UpstreamHostOperator, "upstream_host", "", true},
 
 	// Request
-	ProtocolOperator:   &Entry{Reference{ProtocolOperator, "protocol"}, "", true},
-	RequestIdOperator:  &Entry{Reference{RequestIdOperator, "request_id"}, "", true},
-	UserAgentOperator:  &Entry{Reference{UserAgentOperator, "user_agent"}, "", true},
-	AuthorityOperator:  &Entry{Reference{AuthorityOperator, "authority"}, "", true},
-	HttpMethodOperator: &Entry{Reference{HttpMethodOperator, "method"}, "", true},
+	RequestProtocolOperator:     &Entry{RequestProtocolOperator, "protocol", "", true},
+	RequestIdOperator:           &Entry{RequestIdOperator, "request_id", "", true},
+	RequestUserAgentOperator:    &Entry{RequestUserAgentOperator, "user_agent", "", true},
+	RequestAuthorityOperator:    &Entry{RequestAuthorityOperator, "authority", "", true},
+	RequestMethodOperator:       &Entry{RequestMethodOperator, "method", "", true},
+	RequestPathOperator:         &Entry{RequestPathOperator, "path", "", true},
+	RequestForwardedForOperator: &Entry{RequestForwardedForOperator, "forwarded", "", true},
 
 	// gRPC
-	GRPCStatusOperator:       &Entry{Reference{GRPCStatusOperator, "grpc_status"}, "", true},
-	GRPCStatusNumberOperator: &Entry{Reference{GRPCStatusNumberOperator, "grpc_number"}, "", true},
+	GRPCStatusOperator:       &Entry{GRPCStatusOperator, "grpc_status", "", true},
+	GRPCStatusNumberOperator: &Entry{GRPCStatusNumberOperator, "grpc_number", "", true},
 }

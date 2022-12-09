@@ -19,13 +19,13 @@ func ExampleCreateHeaderEntry() {
 	fmt.Printf("Entry : %v\n", entry)
 
 	//Output:
-	//Entry : {{ }  false}
-	//Entry : {{ }  false}
-	//Entry : {{ }  false}
-	//Entry : {{ }  false}
-	//Entry : {{ }  false}
-	//Entry : {{header:member member}  true}
-	//Entry : {{header:member alias-member}  true}
+	//Entry : {  false}
+	//Entry : {  false}
+	//Entry : {  false}
+	//Entry : {  false}
+	//Entry : {  false}
+	//Entry : {header:member member  true}
+	//Entry : {header:member alias-member  true}
 }
 
 func _ExampleCreateEntry() {
@@ -51,14 +51,14 @@ func _ExampleCreateEntry() {
 	fmt.Printf("Entry  : %v  Error  : %v\n", entry, err)
 
 	//Output:
-	//Entry  : {{ }  false}  Error  : invalid entry reference : operator is empty
-	//Entry  : {{ }  false}  Error  : invalid entry reference : name is empty [operator=static]
+	//Entry  : {  false}  Error  : invalid entry reference : operator is empty
+	//Entry  : {  false}  Error  : invalid entry reference : name is empty [operator=static]
 }
 
-//Entry  : {{ }  false}  Error  : invalid entry reference : operator is empty
-//Entry  : {{ }  false}  Error  : invalid entry reference : name is empty [operator=static]
-//Entry  : {{header:static static}  true}  Error  : <nil>
-//Entry  : {{header:static new-name}  true}  Error  : <nil>
+//Entry  : {  false}  Error  : invalid entry reference : operator is empty
+//Entry  : {  false}  Error  : invalid entry reference : name is empty [operator=static]
+//Entry  : {header:static static  true}  Error  : <nil>
+//Entry  : {header:static new-name  true}  Error  : <nil>
 //Entry  : {{ }  false}  Error  : invalid entry reference : operator not found %TRAFFIC__%
 //Entry  : {{%TRAFFIC% traffic}  true}  Error  : <nil>
 //Entry  : {{%TRAFFIC% new-name}  true}  Error  : <nil>
@@ -97,10 +97,10 @@ func ExampleCreateEntries() {
 	//Entries  : []  Error  : invalid configuration : configuration is empty
 	//Entries  : []  Error  : invalid entry reference : operator is empty
 	//Entries  : []  Error  : invalid entry reference : operator not found %INVALID
-	//Entries  : [{{direct static} name true}]  Error  : <nil>
-	//Entries  : [{{direct static} name true} {{%START_TIME% start_time}  true}]  Error  : <nil>
-	//Entries  : [{{direct static} name true} {{%START_TIME% start_time}  true} {{%START_TIME% timestamp}  true}]  Error  : <nil>
-	//Entries  : [{{%START_TIME% timestamp}  true}]  Error  : invalid reference : name is a duplicate [timestamp]
+	//Entries  : [{direct static name true}]  Error  : <nil>
+	//Entries  : [{direct static name true} {{%START_TIME% start_time}  true}]  Error  : <nil>
+	//Entries  : [{direct static name true} {%START_TIME% start_time  true} {%START_TIME% timestamp  true}]  Error  : <nil>
+	//Entries  : [{%START_TIME% timestamp  true}]  Error  : invalid reference : name is a duplicate [timestamp]
 }
 
 func ExampleCreateEntriesReq() {
@@ -122,5 +122,5 @@ func ExampleCreateEntriesReq() {
 	//Entries  : []  Error  : invalid reference : operator is invalid %REQ(
 	//Entries  : []  Error  : invalid reference : operator is invalid %REQ()
 	//Entries  : []  Error  : invalid reference : operator is invalid %REQ(t
-	//Entries  : [{{header:customer customer}  true}]  Error  : <nil>
+	//Entries  : [{header:customer customer  true}]  Error  : <nil>
 }

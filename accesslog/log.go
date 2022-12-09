@@ -21,24 +21,25 @@ func init() {
 	SetEgressWrite(nil)
 }
 
-func WriteEgress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, responseFlags string, err error) {
+func WriteEgress(start time.Time, duration time.Duration, route *route.Route, req *http.Request, resp *http.Response, responseFlags string) {
 	if route == nil {
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
 		return
 	}
 	data := &Logd{
-		Origin:        origin,
-		Traffic:       EgressTraffic,
-		Start:         start,
-		Duration:      duration,
-		BytesWritten:  0,
-		Route:         route,
+		Traffic:     EgressTraffic,
+		Start:       start,
+		Duration:    duration,
+		RouteName:   route.Name,
+		PingTraffic: route.PingTraffic,
+
+		Origin:        &origin,
 		Req:           req,
-		Resp:          resp,
-		Err:           err,
-		Code:          0,
-		RemapStatus:   remapStatus,
 		ResponseFlags: responseFlags,
+	}
+	if resp != nil {
+		data.RespCode = resp.StatusCode
+		data.BytesReceived = resp.ContentLength
 	}
 	if extractFn != nil {
 		extractFn(data)
@@ -54,23 +55,22 @@ func WriteEgress(route *route.Route, start time.Time, duration time.Duration, re
 	egressWrite(s)
 }
 
-func WriteIngress(route *route.Route, start time.Time, duration time.Duration, req *http.Request, code int, written int, responseFlags string, err error) {
+func WriteIngress(start time.Time, duration time.Duration, route *route.Route, req *http.Request, code int, bytesSent int, responseFlags string) {
 	if route == nil {
 		ingressWrite(fmt.Sprintf(errorNilRouteFmt, IngressTraffic))
 		return
 	}
 	data := &Logd{
-		Origin:        origin,
-		Traffic:       IngressTraffic,
-		Start:         start,
-		Duration:      duration,
-		BytesWritten:  written,
-		Route:         route,
+		Traffic:     IngressTraffic,
+		Start:       start,
+		Duration:    duration,
+		RouteName:   route.Name,
+		PingTraffic: route.PingTraffic,
+
+		Origin:        &origin,
 		Req:           req,
-		Resp:          nil,
-		Err:           err,
-		Code:          code,
-		RemapStatus:   remapStatus,
+		RespCode:      code,
+		BytesSent:     bytesSent,
 		ResponseFlags: responseFlags,
 	}
 	if extractFn != nil {
@@ -94,10 +94,10 @@ func FormatJson(items []Entry, data *Logd) string {
 	sb := strings.Builder{}
 	for _, entry := range items {
 		if entry.IsDirect() {
-			writeJson(&sb, entry.Name(), entry.Value, entry.StringValue)
+			writeJson(&sb, entry.Name, entry.Value, entry.StringValue)
 			continue
 		}
-		writeJson(&sb, entry.Name(), data.Value(entry), entry.StringValue)
+		writeJson(&sb, entry.Name, data.Value(entry), entry.StringValue)
 	}
 	sb.WriteString("}")
 	return sb.String()

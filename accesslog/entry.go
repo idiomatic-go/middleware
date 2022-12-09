@@ -9,28 +9,22 @@ type Reference struct {
 	Operator string
 	Name     string
 }
+
 type Entry struct {
-	Ref         Reference
+	Operator    string
+	Name        string
 	Value       string
 	StringValue bool
 }
 
 func (e Entry) IsHeader() bool {
-	return strings.HasPrefix(e.Ref.Operator, headerPrefix)
+	return strings.HasPrefix(e.Operator, headerPrefix)
 }
 
 func (e Entry) IsDirect() bool {
-	return e.Ref.Operator == directOperator
-}
-
-func (e Entry) Operator() string {
-	return e.Ref.Operator
-}
-
-func (e Entry) Name() string {
-	return e.Ref.Name
+	return e.Operator == directOperator
 }
 
 func NewEntry(operator, name, value string, stringValue bool) Entry {
-	return Entry{Ref: Reference{Operator: operator, Name: name}, Value: value, StringValue: stringValue}
+	return Entry{Operator: operator, Name: name, Value: value, StringValue: stringValue}
 }
