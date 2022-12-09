@@ -30,7 +30,7 @@ type Route interface {
 type config struct {
 	timeout int // milliseconds
 	limit   rate.Limit
-	burst   int
+	burst   int // must not be "0", which will disallow all
 }
 
 type route struct {
@@ -101,7 +101,7 @@ func (r *route) IsPingTraffic() bool {
 }
 
 func (r *route) Duration() time.Duration {
-	if r == nil {
+	if r == nil || r.current.timeout == NilValue {
 		return 0
 	}
 	return time.Duration(r.current.timeout) * time.Millisecond
@@ -134,4 +134,12 @@ func (r *route) Name() string {
 
 func (r *route) t() route {
 	return *r
+}
+
+func (r *route) newRateLimiter() {
+	r.rateLimiter = rate.NewLimiter(r.current.limit, r.current.burst)
+}
+
+func (r *route) getRateLimiter() *rate.Limiter {
+	return r.rateLimiter
 }
