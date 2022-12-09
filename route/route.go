@@ -11,9 +11,9 @@ type MatchFn func(req *http.Request) (name string)
 type Route struct {
 	Name           string
 	Timeout        int // milliseconds
-	RateLimiter    *rate.Limiter
 	WriteAccessLog bool
 	PingTraffic    bool
+	rateLimiter    *rate.Limiter
 }
 
 func (r *Route) IsTimeout() bool {
@@ -32,35 +32,12 @@ func (r *Route) IsLogging() bool {
 }
 
 func (r *Route) Allow() bool {
-	if r == nil || r.RateLimiter == nil {
+	if r == nil || r.rateLimiter == nil {
 		return true
 	}
-	return r.RateLimiter.Allow()
+	return r.rateLimiter.Allow()
 }
 
 func (r *Route) IsRateLimiter() bool {
-	return r != nil && r.RateLimiter != nil
-}
-
-/*
-func (r *Route) Limiter() *rate.Limiter {
-	if r == nil {
-		return nil
-	}
-	return r.RateLimiter
-}
-
-
-*/
-func (r *Route) NewLimiter(max rate.Limit, b int) {
-	if r == nil {
-		return
-	}
-	r.RateLimiter = rate.NewLimiter(max, b)
-}
-
-func (r *Route) RemoveLimiter() {
-	if r != nil {
-		r.RateLimiter = nil
-	}
+	return r != nil && r.rateLimiter != nil
 }

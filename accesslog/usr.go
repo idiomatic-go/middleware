@@ -23,9 +23,11 @@ func SetOrigin(o Origin) {
 }
 
 const (
-	EgressTraffic  = "egress"
-	IngressTraffic = "ingress"
-	PingTraffic    = "ping"
+	EgressTraffic      = "egress"
+	IngressTraffic     = "ingress"
+	PingTraffic        = "ping"
+	RateLimitFlag      = "FL"
+	UpstreamTmeoutFlag = "UT"
 )
 
 // Logd - struct for all logging information

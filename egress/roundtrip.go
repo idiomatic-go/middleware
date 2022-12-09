@@ -21,7 +21,7 @@ func (w wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	route := Lookup(req)
 	allow := route.Allow()
 	if !allow {
-		flags = "RL"
+		flags = accesslog.RateLimitFlag
 	}
 	if route.IsLogging() {
 		start = time.Now()
@@ -38,11 +38,11 @@ func (w wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	// TODO : check on timeout
 	if err != nil && errors.As(err, context.DeadlineExceeded) {
-		flags = "UT"
+		flags = accesslog.UpstreamTmeoutFlag
 		resp.StatusCode = 504
 	}
 	if route.IsLogging() {
-		accesslog.WriteEgress(route, start, time.Since(start), req, resp, flags, err)
+		accesslog.WriteEgress(start, time.Since(start), route, req, resp, flags)
 	}
 	return resp, err
 }
