@@ -27,23 +27,15 @@ func WriteEgress(start time.Time, duration time.Duration, route route.Route, req
 		return
 	}
 	data := &Logd{
-		Traffic:     EgressTraffic,
-		Start:       start,
-		Duration:    duration,
-		RouteName:   route.Name(),
-		PingTraffic: route.IsPingTraffic(),
-		RateLimit:   route.Limit(),
-		RateBurst:   route.Burst(),
-		Timeout:     route.Timeout(),
-
+		Traffic:       EgressTraffic,
+		Start:         start,
+		Duration:      duration,
 		Origin:        &origin,
-		Req:           req,
+		Route:         route,
 		ResponseFlags: responseFlags,
 	}
-	if resp != nil {
-		data.RespCode = resp.StatusCode
-		data.BytesReceived = resp.ContentLength
-	}
+	data.AddResponse(resp)
+	data.AddRequest(req)
 	if extractFn != nil {
 		extractFn(data)
 	}
@@ -64,21 +56,16 @@ func WriteIngress(start time.Time, duration time.Duration, route route.Route, re
 		return
 	}
 	data := &Logd{
-		Traffic:     IngressTraffic,
-		Start:       start,
-		Duration:    duration,
-		RouteName:   route.Name(),
-		PingTraffic: route.IsPingTraffic(),
-		RateLimit:   route.Limit(),
-		RateBurst:   route.Burst(),
-		Timeout:     route.Timeout(),
-
+		Traffic:       IngressTraffic,
+		Start:         start,
+		Duration:      duration,
 		Origin:        &origin,
-		Req:           req,
+		Route:         route,
 		RespCode:      code,
 		BytesSent:     bytesSent,
 		ResponseFlags: responseFlags,
 	}
+	data.AddRequest(req)
 	if extractFn != nil {
 		extractFn(data)
 	}

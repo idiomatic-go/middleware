@@ -90,6 +90,9 @@ const (
 	operatorPrefix          = "%"
 	requestReferencePrefix  = "%REQ("
 	responseReferencePrefix = "%RESP("
+	RequestIdHeaderName     = "X-REQUEST-ID"
+	UserAgentHeaderName     = "USER-AGENT"
+	FordwardedForHeaderName = "X-FORWARDED-FOR"
 
 	// Envoy
 	TrafficOperator   = "%TRAFFIC%"    //  ingress, egress, ping
@@ -112,13 +115,14 @@ const (
 	//UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
 
 	// Request
-	RequestProtocolOperator     = "%PROTOCOL%"          // HTTP Protocol
-	RequestIdOperator           = "%REQ(X-REQUEST-ID)%" // X-REQUEST-ID request header value
-	RequestUserAgentOperator    = "%REQ(USER-AGENT)%"   // user agent request header value
-	RequestAuthorityOperator    = "%REQ(:AUTHORITY)%"   // authority request header value
-	RequestMethodOperator       = "%REQ(:METHOD)%"      // HTTP method
-	RequestPathOperator         = "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
-	RequestForwardedForOperator = "%REQ(X-FORWARDED-FOR)%" // client IP address (X-FORWARDED-FOR request header value)
+	RequestProtocolOperator     = "%PROTOCOL%" // HTTP Protocol
+	RequestMethodOperator       = "%METHOD%"   // HTTP method
+	RequestUrlOperator          = "%URL%"
+	RequestIdOperator           = "%X-REQUEST-ID%" // X-REQUEST-ID request header value
+	RequestUserAgentOperator    = "%USER-AGENT%"   // user agent request header value
+	RequestAuthorityOperator    = "%AUTHORITY%"    // authority request header value
+	RequestPathOperator         = "%PATH%"
+	RequestForwardedForOperator = "%X-FORWARDED-FOR%" // client IP address (X-FORWARDED-FOR request header value)
 
 	// gRPC
 	GRPCStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
@@ -155,6 +159,7 @@ var directory = Directory{
 	// Request
 	RequestProtocolOperator:     &Entry{RequestProtocolOperator, "protocol", "", true},
 	RequestIdOperator:           &Entry{RequestIdOperator, "request_id", "", true},
+	RequestUrlOperator:          &Entry{RequestUrlOperator, "url", "", true},
 	RequestUserAgentOperator:    &Entry{RequestUserAgentOperator, "user_agent", "", true},
 	RequestAuthorityOperator:    &Entry{RequestAuthorityOperator, "authority", "", true},
 	RequestMethodOperator:       &Entry{RequestMethodOperator, "method", "", true},

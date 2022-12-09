@@ -36,7 +36,7 @@ func (w wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		}
 	}
 	if route.IsLogging() {
-		accesslog.WriteEgress(start, time.Since(start), &route, req, resp, flags)
+		accesslog.WriteEgress(start, time.Since(start), route, req, resp, flags)
 	}
 	return resp, err
 }

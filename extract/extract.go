@@ -47,8 +47,8 @@ var (
 		{Operator: accesslog.ResponseBytesSentOperator},
 
 		{Operator: accesslog.TimeoutOperator},
-		{Operator: accesslog.RateLimitLimitOperator},
-		{Operator: accesslog.RateLimitBurstOperator},
+		{Operator: accesslog.RateLimitOperator},
+		{Operator: accesslog.RateBurstOperator},
 	}
 )
 
@@ -97,7 +97,7 @@ func do(l *accesslog.Logd) bool {
 		return false
 	}
 	// let's not extract the extract, the extract, the extract ...
-	if l.Req != nil && l.Req.URL != nil && url == l.Req.URL.String() {
+	if l.Url == url {
 		return false
 	}
 	var req *http.Request

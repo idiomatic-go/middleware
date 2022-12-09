@@ -17,7 +17,7 @@ type Entry struct {
 	StringValue bool
 }
 
-func (e Entry) IsHeader() bool {
+func (e Entry) IsClientHeader() bool {
 	return strings.HasPrefix(e.Operator, headerPrefix)
 }
 

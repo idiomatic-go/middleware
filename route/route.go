@@ -20,6 +20,7 @@ type Route interface {
 	IsPingTraffic() bool
 	Timeout() int
 	Duration() time.Duration
+	Allow() bool
 	Name() string
 	Limit() rate.Limit
 	Burst() int

@@ -10,6 +10,14 @@ func IsEmpty(s string) bool {
 	return strings.TrimLeft(s, " ") == ""
 }
 
+// Add adds the key, value pair to the header.
+// It appends to any existing values associated with key.
+// The key is case insensitive; it is canonicalized by
+// CanonicalHeaderKey.
+//func (h Header) Add(key, value string) {
+//	textproto.MIMEHeader(h).Add(key, value)
+//}
+
 func NormalizeHttpHeaderName(name string) string {
 	if IsEmpty(name) {
 		return ""

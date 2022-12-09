@@ -1,7 +1,7 @@
 package accesslog
 
 import (
-	"golang.org/x/time/rate"
+	"github.com/idiomatic-go/middleware/route"
 	"log"
 	"net/http"
 	"time"
@@ -33,18 +33,20 @@ const (
 
 // Logd - struct for all logging information
 type Logd struct {
-	Traffic     string
-	Start       time.Time
-	Duration    time.Duration
-	RouteName   string
-	PingTraffic bool
-	RateLimit   rate.Limit
-	RateBurst   int
-	Timeout     int
+	Traffic  string
+	Start    time.Time
+	Duration time.Duration
+	Origin   *Origin
+	Route    route.Route
 
-	Origin *Origin
-	Req    *http.Request
+	// Request
+	Url      string
+	Path     string
+	Protocol string
+	Method   string
+	Header   http.Header
 
+	// Response
 	RespCode      int
 	BytesSent     int   // ingress response
 	BytesReceived int64 // egress response content length
