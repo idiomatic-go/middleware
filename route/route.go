@@ -15,6 +15,12 @@ type MatchFn func(req *http.Request) (name string)
 type Route interface {
 	IsTimeout() bool
 	IsLogging() bool
+	IsRateLimiter() bool
+	IsPingTraffic() bool
+	Duration() time.Duration
+	Name() string
+	Limit() rate.Limit
+	Burst() int
 }
 
 type config struct {

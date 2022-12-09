@@ -3,6 +3,7 @@ package route
 import (
 	"golang.org/x/time/rate"
 	"net/http"
+	"reflect"
 	"sync"
 )
 
@@ -11,8 +12,8 @@ type Routes interface {
 	SetMatchFn(fn MatchFn)
 	Lookup(req *http.Request) Route
 	LookupByName(name string) (Route, bool)
-	Add(r *Route) bool
-	AddWithLimiter(r *Route, max rate.Limit, b int) bool
+	Add(r Route) bool
+	//AddWithLimiter(r *Route, max rate.Limit, b int) bool
 	UpdateTimeout(name string, timeout int) bool
 	UpdateLimit(name string, max rate.Limit) bool
 	UpdateBurst(name string, b int) bool
@@ -22,7 +23,7 @@ type Routes interface {
 
 type table struct {
 	mu           sync.RWMutex
-	routes       map[string]*Route
+	routes       map[string]route
 	defaultRoute Route
 	match        MatchFn
 }
@@ -36,12 +37,13 @@ func NewTable() Routes {
 	return t
 }
 
-func (t *table) SetDefault(r *Route) {
+func (t *table) SetDefault(r Route) {
 	if t == nil || r == nil {
 		return
 	}
 	t.mu.Lock()
 	t.defaultRoute = r
+	//if rt,ok :=
 	t.mu.Unlock()
 }
 
@@ -63,12 +65,12 @@ func (t *table) Lookup(req *http.Request) Route {
 	}
 	t.mu.RLock()
 	defer t.mu.RUnlock()
-	return *t.defaultRoute
+	return t.defaultRoute
 }
 
-func (t *table) LookupByName(name string) (Route, bool) {
+func (t *table) LookupByName(name string) Route {
 	if t == nil || name == "" {
-		return Route{}, false
+		return nil
 	}
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -78,21 +80,25 @@ func (t *table) LookupByName(name string) (Route, bool) {
 	return Route{}, false
 }
 
-func (t *table) Add(r *Route) bool {
-	if t == nil || r == nil || r.Name == "" {
+func (t *table) Add(r Route) bool {
+	if t == nil || r == nil || IsEmpty(r.Name()) {
 		return false
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if _, ok := t.routes[r.Name]; ok {
+	a := reflect.TypeOf(r)
+	if rt, ok := a.(route); ok {
+
+	}
+	if _, ok := t.routes[r.Name()]; ok {
 		return false
 	}
-	t.routes[r.Name] = r
+	t.routes[r.Name()] = r
 	return true
 }
 
-func (t *table) AddWithLimiter(r *Route, max rate.Limit, b int) bool {
-	if t == nil || r == nil || r.Name == "" {
+func (t *table) AddWithLimiter(r Route, max rate.Limit, b int) bool {
+	if t == nil || r == nil || IsEmpty(r.Name()) {
 		return false
 	}
 	t.mu.Lock()
