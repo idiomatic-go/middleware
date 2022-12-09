@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func ExampleNewRouteWithConfig() {
+func Example_NewRouteWithConfig() {
 	ri := NewRouteWithConfig("test", NilValue, 100, 10, true, false)
 	fmt.Printf("Route(i)  : %v\n", ri)
 
@@ -30,7 +30,7 @@ func ExampleNewRouteWithConfig() {
 	//Allow     : true
 }
 
-func ExampleRateLimiterDisallowAll() {
+func Example_RateLimiterDisallowAll() {
 	ri := NewRouteWithConfig("test", NilValue, 0, 0, false, false)
 	rt := ri.t()
 
@@ -44,7 +44,7 @@ func ExampleRateLimiterDisallowAll() {
 
 }
 
-func ExampleRateLimiterAllowAll() {
+func Example_RateLimiterAllowAll() {
 	ri := NewRouteWithConfig("test", NilValue, rate.Inf, 0, false, false)
 	rt := ri.t()
 
@@ -64,7 +64,7 @@ func ExampleRateLimiterAllowAll() {
 
 }
 
-func ExampleRateLimiterAllowSome() {
+func Example_RateLimiterAllowSome() {
 	ri := NewRouteWithConfig("test", NilValue, 1, 1, false, false)
 	rt := ri.t()
 	fmt.Printf("Route  : %v\n", rt.current)
