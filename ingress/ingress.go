@@ -2,19 +2,18 @@ package ingress
 
 import (
 	"github.com/idiomatic-go/middleware/route"
-	"net/http"
 )
 
-var (
-	defaultRoute = &route.Route{Name: "/"}
-	match        route.MatchFn
-	routes       route.Routes
-)
+var Routes = route.NewTable(&route.Route{Name: "/"})
 
-func init() {
-	SetMatchFn(nil)
-	routes = route.NewTable()
-}
+/*
+
+
+//defaultRoute =
+//match        route.MatchFn
+//func init() {
+//SetMatchFn(nil)
+//}
 
 func SetDefaultRoute(r *route.Route) bool {
 	if r == nil || r.Name == "" {
@@ -34,26 +33,29 @@ func SetMatchFn(fn route.MatchFn) {
 	}
 }
 
-// Lookup - Find a Route based on the url and method, returning the Default if not found
-func Lookup(req *http.Request) *route.Route {
+// LookupRoute - Find a Route based on the url and method, returning the Default if not found
+func LookupRoute(req *http.Request) (route.Route,bool) {
 	name := match(req)
 	if name != "" {
 		return routes.Lookup(name)
 	}
-	return defaultRoute
+	return *defaultRoute,true
 }
 
-// Add - Add a Route
-func Add(r *route.Route) bool {
+// AddRoute - Add a Route
+func AddRoute(r *route.Route) bool {
 	return routes.Add(r)
 }
 
-// Update - Update a Route
-func Update(r *route.Route) bool {
-	return routes.Update(r)
+// UpdateRoute - Update a Route
+func UpdateTimeout(name string,timeout int) bool {
+	return routes.UpdateTimeout(name,timeout)
 }
 
 // Remove - Remove a route
-func Remove(name string) bool {
+func RemoveRoute(name string) bool {
 	return routes.Remove(name)
 }
+
+
+*/

@@ -2,25 +2,25 @@ package egress
 
 import (
 	"github.com/idiomatic-go/middleware/route"
-	"net/http"
 )
 
-var (
-	defaultRoute = &route.Route{Name: "/"}
-	match        route.MatchFn
-	routes       route.Routes
-)
+var Routes = route.NewTable(&route.Route{Name: "/"})
+
+/*
+
+//defaultRoute =
+//match  route.MatchFn
 
 func init() {
 	SetMatchFn(nil)
-	routes = route.NewTable()
+	//Routes =
 }
 
 func SetDefaultRoute(r *route.Route) bool {
 	if r == nil || r.Name == "" {
 		return false
 	}
-	defaultRoute = r
+	//defaultRoute = r
 	return true
 }
 
@@ -34,26 +34,40 @@ func SetMatchFn(fn route.MatchFn) {
 	}
 }
 
-// Lookup - Find a Route based on the url and method, returning the Default if not found
-func Lookup(req *http.Request) *route.Route {
+// LookupRoute - Find a Route based on the url and method, returning the Default if not found
+func LookupRoute(req *http.Request) (route.Route, bool) {
 	name := match(req)
 	if name != "" {
 		return routes.Lookup(name)
 	}
-	return defaultRoute
+	return *defaultRoute, true
 }
 
-// Add - Add a Route
-func Add(r *route.Route) bool {
+
+ // AddRoute - Add a Route
+func AddRoute(r *route.Route) bool {
 	return routes.Add(r)
 }
 
-// Update - Update a Route
-func Update(r *route.Route) bool {
-	return routes.Update(r)
+func AddRouteWithLimiter(r *route.Route, max rate.Limit, b int) bool {
+	return routes.AddWithLimiter(r, max, b)
 }
 
-// Remove - Remove a route
-func Remove(name string) bool {
+// UpdateRouteTimeout - Update a Route
+func UpdateRouteTimeout(name string, timeout int) bool {
+	return routes.UpdateTimeout(name, timeout)
+}
+
+func UpdateRouteLimiter(name string, max rate.Limit, b int) bool {
+	return routes.UpdateLimiter(name, max, b)
+}
+
+// RemoveRoute - Remove a route
+func RemoveRoute(name string) bool {
 	return routes.Remove(name)
 }
+
+func RemoveRouteLimiter(name string) bool {
+	return routes.RemoveLimiter(name)
+}
+*/

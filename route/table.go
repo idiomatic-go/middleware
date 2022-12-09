@@ -1,13 +1,16 @@
 package route
 
 import (
-	"github.com/idiomatic-go/middleware/accesslog"
 	"golang.org/x/time/rate"
+	"net/http"
 	"sync"
 )
 
 type Routes interface {
-	Lookup(name string) (Route, bool)
+	SetDefault(r *Route)
+	SetMatchFn(fn MatchFn)
+	Lookup(req *http.Request) Route
+	LookupByName(name string) (Route, bool)
 	Add(r *Route) bool
 	AddWithLimiter(r *Route, max rate.Limit, b int) bool
 	UpdateTimeout(name string, timeout int) bool
@@ -17,15 +20,44 @@ type Routes interface {
 }
 
 type table struct {
-	mu     sync.RWMutex
-	routes map[string]*Route
+	mu           sync.RWMutex
+	routes       map[string]*Route
+	defaultRoute *Route
+	match        MatchFn
 }
 
-func NewTable() Routes {
-	return new(table)
+func NewTable(r *Route) Routes {
+	t := new(table)
+	t.defaultRoute = r
+	t.match = func(req *http.Request) (name string) {
+		return ""
+	}
+	return t
 }
 
-func (t *table) Lookup(name string) (Route, bool) {
+func (t *table) SetDefault(r *Route) {
+	if t != nil && r != nil {
+		t.defaultRoute = r
+	}
+}
+func (t *table) SetMatchFn(fn MatchFn) {
+	if fn != nil {
+		t.match = fn
+	}
+}
+
+func (t *table) Lookup(req *http.Request) Route {
+	name := t.match(req)
+	if name == "" {
+		return *t.defaultRoute
+	}
+	if r, ok := t.LookupByName(name); ok {
+		return r
+	}
+	return *t.defaultRoute
+}
+
+func (t *table) LookupByName(name string) (Route, bool) {
 	if t == nil || name == "" {
 		return Route{}, false
 	}
@@ -65,7 +97,7 @@ func (t *table) AddWithLimiter(r *Route, max rate.Limit, b int) bool {
 }
 
 func (t *table) UpdateTimeout(name string, timeout int) bool {
-	if t == nil || name == "" || accesslog.IsEmpty(name) || timeout <= 0 {
+	if t == nil || name == "" || timeout <= 0 {
 		return false
 	}
 	t.mu.Lock()
@@ -77,7 +109,7 @@ func (t *table) UpdateTimeout(name string, timeout int) bool {
 }
 
 func (t *table) UpdateLimiter(name string, max rate.Limit, b int) bool {
-	if t == nil || name == "" || accesslog.IsEmpty(name) || b < 0 {
+	if t == nil || name == "" || b < 0 {
 		return false
 	}
 	t.mu.Lock()
@@ -89,7 +121,7 @@ func (t *table) UpdateLimiter(name string, max rate.Limit, b int) bool {
 }
 
 func (t *table) Remove(name string) bool {
-	if t == nil || name == "" || accesslog.IsEmpty(name) {
+	if t == nil || name == "" {
 		return false
 	}
 	t.mu.Lock()
@@ -99,7 +131,7 @@ func (t *table) Remove(name string) bool {
 }
 
 func (t *table) RemoveLimiter(name string) bool {
-	if t == nil || name == "" || accesslog.IsEmpty(name) {
+	if t == nil || name == "" {
 		return false
 	}
 	t.mu.Lock()
