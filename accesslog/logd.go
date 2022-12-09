@@ -129,10 +129,5 @@ func (l *Logd) HeaderValue(entry Entry) string {
 	if len(tokens) == 1 {
 		return ""
 	}
-	//name := NormalizeHttpHeaderName(tokens[1])
-	//values := l.Header.Get(tokens[1])
-	//if values != nil {
-	//	return values[0]
-	//}
 	return l.Header.Get(tokens[1])
 }

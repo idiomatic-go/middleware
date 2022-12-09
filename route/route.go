@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	DefaultName        = "*"
-	NotConfiguredValue = -1
+	DefaultName = "*"
+	NilValue    = -1
 )
 
 type MatchFn func(req *http.Request) (name string)
@@ -46,14 +46,14 @@ func NewRoute(name string) Route {
 	if IsEmpty(name) {
 		return nil
 	}
-	return NewRouteWithConfig(name, NotConfiguredValue, NotConfiguredValue, NotConfiguredValue, false, false)
+	return NewRouteWithConfig(name, NilValue, NilValue, NilValue, false, false)
 }
 
 func NewRouteWithLogging(name string, accessLog bool) Route {
 	if IsEmpty(name) {
 		return nil
 	}
-	return NewRouteWithConfig(name, NotConfiguredValue, NotConfiguredValue, NotConfiguredValue, accessLog, false)
+	return NewRouteWithConfig(name, NilValue, NilValue, NilValue, accessLog, false)
 }
 
 func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, accessLog, pingTraffic bool) Route {
@@ -62,13 +62,13 @@ func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, a
 	}
 	route := &route{name: name, writeAccessLog: accessLog, pingTraffic: pingTraffic}
 	if timeout == 0 {
-		timeout = NotConfiguredValue
+		timeout = NilValue
 	}
 	if limit == 0 {
-		limit = NotConfiguredValue
+		limit = NilValue
 	}
 	if burst == 0 {
-		burst = NotConfiguredValue
+		burst = NilValue
 	}
 	route.original.timeout = timeout
 	route.original.limit = limit
@@ -78,12 +78,12 @@ func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, a
 }
 
 func (r *route) IsTimeout() bool {
-	return r != nil && r.current.timeout != NotConfiguredValue
+	return r != nil && r.current.timeout != NilValue
 }
 
 func (r *route) Timeout() int {
 	if r == nil {
-		return NotConfiguredValue
+		return NilValue
 	}
 	return r.current.timeout
 }

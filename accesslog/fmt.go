@@ -3,30 +3,10 @@ package accesslog
 import (
 	"strings"
 	"time"
-	"unicode"
 )
 
 func IsEmpty(s string) bool {
 	return strings.TrimLeft(s, " ") == ""
-}
-
-// Add adds the key, value pair to the header.
-// It appends to any existing values associated with key.
-// The key is case insensitive; it is canonicalized by
-// CanonicalHeaderKey.
-//func (h Header) Add(key, value string) {
-//	textproto.MIMEHeader(h).Add(key, value)
-//}
-
-func NormalizeHttpHeaderName(name string) string {
-	if IsEmpty(name) {
-		return ""
-	}
-	if !unicode.IsUpper(rune(name[0])) {
-		var s = string(unicode.ToUpper(rune(name[0])))
-		return s + name[1:]
-	}
-	return name
 }
 
 func FmtTimestamp(t time.Time) string {
@@ -69,3 +49,17 @@ func itoa(buf *[]byte, i int, wid int) {
 	b[bp] = byte('0' + i)
 	*buf = append(*buf, b[bp:]...)
 }
+
+/*
+func NormalizeHttpHeaderName(name string) string {
+	if IsEmpty(name) {
+		return ""
+	}
+	if !unicode.IsUpper(rune(name[0])) {
+		var s = string(unicode.ToUpper(rune(name[0])))
+		return s + name[1:]
+	}
+	return name
+}
+
+*/
