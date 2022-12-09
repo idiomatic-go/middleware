@@ -21,7 +21,7 @@ func (w wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	route := Routes.Lookup(req)
 	if !route.Allow() {
 		flags = accesslog.RateLimitFlag
-		resp = &http.Response{Request: req, StatusCode: 503}
+		resp = &http.Response{Request: req, StatusCode: http.StatusServiceUnavailable}
 	} else {
 		if route.IsTimeout() {
 			ctx, cancel := context.WithTimeout(req.Context(), route.Duration())
@@ -32,7 +32,7 @@ func (w wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		// TODO : check on timeout
 		if err != nil && errors.As(err, &context.DeadlineExceeded) {
 			flags = accesslog.UpstreamTmeoutFlag
-			resp.StatusCode = 504
+			resp.StatusCode = http.StatusGatewayTimeout
 		}
 	}
 	if route.IsLogging() {

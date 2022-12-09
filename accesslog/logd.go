@@ -38,7 +38,11 @@ func (l *Logd) AddRequest(req *http.Request) {
 	if req.URL != nil {
 		l.Url = req.URL.String()
 		l.Path = req.URL.Path
-		//	l.Path = req.URL.
+		if req.Host == "" {
+			l.Host = req.URL.Host
+		} else {
+			l.Host = req.Host
+		}
 	}
 }
 
@@ -81,6 +85,8 @@ func (l *Logd) Value(entry Entry) string {
 		return l.Path
 	case RequestUrlOperator:
 		return l.Url
+	case RequestHostOperator:
+		return l.Host
 	case RequestIdOperator:
 		return l.Header.Get(RequestIdHeaderName)
 	case RequestUserAgentOperator:
@@ -108,7 +114,7 @@ func (l *Logd) Value(entry Entry) string {
 		// Rate Limiting
 	case RateLimitOperator:
 		if l.Route.Limit() == rate.Inf {
-			return "inf"
+			return "INF"
 		}
 		return strconv.Itoa(int(l.Route.Limit()))
 	case RateBurstOperator:

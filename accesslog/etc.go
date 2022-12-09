@@ -115,13 +115,15 @@ const (
 	//UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
 
 	// Request
-	RequestProtocolOperator     = "%PROTOCOL%" // HTTP Protocol
-	RequestMethodOperator       = "%METHOD%"   // HTTP method
-	RequestUrlOperator          = "%URL%"
-	RequestIdOperator           = "%X-REQUEST-ID%" // X-REQUEST-ID request header value
-	RequestUserAgentOperator    = "%USER-AGENT%"   // user agent request header value
-	RequestAuthorityOperator    = "%AUTHORITY%"    // authority request header value
-	RequestPathOperator         = "%PATH%"
+	RequestProtocolOperator = "%PROTOCOL%" // HTTP Protocol
+	RequestMethodOperator   = "%METHOD%"   // HTTP method
+	RequestUrlOperator      = "%URL%"
+	RequestPathOperator     = "%PATH%"
+	RequestHostOperator     = "%HOST%"
+
+	RequestIdOperator           = "%X-REQUEST-ID%"    // X-REQUEST-ID request header value
+	RequestUserAgentOperator    = "%USER-AGENT%"      // user agent request header value
+	RequestAuthorityOperator    = "%AUTHORITY%"       // authority request header value
 	RequestForwardedForOperator = "%X-FORWARDED-FOR%" // client IP address (X-FORWARDED-FOR request header value)
 
 	// gRPC
@@ -157,16 +159,22 @@ var directory = Directory{
 	//UpstreamHostOperator:  &Entry{UpstreamHostOperator, "upstream_host", "", true},
 
 	// Request
-	RequestProtocolOperator:     &Entry{RequestProtocolOperator, "protocol", "", true},
+	RequestProtocolOperator: &Entry{RequestProtocolOperator, "protocol", "", true},
+	RequestUrlOperator:      &Entry{RequestUrlOperator, "url", "", true},
+	RequestMethodOperator:   &Entry{RequestMethodOperator, "method", "", true},
+	RequestPathOperator:     &Entry{RequestPathOperator, "path", "", true},
+	RequestHostOperator:     &Entry{RequestHostOperator, "hosth", "", true},
+
 	RequestIdOperator:           &Entry{RequestIdOperator, "request_id", "", true},
-	RequestUrlOperator:          &Entry{RequestUrlOperator, "url", "", true},
 	RequestUserAgentOperator:    &Entry{RequestUserAgentOperator, "user_agent", "", true},
 	RequestAuthorityOperator:    &Entry{RequestAuthorityOperator, "authority", "", true},
-	RequestMethodOperator:       &Entry{RequestMethodOperator, "method", "", true},
-	RequestPathOperator:         &Entry{RequestPathOperator, "path", "", true},
 	RequestForwardedForOperator: &Entry{RequestForwardedForOperator, "forwarded", "", true},
 
 	// gRPC
 	GRPCStatusOperator:       &Entry{GRPCStatusOperator, "grpc_status", "", true},
 	GRPCStatusNumberOperator: &Entry{GRPCStatusNumberOperator, "grpc_number", "", true},
+
+	TimeoutOperator:   &Entry{TimeoutOperator, "timeout", "", false},
+	RateLimitOperator: &Entry{RateLimitOperator, "limit", "", true},
+	RateBurstOperator: &Entry{RateBurstOperator, "burst", "", false},
 }

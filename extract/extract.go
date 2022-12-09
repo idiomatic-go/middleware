@@ -35,7 +35,7 @@ var (
 		{Operator: accesslog.OriginInstanceIdOperator},
 
 		{Operator: accesslog.RequestMethodOperator},
-		{Operator: accesslog.RequestAuthorityOperator},
+		{Operator: accesslog.RequestHostOperator},
 		{Operator: accesslog.RequestPathOperator},
 		{Operator: accesslog.RequestProtocolOperator},
 		{Operator: accesslog.RequestIdOperator},
@@ -93,7 +93,7 @@ func extract(l *accesslog.Logd) {
 
 func do(l *accesslog.Logd) bool {
 	if l == nil {
-		logError(errors.New("invalid argument : acessLog data is nil"))
+		logError(errors.New("invalid argument : access log data is nil"))
 		return false
 	}
 	// let's not extract the extract, the extract, the extract ...

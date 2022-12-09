@@ -42,6 +42,7 @@ type Logd struct {
 	// Request
 	Url      string
 	Path     string
+	Host     string
 	Protocol string
 	Method   string
 	Header   http.Header
