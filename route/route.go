@@ -44,7 +44,7 @@ func NewRoute(name string) Route {
 	if IsEmpty(name) {
 		return nil
 	}
-	return &route{name: name}
+	return NewRouteWithConfig(name, NilConfigValue, NilConfigValue, NilConfigValue, false, false)
 }
 
 func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, accessLog, pingTraffic bool) Route {
@@ -52,6 +52,15 @@ func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, a
 		return nil
 	}
 	route := &route{name: name, writeAccessLog: accessLog, pingTraffic: pingTraffic}
+	if timeout == 0 {
+		timeout = NilConfigValue
+	}
+	if limit == 0 {
+		limit = NilConfigValue
+	}
+	if burst == 0 {
+		burst = NilConfigValue
+	}
 	route.original.timeout = timeout
 	route.original.limit = limit
 	route.original.burst = burst
@@ -60,7 +69,7 @@ func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, a
 }
 
 func (r *route) IsTimeout() bool {
-	return r != nil && r.current.timeout != 0
+	return r != nil && r.current.timeout != NilConfigValue
 }
 
 func (r *route) IsLogging() bool {
