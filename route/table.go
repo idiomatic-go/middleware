@@ -14,7 +14,8 @@ type Routes interface {
 	Add(r *Route) bool
 	AddWithLimiter(r *Route, max rate.Limit, b int) bool
 	UpdateTimeout(name string, timeout int) bool
-	UpdateLimiter(name string, max rate.Limit, b int) bool
+	UpdateLimit(name string, max rate.Limit) bool
+	UpdateBurst(name string, b int) bool
 	Remove(name string) bool
 	RemoveLimiter(name string) bool
 }
@@ -22,13 +23,13 @@ type Routes interface {
 type table struct {
 	mu           sync.RWMutex
 	routes       map[string]*Route
-	defaultRoute *Route
+	defaultRoute Route
 	match        MatchFn
 }
 
-func NewTable(r *Route) Routes {
+func NewTable() Routes {
 	t := new(table)
-	t.defaultRoute = r
+	t.defaultRoute = NewRoute(DefaultName)
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
@@ -36,24 +37,32 @@ func NewTable(r *Route) Routes {
 }
 
 func (t *table) SetDefault(r *Route) {
-	if t != nil && r != nil {
-		t.defaultRoute = r
+	if t == nil || r == nil {
+		return
 	}
+	t.mu.Lock()
+	t.defaultRoute = r
+	t.mu.Unlock()
 }
+
 func (t *table) SetMatchFn(fn MatchFn) {
-	if fn != nil {
-		t.match = fn
+	if t == nil || fn == nil {
+		return
 	}
+	t.mu.Lock()
+	t.match = fn
+	t.mu.Unlock()
 }
 
 func (t *table) Lookup(req *http.Request) Route {
 	name := t.match(req)
-	if name == "" {
-		return *t.defaultRoute
+	if name != "" {
+		if r, ok := t.LookupByName(name); ok {
+			return r
+		}
 	}
-	if r, ok := t.LookupByName(name); ok {
-		return r
-	}
+	t.mu.RLock()
+	defer t.mu.RUnlock()
 	return *t.defaultRoute
 }
 
@@ -91,6 +100,10 @@ func (t *table) AddWithLimiter(r *Route, max rate.Limit, b int) bool {
 	if _, ok := t.routes[r.Name]; ok {
 		return false
 	}
+	r.Current.Limit = max
+	r.Current.Burst = b
+	r.Original.Limit = max
+	r.Original.Burst = b
 	r.rateLimiter = rate.NewLimiter(max, b)
 	t.routes[r.Name] = r
 	return true
@@ -102,19 +115,37 @@ func (t *table) UpdateTimeout(name string, timeout int) bool {
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
-		r.Timeout = timeout
+		r.Current.Timeout = timeout
 	}
 	t.mu.Unlock()
 	return true
 }
 
-func (t *table) UpdateLimiter(name string, max rate.Limit, b int) bool {
+func (t *table) UpdateLimit(name string, max rate.Limit) bool {
+	if t == nil || name == "" {
+		return false
+	}
+	t.mu.Lock()
+	if r, ok := t.routes[name]; ok {
+		if r.IsRateLimiter() {
+			r.Limit = max
+			r.rateLimiter.SetLimit(max)
+		}
+	}
+	t.mu.Unlock()
+	return true
+}
+
+func (t *table) UpdateBurst(name string, b int) bool {
 	if t == nil || name == "" || b < 0 {
 		return false
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
-		r.rateLimiter = rate.NewLimiter(max, b)
+		if r.IsRateLimiter() {
+			r.Burst = b
+			r.rateLimiter.SetBurst(b)
+		}
 	}
 	t.mu.Unlock()
 	return true
