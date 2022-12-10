@@ -34,9 +34,10 @@ type config struct {
 }
 
 type route struct {
-	name           string
-	current        config
-	original       config
+	name    string
+	current config
+	// Mangled for Idea
+	default_       config
 	writeAccessLog bool
 	pingTraffic    bool
 	rateLimiter    *rate.Limiter
@@ -59,39 +60,39 @@ func newRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, a
 	if IsEmpty(name) {
 		return nil, errors.New("invalid argument : route name is empty")
 	}
-	route := &route{name: name, original: config{timeout: timeout, limit: limit, burst: burst}, writeAccessLog: accessLog, pingTraffic: pingTraffic}
+	route := &route{name: name, default_: config{timeout: timeout, limit: limit, burst: burst}, writeAccessLog: accessLog, pingTraffic: pingTraffic}
 	err := route.validate()
 	if err != nil {
 		return nil, err
 	}
-	route.current = route.original
-	if route.original.limit != NilValue && route.original.burst != NilValue {
-		route.rateLimiter = rate.NewLimiter(route.original.limit, route.original.burst)
+	route.current = route.default_
+	if route.default_.limit != NilValue && route.default_.burst != NilValue {
+		route.rateLimiter = rate.NewLimiter(route.default_.limit, route.default_.burst)
 	}
 	return route, nil
 }
 
 func (r *route) validate() error {
-	if r.original.timeout <= 0 {
-		r.original.timeout = NilValue
+	if r.default_.timeout <= 0 {
+		r.default_.timeout = NilValue
 	}
-	if r.original.limit <= 0 {
-		r.original.limit = NilValue
+	if r.default_.limit <= 0 {
+		r.default_.limit = NilValue
 	}
-	if r.original.burst <= 0 {
-		r.original.burst = NilValue
+	if r.default_.burst <= 0 {
+		r.default_.burst = NilValue
 	}
 	// Special handling for rate.Inf
-	if r.original.limit == rate.Inf {
-		if r.original.burst <= 0 {
-			r.original.burst = 1
+	if r.default_.limit == rate.Inf {
+		if r.default_.burst <= 0 {
+			r.default_.burst = 1
 		}
 		return nil
 	}
-	if r.original.limit == NilValue && r.original.burst != NilValue {
+	if r.default_.limit == NilValue && r.default_.burst != NilValue {
 		return errors.New("invalid argument : burst is configured but limit is not")
 	}
-	if r.original.limit != NilValue && r.original.burst == NilValue {
+	if r.default_.limit != NilValue && r.default_.burst == NilValue {
 		return errors.New("invalid argument : limit is configured but burst is not")
 	}
 	return nil

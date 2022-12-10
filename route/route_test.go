@@ -44,28 +44,28 @@ func Example_NewRouteWithConfig_Error() {
 
 func Example_NewRouteWithConfig() {
 	r, err := newRouteWithConfig("test", NilValue, 0, 0, true, false)
-	fmt.Printf("Route    : %v [%v]\n", r.original, err)
+	fmt.Printf("Route    : %v [%v]\n", r.default_, err)
 	fmt.Printf("Limiter  : %v\n", r.IsRateLimiter())
 	fmt.Printf("Duration : %v\n", r.Duration())
 	fmt.Printf("Allow    : %v\n", r.Allow())
 
 	r, err = newRouteWithConfig("test", NilValue, 100, 10, true, false)
-	fmt.Printf("Route    : %v [%v]\n", r.original, err)
+	fmt.Printf("Route    : %v [%v]\n", r.default_, err)
 	fmt.Printf("Limiter  : %v\n", r.IsRateLimiter())
 	fmt.Printf("Allow    : %v\n", r.Allow())
 
 	r, err = newRouteWithConfig("test", NilValue, rate.Inf, NilValue, true, false)
-	fmt.Printf("Route    : %v [%v]\n", r.original, err)
+	fmt.Printf("Route    : %v [%v]\n", r.default_, err)
 	fmt.Printf("Limiter  : %v\n", r.IsRateLimiter())
 	fmt.Printf("Allow    : %v\n", r.Allow())
 
 	r, err = newRouteWithConfig("test", NilValue, rate.Inf, 0, true, false)
-	fmt.Printf("Route    : %v [%v]\n", r.original, err)
+	fmt.Printf("Route    : %v [%v]\n", r.default_, err)
 	fmt.Printf("Limiter  : %v\n", r.IsRateLimiter())
 	fmt.Printf("Allow    : %v\n", r.Allow())
 
 	r, err = newRouteWithConfig("test", NilValue, rate.Inf, 1234, true, false)
-	fmt.Printf("Route    : %v [%v]\n", r.original, err)
+	fmt.Printf("Route    : %v [%v]\n", r.default_, err)
 	fmt.Printf("Limiter  : %v\n", r.IsRateLimiter())
 	fmt.Printf("Allow    : %v\n", r.Allow())
 
@@ -104,7 +104,7 @@ func Example_RateLimiter_DisallowAll() {
 
 func Example_RateLimiter_AllowAll() {
 	r, err := newRouteWithConfig("test", NilValue, rate.Inf, 0, false, false)
-	fmt.Printf("Route    : %v [%v]\n", r.original, err)
+	fmt.Printf("Route    : %v [%v]\n", r.default_, err)
 	fmt.Printf("Limiter  : %v\n", r.IsRateLimiter())
 	fmt.Printf("Allow    : %v\n", r.Allow())
 
@@ -124,7 +124,7 @@ func Example_RateLimiter_AllowAll() {
 
 func Example_RateLimiter_AllowLimit() {
 	r, err := newRouteWithConfig("test", NilValue, 1, 1, false, false)
-	fmt.Printf("Route   : %v [%v]\n", r.original, err)
+	fmt.Printf("Route   : %v [%v]\n", r.default_, err)
 	fmt.Printf("Limiter : %v\n", r.IsRateLimiter())
 	fmt.Printf("Allow   : %v\n", r.Allow())
 

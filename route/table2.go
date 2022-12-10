@@ -23,7 +23,7 @@ func (t *table) ResetTimeout(name string) bool {
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
-		r.current.timeout = r.original.timeout
+		r.current.timeout = r.default_.timeout
 	}
 	t.mu.Unlock()
 	return true
@@ -61,8 +61,8 @@ func (t *table) ResetLimiter(name string) bool {
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
 		if r.rateLimiter != nil {
-			r.current.limit = r.original.limit
-			r.current.burst = r.original.burst
+			r.current.limit = r.default_.limit
+			r.current.burst = r.default_.burst
 			r.rateLimiter.SetLimit(r.current.limit)
 			r.rateLimiter.SetBurst(r.current.burst)
 		}

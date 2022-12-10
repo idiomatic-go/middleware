@@ -8,6 +8,7 @@ func ExampleTable_SetDefault() {
 	fmt.Printf("IsEmpty   : %v\n", t.isEmpty())
 
 	r := t.Lookup(nil)
+	fmt.Printf("Route     : %v\n", r.(*route).default_)
 	fmt.Printf("IsDefault : %v\n", r.(*route).name == DefaultName)
 
 	t.SetDefault(NewRoute("not-default"))
