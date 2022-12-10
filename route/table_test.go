@@ -1,6 +1,9 @@
 package route
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
 func ExampleTable_SetDefault() {
 	t := newTable()
@@ -25,25 +28,48 @@ func ExampleTable_SetDefault() {
 func ExampleTable_Interact() {
 	name := "test-route"
 	t := newTable()
-	fmt.Printf("Result : [empty:%v]\n", t.isEmpty())
+	fmt.Printf("result : [empty:%v]\n", t.isEmpty())
 
 	ok := t.Add(nil)
-	fmt.Printf("Result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
+	fmt.Printf("result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
 
 	ok = t.Add(NewRoute(name))
-	fmt.Printf("Result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
+	fmt.Printf("result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
 
 	ok = t.Remove("")
-	fmt.Printf("Result : [remove:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
+	fmt.Printf("result : [remove:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
 
 	ok = t.Remove(name)
-	fmt.Printf("Result : [remove:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
+	fmt.Printf("result : [remove:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
 
 	//Output:
-	//Result : [empty:true]
-	//Result : [add:false] [count:0] [exists:false] [lookup:<nil>]
-	//Result : [add:true] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
-	//Result : [remove:false] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
-	//Result : [remove:true] [count:0] [exists:false] [lookup:<nil>]
+	//result : [empty:true]
+	//result : [add:false] [count:0] [exists:false] [lookup:<nil>]
+	//result : [add:true] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
+	//result : [remove:false] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
+	//result : [remove:true] [count:0] [exists:false] [lookup:<nil>]
+
+}
+
+func ExampleTable_Lookup() {
+	name := "test-route"
+	t := newTable()
+	fmt.Printf("result : [empty:%v]\n", t.isEmpty())
+
+	r := t.Lookup(nil)
+	fmt.Printf("result : [lookup:%v]\n", r)
+
+	req, _ := http.NewRequest("", "http://localhost:8080/accesslog", nil)
+	r = t.Lookup(req)
+	fmt.Printf("result : [lookup:%v]\n", r)
+
+	ok := t.Add(NewRoute(name))
+	fmt.Printf("result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
+
+	//Output:
+	//result : [empty:true]
+	//result : [lookup:&{* {-1 -1 -1} {-1 -1 -1} false false <nil>}]
+	//result : [lookup:&{* {-1 -1 -1} {-1 -1 -1} false false <nil>}]
+	//result : [add:true] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
 
 }

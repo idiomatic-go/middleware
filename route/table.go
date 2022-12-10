@@ -24,8 +24,6 @@ type Routes interface {
 	SetLimiter(name string, max rate.Limit, burst int) bool
 	ResetLimiter(name string) bool
 	DisableLimiter(name string) bool
-
-	t() *table
 }
 
 type table struct {
@@ -135,8 +133,4 @@ func (t *table) count() int {
 
 func (t *table) isEmpty() bool {
 	return t.count() == 0
-}
-
-func (t *table) t() *table {
-	return t
 }
