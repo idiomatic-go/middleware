@@ -66,10 +66,18 @@ func ExampleTable_Lookup() {
 	ok := t.Add(NewRoute(name))
 	fmt.Printf("result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
 
+	t.SetMatcher(func(req *http.Request) string {
+		return name
+	},
+	)
+	r = t.Lookup(req)
+	fmt.Printf("result : [lookup:%v]\n", r)
+
 	//Output:
 	//result : [empty:true]
 	//result : [lookup:&{* {-1 -1 -1} {-1 -1 -1} false false <nil>}]
 	//result : [lookup:&{* {-1 -1 -1} {-1 -1 -1} false false <nil>}]
 	//result : [add:true] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
+	//result : [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
 
 }
