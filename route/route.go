@@ -1,6 +1,7 @@
 package route
 
 import (
+	"errors"
 	"golang.org/x/time/rate"
 	"net/http"
 	"time"
@@ -29,9 +30,9 @@ type Route interface {
 }
 
 type config struct {
-	timeout int // milliseconds
-	limit   rate.Limit
-	burst   int // must not be "0", which will disallow all
+	timeout int        // milliseconds
+	limit   rate.Limit // A value of "0" will disallow all and a value of rate.Inf will allow all
+	burst   int        // must not be "0", which will disallow all
 }
 
 type route struct {
@@ -43,93 +44,103 @@ type route struct {
 	rateLimiter    *rate.Limiter
 }
 
-func NewRoute(name string) Route {
-	if IsEmpty(name) {
-		return nil
-	}
+func NewRoute(name string) (Route, error) {
 	return NewRouteWithConfig(name, NilValue, NilValue, NilValue, false, false)
 }
 
-func NewRouteWithLogging(name string, accessLog bool) Route {
-	if IsEmpty(name) {
-		return nil
-	}
+func NewRouteWithLogging(name string, accessLog bool) (Route, error) {
 	return NewRouteWithConfig(name, NilValue, NilValue, NilValue, accessLog, false)
 }
 
-func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, accessLog, pingTraffic bool) Route {
+func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, accessLog, pingTraffic bool) (Route, error) {
+	return newRouteWithConfig(name, timeout, limit, burst, accessLog, pingTraffic)
+}
+
+func newRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, accessLog, pingTraffic bool) (*route, error) {
 	if IsEmpty(name) {
+		return nil, errors.New("invalid argument : route name is empty")
+	}
+	route := &route{name: name, original: config{timeout: timeout, limit: limit, burst: burst}, writeAccessLog: accessLog, pingTraffic: pingTraffic}
+	err := route.validate()
+	if err != nil {
+		return nil, err
+	}
+	route.current = route.original
+	if route.original.limit != NilValue && route.original.burst != NilValue {
+		route.rateLimiter = rate.NewLimiter(route.original.limit, route.original.burst)
+	}
+	return route, nil
+}
+
+func (r *route) validate() error {
+	if r.original.timeout <= 0 {
+		r.original.timeout = NilValue
+	}
+	if r.original.limit <= 0 {
+		r.original.limit = NilValue
+	}
+	if r.original.burst <= 0 {
+		r.original.burst = NilValue
+	}
+	// Special handling for rate.Inf
+	if r.original.limit == rate.Inf {
+		if r.original.burst <= 0 {
+			r.original.burst = 1
+		}
 		return nil
 	}
-	route := &route{name: name, writeAccessLog: accessLog, pingTraffic: pingTraffic}
-	if timeout == 0 {
-		timeout = NilValue
+	if r.original.limit == NilValue && r.original.burst != NilValue {
+		return errors.New("invalid argument : burst is configured but limit is not")
 	}
-	if limit == 0 {
-		limit = NilValue
+	if r.original.limit != NilValue && r.original.burst == NilValue {
+		return errors.New("invalid argument : limit is configured but burst is not")
 	}
-	if burst == 0 {
-		burst = NilValue
-	}
-	route.original.timeout = timeout
-	route.original.limit = limit
-	route.original.burst = burst
-	route.current = route.original
-	return route
+	return nil
 }
 
 func (r *route) IsDefault() bool {
-	return r != nil && r.name == DefaultName
+	return r.name == DefaultName
 }
 
 func (r *route) IsTimeout() bool {
-	return r != nil && r.current.timeout != NilValue
+	return r.current.timeout != NilValue
 }
 
 func (r *route) Timeout() int {
-	if r == nil {
-		return NilValue
-	}
 	return r.current.timeout
 }
 
 func (r *route) IsLogging() bool {
-	return r != nil && r.writeAccessLog
+	return r.writeAccessLog
 }
 
 func (r *route) IsRateLimiter() bool {
-	return r != nil && r.rateLimiter != nil
+	return r.rateLimiter != nil
 }
 
 func (r *route) IsPingTraffic() bool {
-	return r != nil && r.pingTraffic
+	return r.pingTraffic
 }
 
 func (r *route) Duration() time.Duration {
-	if r == nil || r.current.timeout == NilValue {
+	if r.current.timeout == NilValue {
 		return 0
 	}
 	return time.Duration(r.current.timeout) * time.Millisecond
 }
 
 func (r *route) Allow() bool {
-	if r == nil || r.rateLimiter == nil {
+	if !r.IsRateLimiter() {
 		return true
 	}
 	return r.rateLimiter.Allow()
 }
 
 func (r *route) Limit() rate.Limit {
-	if r == nil || r.rateLimiter == nil {
-		return 0
-	}
 	return r.current.limit
 }
 
 func (r *route) Burst() int {
-	if r == nil || r.rateLimiter == nil {
-		return 0
-	}
 	return r.current.burst
 }
 

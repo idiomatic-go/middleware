@@ -10,9 +10,9 @@ func ExampleTable_SetDefault() {
 	route := ti.Lookup(nil)
 	fmt.Printf("IsDefault : %v\n", route.IsDefault())
 
-	ti.SetDefault(NewRoute("not-default"))
-	route = ti.Lookup(nil)
-	fmt.Printf("IsDefault : %v\n", route.IsDefault())
+	//ti.SetDefault(NewRoute("not-default"))
+	//route = ti.Lookup(nil)
+	//fmt.Printf("IsDefault : %v\n", route.IsDefault())
 
 	//Output:
 	//IsEmpty   : true
@@ -20,7 +20,7 @@ func ExampleTable_SetDefault() {
 	//IsDefault : false
 }
 
-func ExampleTable_SetMatcher() {
+func ExampleTable_Lookup() {
 	ti := NewTable()
 	tt := ti.t()
 	fmt.Printf("IsEmpty   : %v\n", tt.isEmpty())
@@ -28,9 +28,9 @@ func ExampleTable_SetMatcher() {
 	route := ti.Lookup(nil)
 	fmt.Printf("IsDefault : %v\n", route.IsDefault())
 
-	ti.SetDefault(NewRoute("not-default"))
-	route = ti.Lookup(nil)
-	fmt.Printf("IsDefault : %v\n", route.IsDefault())
+	//ti.SetDefault(NewRoute("not-default"))
+	//route = ti.Lookup(nil)
+	//fmt.Printf("IsDefault : %v\n", route.IsDefault())
 
 	//Output:
 	//IsEmpty   : true
