@@ -111,8 +111,8 @@ func (t *table) Add(r Route) bool {
 	if _, ok := t.routes[r.Name()]; ok {
 		return false
 	}
-	route := r.t()
-	t.routes[r.Name()] = route
+	route := r.(*route)
+	t.routes[r.Name()] = *route
 	return true
 }
 

@@ -15,7 +15,6 @@ const (
 type Matcher func(req *http.Request) (name string)
 
 type Route interface {
-	IsDefault() bool
 	IsTimeout() bool
 	IsLogging() bool
 	IsRateLimiter() bool
@@ -26,7 +25,6 @@ type Route interface {
 	Name() string
 	Limit() rate.Limit
 	Burst() int
-	t() route
 }
 
 type config struct {
@@ -147,10 +145,6 @@ func (r *route) Burst() int {
 
 func (r *route) Name() string {
 	return r.name
-}
-
-func (r *route) t() route {
-	return *r
 }
 
 func (r *route) newRateLimiter() {
