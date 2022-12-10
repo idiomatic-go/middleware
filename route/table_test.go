@@ -3,16 +3,16 @@ package route
 import "fmt"
 
 func ExampleTable_SetDefault() {
-	ti := NewTable()
-	tt := ti.t()
-	fmt.Printf("IsEmpty   : %v\n", tt.isEmpty())
+	t := newTable()
 
-	route := ti.Lookup(nil)
+	fmt.Printf("IsEmpty   : %v\n", t.isEmpty())
+
+	route := t.Lookup(nil)
 	fmt.Printf("IsDefault : %v\n", route.IsDefault())
 
-	//ti.SetDefault(NewRoute("not-default"))
-	//route = ti.Lookup(nil)
-	//fmt.Printf("IsDefault : %v\n", route.IsDefault())
+	t.SetDefault(NewRoute("not-default"))
+	route = t.Lookup(nil)
+	fmt.Printf("IsDefault : %v\n", route.IsDefault())
 
 	//Output:
 	//IsEmpty   : true
@@ -21,11 +21,10 @@ func ExampleTable_SetDefault() {
 }
 
 func ExampleTable_Lookup() {
-	ti := NewTable()
-	tt := ti.t()
-	fmt.Printf("IsEmpty   : %v\n", tt.isEmpty())
+	t := newTable()
+	fmt.Printf("IsEmpty   : %v\n", t.isEmpty())
 
-	route := ti.Lookup(nil)
+	route := t.Lookup(nil)
 	fmt.Printf("IsDefault : %v\n", route.IsDefault())
 
 	//ti.SetDefault(NewRoute("not-default"))

@@ -44,8 +44,9 @@ type route struct {
 	rateLimiter    *rate.Limiter
 }
 
-func NewRoute(name string) (Route, error) {
-	return NewRouteWithConfig(name, NilValue, NilValue, NilValue, false, false)
+func NewRoute(name string) Route {
+	r, _ := NewRouteWithConfig(name, NilValue, NilValue, NilValue, false, false)
+	return r
 }
 
 func NewRouteWithLogging(name string, accessLog bool) (Route, error) {

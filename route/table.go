@@ -36,9 +36,12 @@ type table struct {
 }
 
 func NewTable() Routes {
+	return newTable()
+}
+
+func newTable() *table {
 	t := new(table)
-	// TODO : rework
-	t.defaultRoute, _ = NewRoute(DefaultName)
+	t.defaultRoute = NewRoute(DefaultName)
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
@@ -109,9 +112,6 @@ func (t *table) Add(r Route) bool {
 		return false
 	}
 	route := r.t()
-	//if route.original.limit > 0 {
-	//	route.rateLimiter = rate.NewLimiter(route.original.limit, route.original.burst)
-	//}
 	t.routes[r.Name()] = route
 	return true
 }
