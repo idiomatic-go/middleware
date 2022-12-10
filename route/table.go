@@ -30,7 +30,7 @@ type Routes interface {
 
 type table struct {
 	mu           sync.RWMutex
-	routes       map[string]route
+	routes       map[string]*route
 	defaultRoute Route
 	match        Matcher
 }
@@ -41,6 +41,7 @@ func NewTable() Routes {
 
 func newTable() *table {
 	t := new(table)
+	t.routes = make(map[string]*route, 100)
 	t.defaultRoute = NewRoute(DefaultName)
 	t.match = func(req *http.Request) (name string) {
 		return ""
@@ -85,7 +86,7 @@ func (t *table) LookupByName(name string) Route {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	if r, ok := t.routes[name]; ok {
-		return &r
+		return r
 	}
 	return nil
 }
@@ -112,7 +113,7 @@ func (t *table) Add(r Route) bool {
 		return false
 	}
 	route := r.(*route)
-	t.routes[r.Name()] = *route
+	t.routes[r.Name()] = route
 	return true
 }
 
