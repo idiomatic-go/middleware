@@ -6,45 +6,72 @@ import (
 	"time"
 )
 
-func Example_NewRouteWithConfig() {
+func Example_NewRouteWithConfig_Error() {
 	r, err := newRouteWithConfig("", NilValue, 100, 10, true, false)
-	fmt.Printf("Route  : %v\n", r)
-	fmt.Printf("Error  : %v\n", err)
+	fmt.Printf("Route  : %v [%v]\n", r, err)
 
 	r, err = newRouteWithConfig("test", NilValue, 100, 0, true, false)
-	fmt.Printf("Route  : %v\n", r)
-	fmt.Printf("Error  : %v\n", err)
+	fmt.Printf("Route  : %v [%v]\n", r, err)
 
 	r, err = newRouteWithConfig("test", NilValue, 100, NilValue, true, false)
-	fmt.Printf("Route  : %v\n", r)
-	fmt.Printf("Error  : %v\n", err)
+	fmt.Printf("Route  : %v [%v]\n", r, err)
 
 	r, err = newRouteWithConfig("test", NilValue, 0, 10, true, false)
-	fmt.Printf("Route  : %v\n", r)
-	fmt.Printf("Error  : %v\n", err)
+	fmt.Printf("Route  : %v [%v]\n", r, err)
 
 	r, err = newRouteWithConfig("test", NilValue, NilValue, 10, true, false)
-	fmt.Printf("Route  : %v\n", r)
-	fmt.Printf("Error  : %v\n", err)
+	fmt.Printf("Route  : %v [%v]\n", r, err)
 
 	//r,err = newRouteWithConfig("test", NilValue, 100, 10, true, false)
 	//fmt.Printf("Route  : %v\n", r)
+	//fmt.Printf("Error  : %v\n", err)
 	//fmt.Printf("Duration  : %v\n", r.Duration())
 	//fmt.Printf("Allow     : %v\n", r.Allow())
 
 	//r,err = newRouteWithConfig("test", 100, NilValue, 10, false, true)
-	//fmt.Printf("Route(i)  : %v\n", r)
+	//fmt.Printf("Route  : %v\n", r)
+	//fmt.Printf("Error  : %v\n", err)
 	//fmt.Printf("Duration  : %v\n", r.Duration())
 	//fmt.Printf("Allow     : %v\n", r.Allow())
 
 	//Output:
-	//Route(i)  : &{test {-1 100 10} {-1 100 10} true false <nil>}
-	//Route(t)  : {test {-1 100 10} {-1 100 10} true false <nil>}
-	//Duration  : 0s
-	//Allow     : true
-	//Route(i)  : &{test {100 -1 10} {100 -1 10} false true <nil>}
-	//Duration  : 100ms
-	//Allow     : true
+	//Route  : <nil> [invalid argument : route name is empty]
+	//Route  : <nil> [invalid argument : limit is configured but burst is not]
+	//Route  : <nil> [invalid argument : limit is configured but burst is not]
+	//Route  : <nil> [invalid argument : burst is configured but limit is not]
+	//Route  : <nil> [invalid argument : burst is configured but limit is not]
+}
+
+func Example_NewRouteWithConfig() {
+	r, err := newRouteWithConfig("test", NilValue, 0, 0, true, false)
+	fmt.Printf("Route       : %v [%v]\n", r.original, err)
+	fmt.Printf("RateLimiter : %v\n", r.IsRateLimiter())
+	fmt.Printf("Duration    : %v\n", r.Duration())
+	fmt.Printf("Allow       : %v\n", r.Allow())
+
+	r, err = newRouteWithConfig("test", NilValue, 100, 10, true, false)
+	fmt.Printf("Route       : %v [%v]\n", r.original, err)
+	fmt.Printf("RateLimiter : %v\n", r.IsRateLimiter())
+	fmt.Printf("Allow       : %v\n", r.Allow())
+
+	r, err = newRouteWithConfig("test", NilValue, rate.Inf, NilValue, true, false)
+	fmt.Printf("Route       : %v [%v]\n", r.original, err)
+	fmt.Printf("RateLimiter : %v\n", r.IsRateLimiter())
+	fmt.Printf("Allow       : %v\n", r.Allow())
+
+	r, err = newRouteWithConfig("test", NilValue, rate.Inf, 0, true, false)
+	fmt.Printf("Route       : %v [%v]\n", r.original, err)
+	fmt.Printf("RateLimiter : %v\n", r.IsRateLimiter())
+	fmt.Printf("Allow       : %v\n", r.Allow())
+
+	//r,err = newRouteWithConfig("test", 100, NilValue, 10, false, true)
+	//fmt.Printf("Route  : %v\n", r)
+	//fmt.Printf("Error  : %v\n", err)
+	//fmt.Printf("Duration  : %v\n", r.Duration())
+	//fmt.Printf("Allow     : %v\n", r.Allow())
+
+	//Output:
+	//
 }
 
 /*
