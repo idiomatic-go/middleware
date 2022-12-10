@@ -36,15 +36,19 @@ type config struct {
 type route struct {
 	name    string
 	current config
-	// Mangled for Idea
+	// Mangled for Intellij
 	default_       config
 	writeAccessLog bool
 	pingTraffic    bool
 	rateLimiter    *rate.Limiter
 }
 
-func NewRoute(name string) Route {
-	r, _ := NewRouteWithConfig(name, NilValue, NilValue, NilValue, false, false)
+func NewRoute(name string) (Route, error) {
+	return NewRouteWithConfig(name, NilValue, NilValue, NilValue, false, false)
+}
+
+func newRoute(name string) Route {
+	r, _ := NewRoute(name)
 	return r
 }
 

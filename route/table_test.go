@@ -8,21 +8,20 @@ import (
 func ExampleTable_SetDefault() {
 	t := newTable()
 
-	fmt.Printf("IsEmpty   : %v\n", t.isEmpty())
+	fmt.Printf("result : [empty:%v]\n", t.isEmpty())
 
 	r := t.Lookup(nil)
-	fmt.Printf("Route     : %v\n", r.(*route).default_)
-	fmt.Printf("IsDefault : %v\n", r.(*route).name == DefaultName)
+	fmt.Printf("result : [route:%v] [default:%v]\n", r.(*route).default_, r.(*route).name == DefaultName)
+	//fmt.Printf("IsDefault : %v\n", r.(*route).name == DefaultName)
 
-	t.SetDefault(NewRoute("not-default"))
+	t.SetDefault(newRoute("not-default"))
 	r = t.Lookup(nil)
-	fmt.Printf("IsDefault : %v\n", r.(*route).name == DefaultName)
+	fmt.Printf("result : [default:%v]\n", r.(*route).name == DefaultName)
 
 	//Output:
-	//IsEmpty   : true
-	//Route     : {-1 -1 -1}
-	//IsDefault : true
-	//IsDefault : false
+	//result : [empty:true]
+	//result : [route:{-1 -1 -1}] [default:true]
+	//result : [default:false]
 }
 
 func ExampleTable_Interact() {
@@ -33,7 +32,7 @@ func ExampleTable_Interact() {
 	ok := t.Add(nil)
 	fmt.Printf("result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
 
-	ok = t.Add(NewRoute(name))
+	ok = t.Add(newRoute(name))
 	fmt.Printf("result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
 
 	ok = t.Remove("")
@@ -63,8 +62,8 @@ func ExampleTable_Lookup() {
 	r = t.Lookup(req)
 	fmt.Printf("result : [lookup:%v]\n", r)
 
-	ok := t.Add(NewRoute(name))
-	fmt.Printf("result : [add:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
+	ok := t.Add(newRoute(name))
+	fmt.Printf("result : [add:%v] [count:%v] [exists:%v]\n", ok, t.count(), t.Exists(name))
 
 	t.SetMatcher(func(req *http.Request) string {
 		return name
@@ -77,7 +76,7 @@ func ExampleTable_Lookup() {
 	//result : [empty:true]
 	//result : [lookup:&{* {-1 -1 -1} {-1 -1 -1} false false <nil>}]
 	//result : [lookup:&{* {-1 -1 -1} {-1 -1 -1} false false <nil>}]
-	//result : [add:true] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
+	//result : [add:true] [count:1] [exists:true]
 	//result : [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
 
 }

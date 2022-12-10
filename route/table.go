@@ -40,7 +40,7 @@ func NewTable() Routes {
 func newTable() *table {
 	t := new(table)
 	t.routes = make(map[string]*route, 100)
-	t.defaultRoute = NewRoute(DefaultName)
+	t.defaultRoute = newRoute(DefaultName)
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
