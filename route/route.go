@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	DefaultName = "*"
-	NilValue    = -1
+	DefaultName  = "*"
+	NilValue     = -1
+	DefaultBurst = 1
 )
 
 type Matcher func(req *http.Request) (name string)
@@ -52,8 +53,12 @@ func newRoute(name string) Route {
 	return r
 }
 
-func NewRouteWithLogging(name string, accessLog bool) (Route, error) {
+func newRouteWithLogging(name string, accessLog bool) (Route, error) {
 	return NewRouteWithConfig(name, NilValue, NilValue, NilValue, accessLog, false)
+}
+
+func NewRouteWithTimeout(name string, timeout int, accessLog, pingTraffic bool) (Route, error) {
+	return newRouteWithConfig(name, timeout, rate.Inf, DefaultBurst, accessLog, pingTraffic)
 }
 
 func NewRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, accessLog, pingTraffic bool) (Route, error) {
@@ -65,41 +70,33 @@ func newRouteWithConfig(name string, timeout int, limit rate.Limit, burst int, a
 		return nil, errors.New("invalid argument : route name is empty")
 	}
 	route := &route{name: name, default_: config{timeout: timeout, limit: limit, burst: burst}, writeAccessLog: accessLog, pingTraffic: pingTraffic}
-	err := route.validate()
-	if err != nil {
-		return nil, err
-	}
+	route.validate()
 	route.current = route.default_
-	if route.default_.limit != NilValue && route.default_.burst != NilValue {
-		route.rateLimiter = rate.NewLimiter(route.default_.limit, route.default_.burst)
-	}
+	route.rateLimiter = rate.NewLimiter(route.default_.limit, route.default_.burst)
 	return route, nil
 }
 
-func (r *route) validate() error {
+func (r *route) validate() {
 	if r.default_.timeout <= 0 {
 		r.default_.timeout = NilValue
 	}
-	if r.default_.limit <= 0 {
-		r.default_.limit = NilValue
+	r.validateLimiter(&r.default_.limit, &r.default_.burst)
+}
+
+func (r *route) validateLimiter(max *rate.Limit, burst *int) {
+	if max != nil && *max <= 0 {
+		*max = rate.Inf
 	}
-	if r.default_.burst <= 0 {
-		r.default_.burst = NilValue
+	if burst != nil && *burst <= 0 {
+		*burst = DefaultBurst
 	}
-	// Special handling for rate.Inf
-	if r.default_.limit == rate.Inf {
-		if r.default_.burst <= 0 {
-			r.default_.burst = 1
-		}
-		return nil
-	}
-	if r.default_.limit == NilValue && r.default_.burst != NilValue {
-		return errors.New("invalid argument : burst is configured but limit is not")
-	}
-	if r.default_.limit != NilValue && r.default_.burst == NilValue {
-		return errors.New("invalid argument : limit is configured but burst is not")
-	}
-	return nil
+	//if *max == NilValue && *burst != NilValue {
+	//	return errors.New("invalid argument : burst is configured but limit is not")
+	//}
+	//if *max != NilValue && *burst == NilValue {
+	//	return errors.New("invalid argument : limit is configured but burst is not")
+	//}
+	//return nil
 }
 
 func (r *route) IsDefault() bool {
@@ -134,7 +131,7 @@ func (r *route) Duration() time.Duration {
 }
 
 func (r *route) Allow() bool {
-	if !r.IsRateLimiter() {
+	if r.current.limit == rate.Inf {
 		return true
 	}
 	return r.rateLimiter.Allow()

@@ -31,12 +31,50 @@ func (t *table) DisableTimeout(name string) {
 	t.SetTimeout(name, NilValue)
 }
 
-func (t *table) SetLimiter(name string, max rate.Limit, burst int) {
+func (t *table) SetLimit(name string, max rate.Limit) {
 	if name == "" {
 		return
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
+		if r.IsRateLimiter() {
+			r.validateLimiter(&max, nil)
+			r.rateLimiter.SetLimit(max)
+		}
+
+	}
+	t.mu.Unlock()
+}
+
+func (t *table) SetBurst(name string, burst int) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	if r, ok := t.routes[name]; ok {
+		if r.IsRateLimiter() {
+			r.validateLimiter(nil, &burst)
+			r.rateLimiter.SetBurst(burst)
+		}
+	}
+	t.mu.Unlock()
+}
+
+/*
+func (t *table) SetLimiter(name string, max rate.Limit, burst int) error {
+	if name == "" {
+		return nil
+	}
+	t.mu.Lock()
+	if r, ok := t.routes[name]; ok {
+		err := r.validateLimiter(&max, &burst)
+		if err != nil {
+			return nil
+		}
+		if r.rateLimiter == nil {
+			r.rateLimiter = rate.NewLimiter(max, burst)
+			return nil
+		}
 		if r.rateLimiter != nil {
 			if max >= 0 {
 				r.current.limit = max
@@ -49,8 +87,11 @@ func (t *table) SetLimiter(name string, max rate.Limit, burst int) {
 		}
 	}
 	t.mu.Unlock()
+	return nil
 }
 
+
+*/
 func (t *table) ResetLimiter(name string) {
 	if name == "" {
 		return
