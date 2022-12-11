@@ -36,18 +36,18 @@ func ExampleTable_Interact() {
 	ok = t.Add(newRoute(name))
 	fmt.Printf("result : add(route) -> [%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
 
-	ok = t.Remove("")
-	fmt.Printf("result : remove(\"\") -> [%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
+	t.Remove("")
+	fmt.Printf("result : remove(\"\") -> [count:%v] [exists:%v] [lookup:%v]\n", t.count(), t.Exists(name), t.LookupByName(name))
 
-	ok = t.Remove(name)
-	fmt.Printf("result : remove(name) -> [%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.Exists(name), t.LookupByName(name))
+	t.Remove(name)
+	fmt.Printf("result : remove(name) -> [count:%v] [exists:%v] [lookup:%v]\n", t.count(), t.Exists(name), t.LookupByName(name))
 
 	//Output:
 	//result : empty() -> [true]
 	//result : add(nil) -> [false] [count:0] [exists:false] [lookup:<nil>]
 	//result : add(route) -> [true] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
-	//result : remove("") -> [false] [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
-	//result : remove(name) -> [true] [count:0] [exists:false] [lookup:<nil>]
+	//result : remove("") -> [count:1] [exists:true] [lookup:&{test-route {-1 -1 -1} {-1 -1 -1} false false <nil>}]
+	//result : remove(name) -> [count:0] [exists:false] [lookup:<nil>]
 
 }
 

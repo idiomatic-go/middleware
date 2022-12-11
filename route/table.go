@@ -15,15 +15,15 @@ type Routes interface {
 
 	Exists(name string) bool
 	Add(r Route) bool
-	Remove(name string) bool
+	Remove(name string)
 
-	SetTimeout(name string, timeout int) bool
-	ResetTimeout(name string) bool
-	DisableTimeout(name string) bool
+	SetTimeout(name string, timeout int)
+	ResetTimeout(name string)
+	DisableTimeout(name string)
 
-	SetLimiter(name string, max rate.Limit, burst int) bool
-	ResetLimiter(name string) bool
-	DisableLimiter(name string) bool
+	SetLimiter(name string, max rate.Limit, burst int)
+	ResetLimiter(name string)
+	DisableLimiter(name string)
 }
 
 type table struct {
@@ -57,7 +57,7 @@ func (t *table) SetDefault(r Route) {
 }
 
 func (t *table) SetMatcher(fn Matcher) {
-	if t == nil || fn == nil {
+	if fn == nil {
 		return
 	}
 	t.mu.Lock()
@@ -78,7 +78,7 @@ func (t *table) Lookup(req *http.Request) Route {
 }
 
 func (t *table) LookupByName(name string) Route {
-	if t == nil || name == "" {
+	if name == "" {
 		return nil
 	}
 	t.mu.RLock()
@@ -90,7 +90,7 @@ func (t *table) LookupByName(name string) Route {
 }
 
 func (t *table) Exists(name string) bool {
-	if t == nil || IsEmpty(name) {
+	if name == "" {
 		return false
 	}
 	t.mu.RLock()
@@ -102,7 +102,7 @@ func (t *table) Exists(name string) bool {
 }
 
 func (t *table) Add(r Route) bool {
-	if t == nil || r == nil || IsEmpty(r.Name()) {
+	if r == nil || IsEmpty(r.Name()) {
 		return false
 	}
 	t.mu.Lock()
@@ -115,14 +115,13 @@ func (t *table) Add(r Route) bool {
 	return true
 }
 
-func (t *table) Remove(name string) bool {
-	if t == nil || IsEmpty(name) {
-		return false
+func (t *table) Remove(name string) {
+	if name == "" {
+		return
 	}
 	t.mu.Lock()
 	delete(t.routes, name)
 	t.mu.Unlock()
-	return true
 }
 
 func (t *table) count() int {

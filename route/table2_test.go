@@ -5,13 +5,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func safeLookup(t Routes, name string) Route {
-	r := t.LookupByName(name)
-	if r == nil {
-		return newRoute("empty")
-	}
-	return r
-}
+type Ok func(name string) bool
 
 func current(r Route) config {
 	if r == nil {
@@ -34,6 +28,16 @@ func setup(t Routes, name string, timeout int, limit rate.Limit, burst int) Rout
 	return r
 }
 
+func setupCall(t Routes, name string, fn Ok) (Route, bool) {
+	ok := fn(name)
+	r := t.LookupByName(name)
+	if r == nil {
+		fmt.Printf("test: Lookup(route) -> [ok:%v]", ok)
+		return nil, false
+	}
+	return r, true
+}
+
 func Example_Timeout() {
 	name := "timeout-route"
 	t := NewTable()
@@ -43,34 +47,34 @@ func Example_Timeout() {
 	}
 	prev := current(r)
 
-	ok := t.SetTimeout(name, 2000)
+	t.SetTimeout(name, 2000)
 	r = t.LookupByName(name)
 	if r == nil {
-		fmt.Printf("test: Lookup(route) -> [ok:%v]", ok)
+		fmt.Printf("test: Lookup(route) -> [route:%v]", r)
 		return
 	}
-	fmt.Printf("test: SetTimeout(\"timeout-route\",2000) -> [ok:%v] [prev:%v] [curr:%v]\n", ok, prev.timeout, current(r).timeout)
+	fmt.Printf("test: SetTimeout(\"timeout-route\",2000) -> [prev:%v] [curr:%v]\n", prev.timeout, current(r).timeout)
 
 	prev = current(r)
-	ok = t.ResetTimeout(name)
+	t.ResetTimeout(name)
 	r = t.LookupByName(name)
 	if r == nil {
-		fmt.Printf("test: Lookup(route) -> [ok:%v]", ok)
+		fmt.Printf("test: Lookup(route) -> [route:%v]", r)
 		return
 	}
-	fmt.Printf("test: ResetTimeout(\"timeout-route\") -> [ok:%v] [prev:%v] [curr:%v]\n", ok, prev.timeout, current(r).timeout)
+	fmt.Printf("test: ResetTimeout(\"timeout-route\") -> [prev:%v] [curr:%v]\n", prev.timeout, current(r).timeout)
 
 	prev = current(r)
-	ok = t.DisableTimeout(name)
+	t.DisableTimeout(name)
 	r = t.LookupByName(name)
 	if r == nil {
-		fmt.Printf("test: Lookup(route) -> [ok:%v]", ok)
+		fmt.Printf("test: Lookup(route) -> [route:%v]", r)
 		return
 	}
-	fmt.Printf("test: DisableTimeout(\"timeout-route\") -> [ok:%v] [prev:%v] [curr:%v]\n", ok, prev.timeout, current(r).timeout)
+	fmt.Printf("test: DisableTimeout(\"timeout-route\") -> [prev:%v] [curr:%v]\n", prev.timeout, current(r).timeout)
 
 	//Output:
-	//test: SetTimeout("timeout-route",2000) -> [ok:true] [prev:1000] [curr:2000]
-	//test: ResetTimeout("timeout-route") -> [ok:true] [prev:2000] [curr:1000]
-	//test: DisableTimeout("timeout-route") -> [ok:true] [prev:1000] [curr:-1]
+	//test: SetTimeout("timeout-route",2000) -> [prev:1000] [curr:2000]
+	//test: ResetTimeout("timeout-route") -> [prev:2000] [curr:1000]
+	//test: DisableTimeout("timeout-route") -> [prev:1000] [curr:-1]
 }

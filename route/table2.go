@@ -2,9 +2,9 @@ package route
 
 import "golang.org/x/time/rate"
 
-func (t *table) SetTimeout(name string, timeout int) bool {
-	if t == nil || IsEmpty(name) {
-		return false
+func (t *table) SetTimeout(name string, timeout int) {
+	if name == "" {
+		return
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
@@ -14,28 +14,26 @@ func (t *table) SetTimeout(name string, timeout int) bool {
 		r.current.timeout = timeout
 	}
 	t.mu.Unlock()
-	return true
 }
 
-func (t *table) ResetTimeout(name string) bool {
-	if t == nil || IsEmpty(name) {
-		return false
+func (t *table) ResetTimeout(name string) {
+	if name == "" {
+		return
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
 		r.current.timeout = r.default_.timeout
 	}
 	t.mu.Unlock()
-	return true
 }
 
-func (t *table) DisableTimeout(name string) bool {
-	return t.SetTimeout(name, NilValue)
+func (t *table) DisableTimeout(name string) {
+	t.SetTimeout(name, NilValue)
 }
 
-func (t *table) SetLimiter(name string, max rate.Limit, burst int) bool {
-	if t == nil || IsEmpty(name) {
-		return false
+func (t *table) SetLimiter(name string, max rate.Limit, burst int) {
+	if name == "" {
+		return
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
@@ -51,12 +49,11 @@ func (t *table) SetLimiter(name string, max rate.Limit, burst int) bool {
 		}
 	}
 	t.mu.Unlock()
-	return true
 }
 
-func (t *table) ResetLimiter(name string) bool {
-	if t == nil || IsEmpty(name) {
-		return false
+func (t *table) ResetLimiter(name string) {
+	if name == "" {
+		return
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
@@ -68,12 +65,11 @@ func (t *table) ResetLimiter(name string) bool {
 		}
 	}
 	t.mu.Unlock()
-	return true
 }
 
-func (t *table) DisableLimiter(name string) bool {
-	if t == nil || IsEmpty(name) {
-		return false
+func (t *table) DisableLimiter(name string) {
+	if name == "" {
+		return
 	}
 	t.mu.Lock()
 	if r, ok := t.routes[name]; ok {
@@ -83,7 +79,6 @@ func (t *table) DisableLimiter(name string) bool {
 		}
 	}
 	t.mu.Unlock()
-	return true
 }
 
 /*
