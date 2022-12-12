@@ -2,7 +2,12 @@ package accesslog
 
 import "strings"
 
-type Directory map[string]*Entry
+const (
+	headerPrefix   = "header"
+	directOperator = "direct"
+)
+
+type directoryT map[string]*Entry
 
 // Reference - configuration of logging entries
 type Reference struct {

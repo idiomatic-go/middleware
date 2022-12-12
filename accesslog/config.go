@@ -6,6 +6,58 @@ import (
 	"strings"
 )
 
+const (
+	operatorPrefix          = "%"
+	requestReferencePrefix  = "%REQ("
+	RequestIdHeaderName     = "X-REQUEST-ID"
+	UserAgentHeaderName     = "USER-AGENT"
+	FordwardedForHeaderName = "X-FORWARDED-FOR"
+
+	// Envoy
+	TrafficOperator   = "%TRAFFIC%"    //  ingress, egress, ping
+	RouteNameOperator = "%ROUTE_NAME%" // route name
+	StartTimeOperator = "%START_TIME%" // start time
+	DurationOperator  = "%DURATION%"   // Total duration in milliseconds of the request from the start time to the last byte out.
+
+	// Application
+	OriginRegionOperator     = "%REGION%"      // origin region
+	OriginZoneOperator       = "%ZONE%"        // origin zone
+	OriginSubZoneOperator    = "%SUB_ZONE%"    // origin sub zone
+	OriginServiceOperator    = "%SERVICE%"     // origin service
+	OriginInstanceIdOperator = "%INSTANCE_ID%" // origin instance id
+
+	// Response
+	ResponseCodeOperator          = "%RESPONSE_CODE%"  // HTTP status code
+	ResponseBytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
+	ResponseBytesSentOperator     = "%BYTES_SENT%"     // bytes sent
+	ResponseFlagsOperator         = "%RESPONSE_FLAGS%" // response flags
+	//UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
+
+	// Request
+	RequestProtocolOperator = "%PROTOCOL%" // HTTP Protocol
+	RequestMethodOperator   = "%METHOD%"   // HTTP method
+	RequestUrlOperator      = "%URL%"
+	RequestPathOperator     = "%PATH%"
+	RequestHostOperator     = "%HOST%"
+
+	RequestIdOperator           = "%X-REQUEST-ID%"    // X-REQUEST-ID request header value
+	RequestUserAgentOperator    = "%USER-AGENT%"      // user agent request header value
+	RequestAuthorityOperator    = "%AUTHORITY%"       // authority request header value
+	RequestForwardedForOperator = "%X-FORWARDED-FOR%" // client IP address (X-FORWARDED-FOR request header value)
+
+	// gRPC
+	GRPCStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
+	GRPCStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
+
+	// Rate Limiting
+	RateTokensOperator = "%RATE_LIMIT_TOKENS%"
+	RateLimitOperator  = "%RATE_LIMIT_LIMIT%"
+	RateBurstOperator  = "%RATE_LIMIT_BURST%"
+
+	// Timeout
+	TimeoutOperator = "%TIMEOUT"
+)
+
 var ingressEntries []Entry
 var egressEntries []Entry
 
@@ -84,62 +136,7 @@ func createHeaderEntry(ref Reference) Entry {
 	return NewEntry(op, ref.Name, "", true)
 }
 
-const (
-	headerPrefix            = "header"
-	directOperator          = "direct"
-	operatorPrefix          = "%"
-	requestReferencePrefix  = "%REQ("
-	responseReferencePrefix = "%RESP("
-	RequestIdHeaderName     = "X-REQUEST-ID"
-	UserAgentHeaderName     = "USER-AGENT"
-	FordwardedForHeaderName = "X-FORWARDED-FOR"
-
-	// Envoy
-	TrafficOperator   = "%TRAFFIC%"    //  ingress, egress, ping
-	RouteNameOperator = "%ROUTE_NAME%" // route name
-	StartTimeOperator = "%START_TIME%" // start time
-	DurationOperator  = "%DURATION%"   // Total duration in milliseconds of the request from the start time to the last byte out.
-
-	// Application
-	OriginRegionOperator     = "%REGION%"      // origin region
-	OriginZoneOperator       = "%ZONE%"        // origin zone
-	OriginSubZoneOperator    = "%SUB_ZONE%"    // origin sub zone
-	OriginServiceOperator    = "%SERVICE%"     // origin service
-	OriginInstanceIdOperator = "%INSTANCE_ID%" // origin instance id
-
-	// Response
-	ResponseCodeOperator          = "%RESPONSE_CODE%"  // HTTP status code
-	ResponseBytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
-	ResponseBytesSentOperator     = "%BYTES_SENT%"     // bytes sent
-	ResponseFlagsOperator         = "%RESPONSE_FLAGS%" // response flags
-	//UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
-
-	// Request
-	RequestProtocolOperator = "%PROTOCOL%" // HTTP Protocol
-	RequestMethodOperator   = "%METHOD%"   // HTTP method
-	RequestUrlOperator      = "%URL%"
-	RequestPathOperator     = "%PATH%"
-	RequestHostOperator     = "%HOST%"
-
-	RequestIdOperator           = "%X-REQUEST-ID%"    // X-REQUEST-ID request header value
-	RequestUserAgentOperator    = "%USER-AGENT%"      // user agent request header value
-	RequestAuthorityOperator    = "%AUTHORITY%"       // authority request header value
-	RequestForwardedForOperator = "%X-FORWARDED-FOR%" // client IP address (X-FORWARDED-FOR request header value)
-
-	// gRPC
-	GRPCStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
-	GRPCStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
-
-	// Rate Limiting
-	RateTokensOperator = "%RATE_LIMIT_TOKENS%"
-	RateLimitOperator  = "%RATE_LIMIT_LIMIT%"
-	RateBurstOperator  = "%RATE_LIMIT_BURST%"
-
-	// Timeout
-	TimeoutOperator = "%TIMEOUT"
-)
-
-var directory = Directory{
+var directory = directoryT{
 	TrafficOperator:   &Entry{TrafficOperator, "traffic", "", true},
 	RouteNameOperator: &Entry{RouteNameOperator, "route_name", "", true},
 	StartTimeOperator: &Entry{StartTimeOperator, "start_time", "", true},
@@ -152,10 +149,10 @@ var directory = Directory{
 	OriginInstanceIdOperator: &Entry{OriginInstanceIdOperator, "instance_id", "", true},
 
 	// Response
-	ResponseCodeOperator: &Entry{ResponseCodeOperator, "status_code", "", true},
-	//BytesReceivedOperator: &Entry{BytesReceivedOperator, "bytes_received", "", true},
-	//BytesSentOperator:     &Entry{BytesSentOperator, "bytes_sent", "", true},
-	ResponseFlagsOperator: &Entry{ResponseFlagsOperator, "response_flags", "", true},
+	ResponseCodeOperator:          &Entry{ResponseCodeOperator, "status_code", "", true},
+	ResponseBytesReceivedOperator: &Entry{ResponseBytesReceivedOperator, "bytes_received", "", true},
+	ResponseBytesSentOperator:     &Entry{ResponseBytesSentOperator, "bytes_sent", "", true},
+	ResponseFlagsOperator:         &Entry{ResponseFlagsOperator, "response_flags", "", true},
 	//UpstreamHostOperator:  &Entry{UpstreamHostOperator, "upstream_host", "", true},
 
 	// Request

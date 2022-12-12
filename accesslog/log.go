@@ -3,6 +3,7 @@ package accesslog
 import (
 	"fmt"
 	"github.com/idiomatic-go/middleware/route"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -12,6 +13,45 @@ const (
 	errorNilRouteFmt = "{\"error\": \"%v route is nil\"}"
 	errorEmptyFmt    = "{\"error\": \"%v log entries are empty\"}"
 )
+
+// Extract - optionally allows extraction of log data
+type Extract func(l *Logd)
+
+var extractFn Extract
+
+func SetExtract(fn Extract) {
+	extractFn = fn
+}
+
+// DisableServiceUnavailableRemap - optionally disables HTTP status code remapping
+func DisableServiceUnavailableRemap() {
+	remapStatus = false
+}
+
+var remapStatus = true
+
+// Write - required configuration of log output
+type Write func(s string)
+
+func SetIngressWrite(fn Write) {
+	if fn != nil {
+		ingressWrite = fn
+	} else {
+		ingressWrite = func(s string) {
+			log.Println(s)
+		}
+	}
+}
+
+func SetEgressWrite(fn Write) {
+	if fn != nil {
+		egressWrite = fn
+	} else {
+		egressWrite = func(s string) {
+			log.Println(s)
+		}
+	}
+}
 
 var ingressWrite Write
 var egressWrite Write
@@ -26,16 +66,7 @@ func WriteEgress(start time.Time, duration time.Duration, route route.Route, req
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
 		return
 	}
-	data := &Logd{
-		Traffic:       EgressTraffic,
-		Start:         start,
-		Duration:      duration,
-		Origin:        &origin,
-		Route:         route,
-		ResponseFlags: responseFlags,
-	}
-	data.AddResponse(resp)
-	data.AddRequest(req)
+	data := NewLogd(IngressTraffic, start, duration, &origin, route, req, resp, responseFlags)
 	if extractFn != nil {
 		extractFn(data)
 	}
@@ -55,17 +86,9 @@ func WriteIngress(start time.Time, duration time.Duration, route route.Route, re
 		ingressWrite(fmt.Sprintf(errorNilRouteFmt, IngressTraffic))
 		return
 	}
-	data := &Logd{
-		Traffic:       IngressTraffic,
-		Start:         start,
-		Duration:      duration,
-		Origin:        &origin,
-		Route:         route,
-		RespCode:      code,
-		BytesSent:     bytesSent,
-		ResponseFlags: responseFlags,
-	}
-	data.AddRequest(req)
+	data := NewLogd(IngressTraffic, start, duration, &origin, route, req, nil, responseFlags)
+	data.RespCode = code
+	data.BytesSent = bytesSent
 	if extractFn != nil {
 		extractFn(data)
 	}

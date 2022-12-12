@@ -11,16 +11,16 @@ func NilEmpty(s string) string {
 
 func ExampleIsEmpty() {
 	var s = ""
-	fmt.Printf("Empty : %v\n", IsEmpty(s))
+	fmt.Printf("test: Empty() -> %v\n", IsEmpty(s))
 
 	s = "    "
-	fmt.Printf("Empty : %v\n", IsEmpty(s))
+	fmt.Printf("test: Empty() -> %v\n", IsEmpty(s))
 
 	s = "   def45 "
-	fmt.Printf("Empty : %v\n", IsEmpty(s))
+	fmt.Printf("test: Empty() -> %v\n", IsEmpty(s))
 
 	//Output:
-	//Empty : true
-	//Empty : true
-	//Empty : false
+	//test: Empty() -> true
+	//test: Empty() -> true
+	//test: Empty() -> false
 }

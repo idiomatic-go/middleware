@@ -53,7 +53,7 @@ func newRoute(name string) Route {
 	return r
 }
 
-func newRouteWithLogging(name string, accessLog bool) (Route, error) {
+func NewRouteWithLogging(name string, accessLog bool) (Route, error) {
 	return NewRouteWithConfig(name, NilValue, NilValue, NilValue, accessLog, false)
 }
 

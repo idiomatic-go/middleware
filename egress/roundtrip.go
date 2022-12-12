@@ -4,9 +4,12 @@ import (
 	"context"
 	"errors"
 	"github.com/idiomatic-go/middleware/accesslog"
+	"github.com/idiomatic-go/middleware/route"
 	"net/http"
 	"time"
 )
+
+var Routes = route.NewTable()
 
 type wrapper struct {
 	rt http.RoundTripper
@@ -31,7 +34,7 @@ func (w wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		resp, err = w.RoundTrip(req)
 		// TODO : check on timeout
 		if err != nil && errors.As(err, &context.DeadlineExceeded) {
-			flags = accesslog.UpstreamTmeoutFlag
+			flags = accesslog.UpstreamTimeoutFlag
 			resp.StatusCode = http.StatusGatewayTimeout
 		}
 	}
