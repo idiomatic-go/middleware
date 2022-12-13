@@ -66,7 +66,7 @@ func WriteEgress(start time.Time, duration time.Duration, route route.Route, req
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
 		return
 	}
-	data := NewLogd(IngressTraffic, start, duration, &origin, route, req, resp, responseFlags)
+	data := NewLogd(EgressTraffic, start, duration, &origin, route, req, resp, responseFlags)
 	if extractFn != nil {
 		extractFn(data)
 	}
@@ -87,7 +87,7 @@ func WriteIngress(start time.Time, duration time.Duration, route route.Route, re
 		return
 	}
 	data := NewLogd(IngressTraffic, start, duration, &origin, route, req, nil, responseFlags)
-	data.RespCode = code
+	data.StatusCode = code
 	data.BytesSent = bytesSent
 	if extractFn != nil {
 		extractFn(data)

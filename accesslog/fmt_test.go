@@ -9,7 +9,7 @@ func NilEmpty(s string) string {
 	return s
 }
 
-func ExampleIsEmpty() {
+func Example_IsEmpty() {
 	var s = ""
 	fmt.Printf("test: Empty() -> %v\n", IsEmpty(s))
 

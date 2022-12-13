@@ -37,7 +37,6 @@ type directoryT map[string]*Entry
 
 var directory = directoryT{
 	TrafficOperator:   &Entry{TrafficOperator, "traffic", "", true},
-	RouteNameOperator: &Entry{RouteNameOperator, "route_name", "", true},
 	StartTimeOperator: &Entry{StartTimeOperator, "start_time", "", true},
 	DurationOperator:  &Entry{DurationOperator, "duration_ms", "", false},
 
@@ -47,8 +46,14 @@ var directory = directoryT{
 	OriginServiceOperator:    &Entry{OriginServiceOperator, "service", "", true},
 	OriginInstanceIdOperator: &Entry{OriginInstanceIdOperator, "instance_id", "", true},
 
+	// Route
+	RouteNameOperator:    &Entry{RouteNameOperator, "route_name", "", true},
+	RouteTimeoutOperator: &Entry{RouteTimeoutOperator, "timeout", "", false},
+	RouteLimitOperator:   &Entry{RouteLimitOperator, "limit", "", true},
+	RouteBurstOperator:   &Entry{RouteBurstOperator, "burst", "", false},
+
 	// Response
-	ResponseCodeOperator:          &Entry{ResponseCodeOperator, "status_code", "", true},
+	ResponseStatusCodeOperator:    &Entry{ResponseStatusCodeOperator, "status_code", "", true},
 	ResponseBytesReceivedOperator: &Entry{ResponseBytesReceivedOperator, "bytes_received", "", true},
 	ResponseBytesSentOperator:     &Entry{ResponseBytesSentOperator, "bytes_sent", "", true},
 	ResponseFlagsOperator:         &Entry{ResponseFlagsOperator, "response_flags", "", true},
@@ -59,7 +64,7 @@ var directory = directoryT{
 	RequestUrlOperator:      &Entry{RequestUrlOperator, "url", "", true},
 	RequestMethodOperator:   &Entry{RequestMethodOperator, "method", "", true},
 	RequestPathOperator:     &Entry{RequestPathOperator, "path", "", true},
-	RequestHostOperator:     &Entry{RequestHostOperator, "hosth", "", true},
+	RequestHostOperator:     &Entry{RequestHostOperator, "host", "", true},
 
 	RequestIdOperator:           &Entry{RequestIdOperator, "request_id", "", true},
 	RequestUserAgentOperator:    &Entry{RequestUserAgentOperator, "user_agent", "", true},
@@ -69,8 +74,4 @@ var directory = directoryT{
 	// gRPC
 	GRPCStatusOperator:       &Entry{GRPCStatusOperator, "grpc_status", "", true},
 	GRPCStatusNumberOperator: &Entry{GRPCStatusNumberOperator, "grpc_number", "", true},
-
-	TimeoutOperator:   &Entry{TimeoutOperator, "timeout", "", false},
-	RateLimitOperator: &Entry{RateLimitOperator, "limit", "", true},
-	RateBurstOperator: &Entry{RateBurstOperator, "burst", "", false},
 }

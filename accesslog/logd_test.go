@@ -52,7 +52,7 @@ func Example_Value_Request() {
 }
 
 func Example_Value_Response() {
-	op := ResponseCodeOperator
+	op := ResponseStatusCodeOperator
 
 	data := &Logd{}
 	fmt.Printf("test: Value(\"code\") -> [%v]\n", data.Value(NewEntry(op, "", "", true)))

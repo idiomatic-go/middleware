@@ -14,8 +14,8 @@ const (
 	FordwardedForHeaderName = "X-FORWARDED-FOR"
 
 	// Envoy
-	TrafficOperator   = "%TRAFFIC%"    //  ingress, egress, ping
-	RouteNameOperator = "%ROUTE_NAME%" // route name
+	TrafficOperator = "%TRAFFIC%" //  ingress, egress, ping
+
 	StartTimeOperator = "%START_TIME%" // start time
 	DurationOperator  = "%DURATION%"   // Total duration in milliseconds of the request from the start time to the last byte out.
 
@@ -26,8 +26,14 @@ const (
 	OriginServiceOperator    = "%SERVICE%"     // origin service
 	OriginInstanceIdOperator = "%INSTANCE_ID%" // origin instance id
 
+	RouteNameOperator    = "%ROUTE_NAME%"
+	RouteTokensOperator  = "%ROUTE_RATE_TOKENS%"
+	RouteLimitOperator   = "%ROUTE_RATE_LIMIT%"
+	RouteBurstOperator   = "%ROUTE_RATE_BURST%"
+	RouteTimeoutOperator = "%ROUTE_TIMEOUT%"
+
 	// Response
-	ResponseCodeOperator          = "%RESPONSE_CODE%"  // HTTP status code
+	ResponseStatusCodeOperator    = "%STATUS_CODE%"    // HTTP status code
 	ResponseBytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
 	ResponseBytesSentOperator     = "%BYTES_SENT%"     // bytes sent
 	ResponseFlagsOperator         = "%RESPONSE_FLAGS%" // response flags
@@ -49,23 +55,18 @@ const (
 	GRPCStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
 	GRPCStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
 
-	// Rate Limiting
-	RateTokensOperator = "%RATE_LIMIT_TOKENS%"
-	RateLimitOperator  = "%RATE_LIMIT_LIMIT%"
-	RateBurstOperator  = "%RATE_LIMIT_BURST%"
-
-	// Timeout
-	TimeoutOperator = "%TIMEOUT"
 )
 
 var ingressEntries []Entry
 var egressEntries []Entry
 
 func CreateIngressEntries(config []Reference) error {
+	ingressEntries = []Entry{}
 	return CreateEntries(&ingressEntries, config)
 }
 
 func CreateEgressEntries(config []Reference) error {
+	egressEntries = []Entry{}
 	return CreateEntries(&egressEntries, config)
 }
 

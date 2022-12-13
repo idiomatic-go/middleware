@@ -50,7 +50,7 @@ type Logd struct {
 	Header   http.Header
 
 	// Response
-	RespCode      int
+	StatusCode    int
 	BytesSent     int   // ingress response
 	BytesReceived int64 // egress response content length
 	ResponseFlags string
@@ -85,7 +85,7 @@ func (l *Logd) AddResponse(resp *http.Response) {
 	if resp == nil {
 		return
 	}
-	l.RespCode = resp.StatusCode
+	l.StatusCode = resp.StatusCode
 	l.BytesReceived = resp.ContentLength
 }
 
@@ -117,10 +117,6 @@ func (l *Logd) Value(entry Entry) string {
 			return PingTraffic
 		}
 		return l.Traffic
-	case RouteNameOperator:
-		if l.Route != nil {
-			return l.Route.Name()
-		}
 	case StartTimeOperator:
 		return FmtTimestamp(l.Start)
 	case DurationOperator:
@@ -176,24 +172,26 @@ func (l *Logd) Value(entry Entry) string {
 		return strconv.Itoa(int(l.BytesReceived))
 	case ResponseBytesSentOperator:
 		return strconv.Itoa(l.BytesSent)
-	case ResponseCodeOperator:
-		return strconv.Itoa(l.RespCode)
+	case ResponseStatusCodeOperator:
+		return strconv.Itoa(l.StatusCode)
 
-		// Timeout
-	case TimeoutOperator:
+	// Timeout
+	case RouteNameOperator:
+		if l.Route != nil {
+			return l.Route.Name()
+		}
+	case RouteTimeoutOperator:
 		if l.Route != nil {
 			return strconv.Itoa(l.Route.Timeout())
 		}
-
-		// Rate Limiting
-	case RateLimitOperator:
+	case RouteLimitOperator:
 		if l.Route != nil {
 			if l.Route.Limit() == rate.Inf {
 				return "INF"
 			}
 			return strconv.Itoa(int(l.Route.Limit()))
 		}
-	case RateBurstOperator:
+	case RouteBurstOperator:
 		if l.Route != nil {
 			return strconv.Itoa(l.Route.Burst())
 		}
