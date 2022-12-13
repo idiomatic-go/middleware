@@ -41,14 +41,14 @@ var (
 		{Operator: accesslog.RequestIdOperator},
 		{Operator: accesslog.RequestForwardedForOperator},
 
-		{Operator: accesslog.ResponseCodeOperator},
+		{Operator: accesslog.ResponseStatusCodeOperator},
 		{Operator: accesslog.ResponseFlagsOperator},
 		{Operator: accesslog.ResponseBytesReceivedOperator},
 		{Operator: accesslog.ResponseBytesSentOperator},
 
-		{Operator: accesslog.TimeoutOperator},
-		{Operator: accesslog.RateLimitOperator},
-		{Operator: accesslog.RateBurstOperator},
+		{Operator: accesslog.RouteTimeoutOperator},
+		{Operator: accesslog.RouteLimitOperator},
+		{Operator: accesslog.RouteBurstOperator},
 	}
 )
 
@@ -63,6 +63,7 @@ func Initialize(uri string, newClient *http.Client, fn LogError) error {
 		return err1
 	}
 	url = u.String()
+	entries = []accesslog.Entry{}
 	err = accesslog.CreateEntries(&entries, config)
 	if err != nil {
 		return err
