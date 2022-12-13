@@ -129,15 +129,25 @@ func (l *Logd) Value(entry Entry) string {
 
 		// Origin
 	case OriginRegionOperator:
-		return l.Origin.Region
+		if l.Origin != nil {
+			return l.Origin.Region
+		}
 	case OriginZoneOperator:
-		return l.Origin.Zone
+		if l.Origin != nil {
+			return l.Origin.Zone
+		}
 	case OriginSubZoneOperator:
-		return l.Origin.SubZone
+		if l.Origin != nil {
+			return l.Origin.SubZone
+		}
 	case OriginServiceOperator:
-		return l.Origin.Service
+		if l.Origin != nil {
+			return l.Origin.Service
+		}
 	case OriginInstanceIdOperator:
-		return l.Origin.InstanceId
+		if l.Origin != nil {
+			return l.Origin.InstanceId
+		}
 
 		// Request
 	case RequestMethodOperator:
@@ -156,7 +166,6 @@ func (l *Logd) Value(entry Entry) string {
 		return l.Header.Get(UserAgentHeaderName)
 	case RequestAuthorityOperator:
 		return ""
-
 	case RequestForwardedForOperator:
 		return l.Header.Get(FordwardedForHeaderName)
 

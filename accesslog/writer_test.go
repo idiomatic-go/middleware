@@ -12,10 +12,11 @@ func Example_WriteJson() {
 	writeJson(&sb, "second", "100", false)
 	writeJson(&sb, "third", "another string value", true)
 	writeJson(&sb, "fourth", "true", false)
+	writeJson(&sb, "null-value", "", false)
 	sb.WriteString("}")
 
 	fmt.Printf("test: writeJson() -> [%v]\n", sb.String())
 
 	//Output:
-	//test: writeJson() -> [{"first":"string value","second":100,"third":"another string value","fourth":true}]
+	//test: writeJson() -> [{"first":"string value","second":100,"third":"another string value","fourth":true,"null-value":null}]
 }
