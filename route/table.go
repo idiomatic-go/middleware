@@ -21,11 +21,12 @@ type Routes interface {
 	ResetTimeout(name string)
 	DisableTimeout(name string)
 
-	//SetLimiter(name string, max rate.Limit, burst int)
 	SetLimit(name string, max rate.Limit)
-	SetBurst(name string, burst int)
-	ResetLimiter(name string)
+	ResetLimit(name string)
 	DisableLimiter(name string)
+
+	SetBurst(name string, burst int)
+	ResetBurst(name string)
 }
 
 type table struct {

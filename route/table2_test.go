@@ -78,3 +78,77 @@ func Example_Timeout() {
 	//test: ResetTimeout("timeout-route") -> [prev:2000] [curr:1000]
 	//test: DisableTimeout("timeout-route") -> [prev:1000] [curr:-1]
 }
+
+func Example_RateLimit_Limit() {
+	name := "limit-route"
+	t := NewTable()
+	r := setup(t, name, NilValue, 100, 25)
+	if r == nil {
+		return
+	}
+	prev := current(r)
+
+	t.SetLimit(name, 50)
+	r = t.LookupByName(name)
+	if r == nil {
+		fmt.Printf("test: Lookup(route) -> [route:%v]", r)
+		return
+	}
+	fmt.Printf("test: SetLimit(\"limit-route\",50) -> [prev:%v] [curr:%v]\n", prev.limit, current(r).limit)
+
+	prev = current(r)
+	t.ResetLimit(name)
+	r = t.LookupByName(name)
+	if r == nil {
+		fmt.Printf("test: Lookup(route) -> [route:%v]", r)
+		return
+	}
+	fmt.Printf("test: ResetLimit(\"limit-route\") -> [prev:%v] [curr:%v]\n", prev.limit, current(r).limit)
+
+	prev = current(r)
+	t.DisableLimiter(name)
+	r = t.LookupByName(name)
+	if r == nil {
+		fmt.Printf("test: Lookup(route) -> [route:%v]", r)
+		return
+	}
+	fmt.Printf("test: DisableLimiter(\"limit-route\") -> [prev:%v] [curr:%v]\n", prev.limit, current(r).limit)
+
+	//Output:
+	//test: SetLimit("limit-route",50) -> [prev:100] [curr:50]
+	//test: ResetLimit("limit-route") -> [prev:50] [curr:100]
+	//test: DisableLimiter("limit-route") -> [prev:100] [curr:1.7976931348623157e+308]
+
+}
+
+func Example_RateLimit_Burst() {
+	name := "limit-route"
+	t := NewTable()
+	r := setup(t, name, NilValue, 100, 25)
+	if r == nil {
+		return
+	}
+	prev := current(r)
+
+	t.SetBurst(name, 10)
+	r = t.LookupByName(name)
+	if r == nil {
+		fmt.Printf("test: Lookup(route) -> [route:%v]", r)
+		return
+	}
+	fmt.Printf("test: SetBurst(\"limit-route\",10) -> [prev:%v] [curr:%v]\n", prev.burst, current(r).burst)
+
+	prev = current(r)
+	t.ResetBurst(name)
+	r = t.LookupByName(name)
+	if r == nil {
+		fmt.Printf("test: Lookup(route) -> [route:%v]", r)
+		return
+	}
+	fmt.Printf("test: ResetBurst(\"limit-route\") -> [prev:%v] [curr:%v]\n", prev.burst, current(r).burst)
+
+	//Output:
+	//test: SetBurst("limit-route",10) -> [prev:25] [curr:10]
+	//test: ResetBurst("limit-route") -> [prev:10] [curr:25]
+
+}

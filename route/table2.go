@@ -36,14 +36,32 @@ func (t *table) SetLimit(name string, max rate.Limit) {
 		return
 	}
 	t.mu.Lock()
+	defer t.mu.Unlock()
 	if r, ok := t.routes[name]; ok {
 		if r.IsRateLimiter() {
 			r.validateLimiter(&max, nil)
+			r.current.limit = max
 			r.rateLimiter.SetLimit(max)
 		}
-
 	}
-	t.mu.Unlock()
+}
+
+func (t *table) ResetLimit(name string) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if r, ok := t.routes[name]; ok {
+		if r.IsRateLimiter() {
+			r.current.limit = r.default_.limit
+			r.rateLimiter.SetLimit(r.current.limit)
+		}
+	}
+}
+
+func (t *table) DisableLimiter(name string) {
+	t.SetLimit(name, rate.Inf)
 }
 
 func (t *table) SetBurst(name string, burst int) {
@@ -51,89 +69,26 @@ func (t *table) SetBurst(name string, burst int) {
 		return
 	}
 	t.mu.Lock()
+	defer t.mu.Unlock()
 	if r, ok := t.routes[name]; ok {
 		if r.IsRateLimiter() {
 			r.validateLimiter(nil, &burst)
+			r.current.burst = burst
 			r.rateLimiter.SetBurst(burst)
 		}
 	}
-	t.mu.Unlock()
 }
 
-/*
-func (t *table) SetLimiter(name string, max rate.Limit, burst int) error {
-	if name == "" {
-		return nil
-	}
-	t.mu.Lock()
-	if r, ok := t.routes[name]; ok {
-		err := r.validateLimiter(&max, &burst)
-		if err != nil {
-			return nil
-		}
-		if r.rateLimiter == nil {
-			r.rateLimiter = rate.NewLimiter(max, burst)
-			return nil
-		}
-		if r.rateLimiter != nil {
-			if max >= 0 {
-				r.current.limit = max
-				r.rateLimiter.SetLimit(max)
-			}
-			if burst > 0 {
-				r.current.burst = burst
-				r.rateLimiter.SetBurst(burst)
-			}
-		}
-	}
-	t.mu.Unlock()
-	return nil
-}
-
-
-*/
-func (t *table) ResetLimiter(name string) {
+func (t *table) ResetBurst(name string) {
 	if name == "" {
 		return
 	}
 	t.mu.Lock()
+	defer t.mu.Unlock()
 	if r, ok := t.routes[name]; ok {
-		if r.rateLimiter != nil {
-			r.current.limit = r.default_.limit
+		if r.IsRateLimiter() {
 			r.current.burst = r.default_.burst
-			r.rateLimiter.SetLimit(r.current.limit)
 			r.rateLimiter.SetBurst(r.current.burst)
 		}
 	}
-	t.mu.Unlock()
 }
-
-func (t *table) DisableLimiter(name string) {
-	if name == "" {
-		return
-	}
-	t.mu.Lock()
-	if r, ok := t.routes[name]; ok {
-		if r.rateLimiter != nil {
-			r.current.limit = rate.Inf
-			r.rateLimiter.SetLimit(r.current.limit)
-		}
-	}
-	t.mu.Unlock()
-}
-
-/*
-func (t *table) RemoveLimiter(name string) bool {
-	if t == nil || name == "" {
-		return false
-	}
-	t.mu.Lock()
-	if r, ok := t.routes[name]; ok {
-		r.rateLimiter = nil
-		return true
-	}
-	t.mu.Unlock()
-	return false
-}
-
-*/
