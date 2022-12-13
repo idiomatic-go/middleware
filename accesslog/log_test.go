@@ -24,7 +24,7 @@ func Example_WriteEgress_Error() {
 	//Output:
 	//test: WriteEgress() -> [{"error": "egress route is nil"}]
 	//test: WriteEgress() -> [{"error": "egress log entries are empty"}]
-	
+
 }
 
 func Example_WriteIngress_Error() {
@@ -45,7 +45,10 @@ func Example_WriteIngress_Error() {
 	//test: WriteIngress() -> [{"error": "ingress log entries are empty"}]
 }
 
-func _ExampleLogEgress() {
+func Example_WriteEgress() {
+	egressWrite = func(s string) {
+		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
+	}
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
@@ -54,9 +57,11 @@ func _ExampleLogEgress() {
 
 	r1, _ := route.NewRouteWithLogging("egress-route", true)
 
+	var start1 time.Time
 	CreateEgressEntries([]Reference{{Operator: "%START_TIME%"}, {Operator: "%TRAFFIC%"}, {Operator: "%REGION%"}, {Operator: "%SUB_ZONE%"}, {Operator: "%INSTANCE_ID%"}, {Operator: "%ROUTE_NAME%"}, {Operator: RequestMethodOperator}, {Operator: "%REQ(customer)%"}, {Operator: ResponseCodeOperator}, {Operator: "%DURATION%", Name: "duration_ms_start"}, {Operator: "static", Name: "value"}})
-	WriteEgress(start, time.Since(start), r1, req, nil, "")
+	WriteEgress(start1, time.Since(start), r1, req, nil, "")
+
 	//Output:
-	//fail
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","traffic":"ingress","region":"us-west","sub_zone":null,"instance_id":"123456-7890-1234","route_name":"egress-route","method":"GET","customer":"Ted's Bait & Tackle","status_code":"0","duration_ms_start":0,"static":"value"}]
 
 }
