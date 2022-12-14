@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/idiomatic-go/middleware/accesslog"
 	"net/http"
-	neturl "net/url"
+	urlpkg "net/url"
 	"strings"
 )
 
@@ -52,7 +52,7 @@ func Initialize(uri string, newClient *http.Client, fn ErrorHandler) error {
 	if accesslog.IsEmpty(uri) {
 		return errors.New("invalid argument : uri is empty")
 	}
-	u, err1 := neturl.Parse(uri)
+	u, err1 := urlpkg.Parse(uri)
 	if err1 != nil {
 		return err1
 	}
