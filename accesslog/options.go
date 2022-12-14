@@ -1,6 +1,9 @@
 package accesslog
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 // Extract - optionally allows extraction of log data
 type Extract func(l *Logd)
@@ -12,6 +15,7 @@ type options struct {
 	extractFn    Extract
 	ingressWrite Write
 	egressWrite  Write
+	origin       Origin
 }
 
 var opt options
@@ -55,6 +59,18 @@ func SetEgressWrite(fn Write) {
 	}
 }
 
+func SetTestIngressWrite() {
+	SetIngressWrite(func(s string) {
+		fmt.Printf("test: WriteIngress() -> [%v]\n", s)
+	})
+}
+
+func SetTestEgressWrite() {
+	SetEgressWrite(func(s string) {
+		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
+	})
+}
+
 func ingressWrite(s string) {
 	if opt.ingressWrite != nil {
 		opt.ingressWrite(s)
@@ -65,4 +81,13 @@ func egressWrite(s string) {
 	if opt.egressWrite != nil {
 		opt.egressWrite(s)
 	}
+}
+
+// SetOrigin - required to track service identification
+func SetOrigin(o Origin) {
+	opt.origin = o
+}
+
+func getOrigin() *Origin {
+	return &opt.origin
 }

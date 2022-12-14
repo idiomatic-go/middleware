@@ -3,13 +3,11 @@ package extract
 import (
 	"errors"
 	"github.com/idiomatic-go/middleware/accesslog"
-	"log"
 	"net/http"
 	neturl "net/url"
 	"strings"
 )
 
-type LogError func(err error)
 type messageHandler func(l *accesslog.Logd) bool
 
 var (
@@ -18,15 +16,11 @@ var (
 	entries []accesslog.Entry
 	client                 = http.DefaultClient
 	handler messageHandler = do
-
-	logError = func(err error) {
-		log.Println(err)
-	}
-	config = []accesslog.Reference{
+	config                 = []accesslog.Reference{
 		{Operator: accesslog.StartTimeOperator},
 		{Operator: accesslog.DurationOperator},
-		{Operator: accesslog.RouteNameOperator},
 		{Operator: accesslog.TrafficOperator},
+		{Operator: accesslog.RouteNameOperator},
 
 		{Operator: accesslog.OriginRegionOperator},
 		{Operator: accesslog.OriginZoneOperator},
@@ -52,7 +46,7 @@ var (
 	}
 )
 
-func Initialize(uri string, newClient *http.Client, fn LogError) error {
+func Initialize(uri string, newClient *http.Client, fn ErrorHandler) error {
 	var err error
 
 	if accesslog.IsEmpty(uri) {
@@ -73,9 +67,7 @@ func Initialize(uri string, newClient *http.Client, fn LogError) error {
 	if newClient != nil {
 		client = newClient
 	}
-	if fn != nil {
-		logError = fn
-	}
+	SetErrorHandler(fn)
 	accesslog.SetExtract(extract)
 	return nil
 }
@@ -94,7 +86,7 @@ func extract(l *accesslog.Logd) {
 
 func do(l *accesslog.Logd) bool {
 	if l == nil {
-		logError(errors.New("invalid argument : access log data is nil"))
+		OnError(errors.New("invalid argument : access log data is nil"))
 		return false
 	}
 	// let's not extract the extract, the extract, the extract ...
@@ -110,7 +102,7 @@ func do(l *accesslog.Logd) bool {
 		_, err = client.Do(req)
 	}
 	if err != nil {
-		logError(err)
+		OnError(err)
 		return false
 	}
 	return true

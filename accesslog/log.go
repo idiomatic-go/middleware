@@ -18,7 +18,7 @@ func WriteEgress(start time.Time, duration time.Duration, route route.Route, req
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
 		return
 	}
-	data := NewLogd(EgressTraffic, start, duration, &origin, route, req, resp, responseFlags)
+	data := NewLogd(EgressTraffic, start, duration, getOrigin(), route, req, resp, responseFlags)
 	callExtract(data)
 	if !route.IsLogging() {
 		return
@@ -36,7 +36,7 @@ func WriteIngress(start time.Time, duration time.Duration, route route.Route, re
 		ingressWrite(fmt.Sprintf(errorNilRouteFmt, IngressTraffic))
 		return
 	}
-	data := NewLogd(IngressTraffic, start, duration, &origin, route, req, nil, responseFlags)
+	data := NewLogd(IngressTraffic, start, duration, getOrigin(), route, req, nil, responseFlags)
 	data.StatusCode = code
 	data.BytesSent = bytesSent
 	callExtract(data)

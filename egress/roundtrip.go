@@ -21,12 +21,9 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	var resp *http.Response
 	var err error
 
-	//if req == nil {
-	//	return nil, errors.New("invalid argument : http.Request is nil on RoundTrip call")
-	//}
-	//if w == nil || w.rt == nil {
-	//	return nil, errors.New("invalid wrapper : http.RoundTripper is nil")
-	//}
+	if w == nil || w.rt == nil {
+		return nil, errors.New("invalid egress configuration : http.RoundTripper is nil")
+	}
 	route := Routes.Lookup(req)
 	if route.Allow() {
 		if route.IsTimeout() && req != nil {

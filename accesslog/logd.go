@@ -26,13 +26,6 @@ type Origin struct {
 	InstanceId string
 }
 
-var origin Origin
-
-// SetOrigin - required to track service identification
-func SetOrigin(o Origin) {
-	origin = o
-}
-
 // Logd - struct for all logging information
 type Logd struct {
 	Traffic  string
