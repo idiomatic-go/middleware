@@ -15,30 +15,36 @@ type wrapper struct {
 	rt http.RoundTripper
 }
 
-func (w wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
+func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	var start = time.Now()
 	var flags string
 	var resp *http.Response
 	var err error
 
+	//if req == nil {
+	//	return nil, errors.New("invalid argument : http.Request is nil on RoundTrip call")
+	//}
+	//if w == nil || w.rt == nil {
+	//	return nil, errors.New("invalid wrapper : http.RoundTripper is nil")
+	//}
 	route := Routes.Lookup(req)
-	if !route.Allow() {
-		flags = accesslog.RateLimitFlag
-		resp = &http.Response{Request: req, StatusCode: http.StatusServiceUnavailable}
-	} else {
-		if route.IsTimeout() {
+	if route.Allow() {
+		if route.IsTimeout() && req != nil {
 			ctx, cancel := context.WithTimeout(req.Context(), route.Duration())
 			defer cancel()
 			req = req.Clone(ctx)
 		}
-		resp, err = w.RoundTrip(req)
-		// TODO : check on timeout
+		resp, err = w.rt.RoundTrip(req)
 		if err != nil && errors.As(err, &context.DeadlineExceeded) {
+			err = nil
 			flags = accesslog.UpstreamTimeoutFlag
-			resp.StatusCode = http.StatusGatewayTimeout
+			resp = &http.Response{Request: req, StatusCode: http.StatusGatewayTimeout}
 		}
+	} else {
+		flags = accesslog.RateLimitFlag
+		resp = &http.Response{Request: req, StatusCode: http.StatusServiceUnavailable}
 	}
-	if route.IsLogging() {
+	if route.IsLogging() || accesslog.IsExtract() {
 		accesslog.WriteEgress(start, time.Since(start), route, req, resp, flags)
 	}
 	return resp, err

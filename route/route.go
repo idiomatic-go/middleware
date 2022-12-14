@@ -3,7 +3,6 @@ package route
 import (
 	"errors"
 	"golang.org/x/time/rate"
-	"net/http"
 	"time"
 )
 
@@ -12,8 +11,6 @@ const (
 	NilValue     = -1
 	DefaultBurst = 1
 )
-
-type Matcher func(req *http.Request) (name string)
 
 type Route interface {
 	IsTimeout() bool

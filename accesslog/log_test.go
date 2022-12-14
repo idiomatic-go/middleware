@@ -8,9 +8,9 @@ import (
 )
 
 func Example_WriteEgress_Error() {
-	egressWrite = func(s string) {
+	SetEgressWrite(func(s string) {
 		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
-	}
+	})
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
@@ -28,9 +28,9 @@ func Example_WriteEgress_Error() {
 }
 
 func Example_WriteIngress_Error() {
-	ingressWrite = func(s string) {
+	SetIngressWrite(func(s string) {
 		fmt.Printf("test: WriteIngress() -> [%v]\n", s)
-	}
+	})
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
@@ -46,9 +46,9 @@ func Example_WriteIngress_Error() {
 }
 
 func Example_WriteEgress_Origin_Route() {
-	egressWrite = func(s string) {
+	SetEgressWrite(func(s string) {
 		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
-	}
+	})
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
@@ -68,9 +68,9 @@ func Example_WriteEgress_Origin_Route() {
 }
 
 func Example_WriteEgress_Request() {
-	egressWrite = func(s string) {
+	SetEgressWrite(func(s string) {
 		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
-	}
+	})
 	req, _ := http.NewRequest("", "www.google.com/search/documents", nil)
 	req.Header.Add("customer", "Ted's Bait & Tackle")
 
@@ -92,10 +92,10 @@ func Example_WriteEgress_Request() {
 
 }
 
-func Example_WriteEgress_Responset() {
-	egressWrite = func(s string) {
+func Example_WriteEgress_Response() {
+	SetEgressWrite(func(s string) {
 		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
-	}
+	})
 	resp := &http.Response{StatusCode: 404, ContentLength: 1234}
 	r1, _ := route.NewRouteWithConfig("egress-route", 1000, 500, 100, true, false)
 

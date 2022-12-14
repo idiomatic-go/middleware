@@ -3,7 +3,6 @@ package accesslog
 import (
 	"fmt"
 	"github.com/idiomatic-go/middleware/route"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -14,62 +13,13 @@ const (
 	errorEmptyFmt    = "{\"error\": \"%v log entries are empty\"}"
 )
 
-// Extract - optionally allows extraction of log data
-type Extract func(l *Logd)
-
-var extractFn Extract
-
-func SetExtract(fn Extract) {
-	extractFn = fn
-}
-
-// DisableServiceUnavailableRemap - optionally disables HTTP status code remapping
-func DisableServiceUnavailableRemap() {
-	remapStatus = false
-}
-
-var remapStatus = true
-
-// Write - required configuration of log output
-type Write func(s string)
-
-func SetIngressWrite(fn Write) {
-	if fn != nil {
-		ingressWrite = fn
-	} else {
-		ingressWrite = func(s string) {
-			log.Println(s)
-		}
-	}
-}
-
-func SetEgressWrite(fn Write) {
-	if fn != nil {
-		egressWrite = fn
-	} else {
-		egressWrite = func(s string) {
-			log.Println(s)
-		}
-	}
-}
-
-var ingressWrite Write
-var egressWrite Write
-
-func init() {
-	SetIngressWrite(nil)
-	SetEgressWrite(nil)
-}
-
 func WriteEgress(start time.Time, duration time.Duration, route route.Route, req *http.Request, resp *http.Response, responseFlags string) {
 	if route == nil {
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
 		return
 	}
 	data := NewLogd(EgressTraffic, start, duration, &origin, route, req, resp, responseFlags)
-	if extractFn != nil {
-		extractFn(data)
-	}
+	callExtract(data)
 	if !route.IsLogging() {
 		return
 	}
@@ -89,9 +39,7 @@ func WriteIngress(start time.Time, duration time.Duration, route route.Route, re
 	data := NewLogd(IngressTraffic, start, duration, &origin, route, req, nil, responseFlags)
 	data.StatusCode = code
 	data.BytesSent = bytesSent
-	if extractFn != nil {
-		extractFn(data)
-	}
+	callExtract(data)
 	if !route.IsLogging() {
 		return
 	}
