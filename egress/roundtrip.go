@@ -27,7 +27,7 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	rt := Routes.Lookup(req)
 	if rt.Allow() {
-		if rt.IsTimeout() && req != nil {
+		if rt.IsTimeout() {
 			ctx, cancel := context.WithTimeout(req.Context(), rt.Duration())
 			defer cancel()
 			req = req.Clone(ctx)
