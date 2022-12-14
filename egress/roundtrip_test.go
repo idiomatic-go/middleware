@@ -8,7 +8,12 @@ import (
 )
 
 var (
-	name = "egress-route"
+	accessLogging  = true
+	timeoutRoute   = "timeout-route"
+	rateLimitRoute = "rate-limit-route"
+	googleUrl      = "https://www.google.com/search?q=test"
+	twitterUrl     = "https://www.twitter.com"
+	facebookUrl    = "https://www.facebook.com"
 
 	config = []accesslog.Reference{
 		{Operator: accesslog.StartTimeOperator},
@@ -25,8 +30,6 @@ var (
 		{Operator: accesslog.RequestHostOperator},
 		{Operator: accesslog.RequestPathOperator},
 		{Operator: accesslog.RequestProtocolOperator},
-		//{Operator: accesslog.RequestIdOperator},
-		//{Operator: accesslog.RequestForwardedForOperator},
 
 		{Operator: accesslog.DurationOperator},
 		{Operator: accesslog.ResponseStatusCodeOperator},
@@ -47,9 +50,21 @@ func init() {
 	}
 	accesslog.SetTestEgressWrite()
 	Routes.SetMatcher(func(req *http.Request) string {
-		return name
+		if req == nil {
+			return ""
+		}
+		if req.URL.String() == twitterUrl {
+			return rateLimitRoute
+		}
+		if req.URL.String() == googleUrl {
+			return timeoutRoute
+		}
+		return ""
 	})
-
+	r, _ := route.NewRouteWithConfig(timeoutRoute, 1, 500, 100, accessLogging, false)
+	Routes.Add(r)
+	r, _ = route.NewRouteWithConfig(rateLimitRoute, 2000, 0, 0, accessLogging, false)
+	Routes.Add(r)
 }
 
 func Example_Routes() {
@@ -60,10 +75,8 @@ func Example_Routes() {
 	//test: Lookup(nil) -> [name:*]
 }
 
-func Example_RoundTrip() {
-	r1, _ := route.NewRouteWithConfig(name, 1000, 500, 100, true, false)
-	Routes.Add(r1)
-	req, _ := http.NewRequest("GET", "https://www.google.com/search?q=test", nil)
+func Example_RoundTrip_No_Wrapper() {
+	req, _ := http.NewRequest("GET", facebookUrl, nil)
 
 	// Testing - check for a nil wrapper or round tripper
 	w := wrapper{}
@@ -72,15 +85,46 @@ func Example_RoundTrip() {
 
 	// Testing - no wrapper, calling Google search
 	resp, err = http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(req) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
-
-	// Testing - enable egress, calling Google search
-	EnableDefaultHttpClient()
-	resp, err = http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(req) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+	fmt.Printf("test: RoundTrip(egress:false) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: RoundTrip(wrapper:nil) -> [resp:<nil>] [err:invalid wrapper : http.RoundTripper is nil]
-	//test: RoundTrip(req) -> [status_code:200] [err:<nil>]
+	//test: RoundTrip(wrapper:nil) -> [resp:<nil>] [err:invalid egress round tripper configuration : http.RoundTripper is nil]
+	//test: RoundTrip(egress:false) -> [status_code:200] [err:<nil>]
+
+}
+
+func Example_RoundTrip_Default() {
+	req, _ := http.NewRequest("GET", facebookUrl, nil)
+
+	EnableDefaultHttpClient()
+	resp, err := http.DefaultClient.Do(req)
+	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+
+	//Output:
+	//test: RoundTrip(egress:true) -> [status_code:200] [err:<nil>]
+
+}
+
+func Example_RoundTrip_Timeout() {
+	req, _ := http.NewRequest("GET", googleUrl, nil)
+
+	EnableDefaultHttpClient()
+	resp, err := http.DefaultClient.Do(req)
+	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+
+	//Output:
+	//test: RoundTrip(egress:true) -> [status_code:504] [err:<nil>]
+
+}
+
+func Example_RoundTrip_RateLimit() {
+	req, _ := http.NewRequest("GET", twitterUrl, nil)
+
+	EnableDefaultHttpClient()
+	resp, err := http.DefaultClient.Do(req)
+	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+
+	//Output:
+	//test: RoundTrip(egress:true) -> [status_code:503] [err:<nil>]
 
 }

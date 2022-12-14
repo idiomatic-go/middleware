@@ -13,7 +13,7 @@ const (
 	EgressTraffic       = "egress"
 	IngressTraffic      = "ingress"
 	PingTraffic         = "ping"
-	RateLimitFlag       = "FL"
+	RateLimitFlag       = "RL"
 	UpstreamTimeoutFlag = "UT"
 )
 

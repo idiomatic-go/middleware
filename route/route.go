@@ -81,10 +81,10 @@ func (r *route) validate() {
 }
 
 func (r *route) validateLimiter(max *rate.Limit, burst *int) {
-	if max != nil && *max <= 0 {
+	if max != nil && *max < 0 {
 		*max = rate.Inf
 	}
-	if burst != nil && *burst <= 0 {
+	if burst != nil && *burst < 0 {
 		*burst = DefaultBurst
 	}
 	//if *max == NilValue && *burst != NilValue {

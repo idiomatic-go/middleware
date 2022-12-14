@@ -1,8 +1,11 @@
 package extract
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
-// ErrorHandler - allows handling of errors, default is to log.Println
+// ErrorHandler - allows handling of extract errors, default is to log.Println
 type ErrorHandler func(err error)
 
 type options struct {
@@ -22,6 +25,12 @@ func SetErrorHandler(fn ErrorHandler) {
 		opt.handler = func(err error) {
 			log.Println(err)
 		}
+	}
+}
+
+func SetTestErrorHandler() {
+	opt.handler = func(err error) {
+		fmt.Printf("test: extract(logd) -> [err:%v]\n", err)
 	}
 }
 
