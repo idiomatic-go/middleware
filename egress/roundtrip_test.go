@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	accessLogging  = true
+	accessLogging  = false
+	isEnabled      = false
 	timeoutRoute   = "timeout-route"
 	rateLimitRoute = "rate-limit-route"
 	googleUrl      = "https://www.google.com/search?q=test"
@@ -19,12 +20,6 @@ var (
 		{Operator: accesslog.StartTimeOperator},
 		{Operator: accesslog.TrafficOperator},
 		{Operator: accesslog.RouteNameOperator},
-
-		//{Operator: accesslog.OriginRegionOperator},
-		//{Operator: accesslog.OriginZoneOperator},
-		//{Operator: accesslog.OriginSubZoneOperator},
-		//{Operator: accesslog.OriginServiceOperator},
-		//{Operator: accesslog.OriginInstanceIdOperator},
 
 		{Operator: accesslog.RequestMethodOperator},
 		{Operator: accesslog.RequestHostOperator},
@@ -96,7 +91,10 @@ func Example_RoundTrip_No_Wrapper() {
 func Example_RoundTrip_Default() {
 	req, _ := http.NewRequest("GET", facebookUrl, nil)
 
-	EnableDefaultHttpClient()
+	if !isEnabled {
+		isEnabled = true
+		EnableDefaultHttpClient()
+	}
 	resp, err := http.DefaultClient.Do(req)
 	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
@@ -108,7 +106,10 @@ func Example_RoundTrip_Default() {
 func Example_RoundTrip_Timeout() {
 	req, _ := http.NewRequest("GET", googleUrl, nil)
 
-	EnableDefaultHttpClient()
+	if !isEnabled {
+		isEnabled = true
+		EnableDefaultHttpClient()
+	}
 	resp, err := http.DefaultClient.Do(req)
 	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
@@ -120,7 +121,10 @@ func Example_RoundTrip_Timeout() {
 func Example_RoundTrip_RateLimit() {
 	req, _ := http.NewRequest("GET", twitterUrl, nil)
 
-	EnableDefaultHttpClient()
+	if !isEnabled {
+		isEnabled = true
+		EnableDefaultHttpClient()
+	}
 	resp, err := http.DefaultClient.Do(req)
 	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 

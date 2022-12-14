@@ -25,10 +25,10 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if w == nil || w.rt == nil {
 		return nil, errors.New("invalid egress round tripper configuration : http.RoundTripper is nil")
 	}
-	route := Routes.Lookup(req)
-	if route.Allow() {
-		if route.IsTimeout() && req != nil {
-			ctx, cancel := context.WithTimeout(req.Context(), route.Duration())
+	rt := Routes.Lookup(req)
+	if rt.Allow() {
+		if rt.IsTimeout() && req != nil {
+			ctx, cancel := context.WithTimeout(req.Context(), rt.Duration())
 			defer cancel()
 			req = req.Clone(ctx)
 		}
@@ -42,8 +42,8 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		flags = accesslog.RateLimitFlag
 		resp = &http.Response{Request: req, StatusCode: http.StatusServiceUnavailable}
 	}
-	if route.IsLogging() || accesslog.IsExtract() {
-		accesslog.WriteEgress(start, time.Since(start), route, req, resp, flags)
+	if rt.IsLogging() || accesslog.IsExtract() {
+		accesslog.WriteEgress(start, time.Since(start), rt, req, resp, flags)
 	}
 	return resp, err
 }
