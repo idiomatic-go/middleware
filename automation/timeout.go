@@ -9,6 +9,8 @@ const (
 )
 
 type TimeoutAction interface {
+	Timeout() int
+	StatusCode() int
 	Duration() time.Duration
 }
 
@@ -24,6 +26,8 @@ func NewTimeoutConfig(timeout int, statusCode int) *TimeoutConfig {
 	// TODO : validate status code
 	return &TimeoutConfig{timeout: timeout, statusCode: statusCode}
 }
+
+//func NewTimeoutAction()
 
 type timeout struct {
 	defaultC TimeoutConfig
@@ -64,6 +68,14 @@ func (a *timeout) Configure(v ...any) {
 	//if len(v) != 0 {
 	//		a.configure(v)
 	//}
+}
+
+func (a *timeout) Timeout() int {
+	return a.current.timeout
+}
+
+func (a *timeout) StatusCode() int {
+	return a.current.statusCode
 }
 
 func (a *timeout) Duration() time.Duration {
