@@ -1,11 +1,18 @@
 package automation
 
+import "golang.org/x/time/rate"
+
 const (
 	RateLimitName = "ratelimit"
 )
 
 type RateLimitAction interface {
 	Allow() bool
+}
+
+type RateLimitConfig struct {
+	limit rate.Limit
+	burst int
 }
 
 type rateLimitAction struct {

@@ -4,11 +4,15 @@ const (
 	PingName = "ping"
 )
 
+type PingAction struct {
+	enabled bool
+}
+
 type pingAction struct {
 	enabled bool
 }
 
-func NewPingAction(enabled bool) *pingAction {
+func newPingAction(enabled bool) *pingAction {
 	return &pingAction{enabled}
 }
 
