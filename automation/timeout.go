@@ -25,50 +25,58 @@ func NewTimeoutConfig(timeout int, statusCode int) *TimeoutConfig {
 	return &TimeoutConfig{timeout: timeout, statusCode: statusCode}
 }
 
-type timeoutAction struct {
-	t       *table
-	Default int
-	current int
+type timeout struct {
+	defaultC TimeoutConfig
+	current  TimeoutConfig
 }
 
-func newTimeoutAction(timeout int, t *table) *timeoutAction {
-	if timeout <= 0 {
-		timeout = NilValue
+func newTimeout(c *TimeoutConfig) *timeout {
+	if c == nil {
+		c = NewTimeoutConfig(NilValue, NilValue)
 	}
-	return &timeoutAction{Default: timeout, current: timeout, t: t}
+	action := new(timeout)
+	if c.timeout <= 0 {
+		c.timeout = NilValue
+	}
+	action.current.timeout = c.timeout
+	action.current.statusCode = c.statusCode
+	action.defaultC = action.current
+	return action
 }
 
-func (a *timeoutAction) Name() string {
+func (a *timeout) Name() string {
 	return TimeoutName
 }
 
-func (a *timeoutAction) IsEnabled() bool {
-	return a.current != NilValue
+func (a *timeout) IsEnabled() bool {
+	return a.current.timeout != NilValue
 }
 
-func (a *timeoutAction) Reset() {
-	a.configure(nil)
+func (a *timeout) Reset() {
+	//configureTimeout(timeout,statusCode)a.configure(nil)
 }
 
-func (a *timeoutAction) Disable() {
-	a.configure(NilValue)
+func (a *timeout) Disable() {
+	//a.configure(NilValue)
 }
 
-func (a *timeoutAction) Configure(v ...any) {
-	if len(v) == 0 {
-		return
-	}
-	a.configure(v)
+func (a *timeout) Configure(v ...any) {
+	//if len(v) != 0 {
+	//		a.configure(v)
+	//}
 }
 
-func (a *timeoutAction) Duration() time.Duration {
-	if a.current == NilValue {
+func (a *timeout) Duration() time.Duration {
+	if a.current.timeout == NilValue {
 		return 0
 	}
-	return time.Duration(a.current) * time.Millisecond
+	return time.Duration(a.current.timeout) * time.Millisecond
 }
 
-func (a *timeoutAction) configure(v ...any) {
-	a.t.configureTimeout(v)
+func (a *timeout) configure(v ...any) {
+	//timeout := NilValue
+	//statusCode := NilValue
+
+	//configureTimeout(timeout,statusCode)
 
 }

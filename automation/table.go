@@ -1,46 +1,44 @@
 package automation
 
 import (
-	"golang.org/x/time/rate"
 	"net/http"
 	"sync"
 )
 
-type directory[T any] struct {
-	entry map[string]T
-}
+var this *table
 
 type table struct {
-	mu        sync.RWMutex
-	Default   Actuator
-	match     Matcher
-	actuators map[string]*actuator
-	pings     map[string]*pingAction
+	mu         sync.RWMutex
+	pmu        sync.RWMutex
+	defaultAct *actuator
+	match      Matcher
+	actuators  map[string]*actuator
+	pings      map[string]*pingAction
 }
 
 func NewTable() Automation {
-	return newTable()
+	this = newTable()
+	return this
 }
 
 func newTable() *table {
 	t := new(table)
 	t.pings = make(map[string]*pingAction, 100)
 	t.actuators = make(map[string]*actuator, 100)
-	//t.limits.entry= make(map[string]*rateLimitAction, 100)
-	//t.actuators = make(map[string]Actuator, 100)
-	//t.defaultRoute = newRoute(DefaultName)
+	t.defaultAct = &actuator{name: DefaultName, timeout: newTimeout(NewTimeoutConfig(NilValue, NilValue)), limit: nil}
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
 	return t
 }
 
-func (t *table) SetDefault(a Actuator) {
-	if a == nil {
-		return
-	}
+func (t *table) SetDefault(name string, tc *TimeoutConfig, rc *RateLimitConfig) {
 	t.mu.Lock()
-	t.Default = a
+	defer t.mu.Unlock()
+	if name == "" {
+		name = DefaultName
+	}
+	t.defaultAct = &actuator{name: name, timeout: newTimeout(tc), limit: nil}
 	t.mu.Unlock()
 }
 
@@ -53,41 +51,58 @@ func (t *table) SetMatcher(fn Matcher) {
 	t.mu.Unlock()
 }
 
-func (t *table) IsPing(name string) bool {
+func (t *table) IsPingEnabled(name string) bool {
+	if name == "" {
+		return false
+	}
+	t.pmu.RLock()
+	if p, ok := t.pings[name]; ok {
+		return p.IsEnabled()
+	}
+	t.pmu.Unlock()
 	return false
-}
-
-func (t *table) NewTimeout(timeout int) TimeoutAction {
-	return newTimeoutAction(timeout, t)
-}
-
-func (t *table) NewPing(enable bool) Action {
-	return nil
-}
-
-func (t *table) NewRateLimit(max rate.Limit, burst int) RateLimitAction {
-	return nil
 }
 
 func (t *table) Lookup(req *http.Request) Actuator {
-	return nil
+	name := t.match(req)
+	if name != "" {
+		if r := t.LookupByName(name); r != nil {
+			return r
+		}
+	}
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	return t.defaultAct
 }
+
 func (t *table) LookupByName(name string) Actuator {
+	if name == "" {
+		return nil
+	}
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	if r, ok := t.actuators[name]; ok {
+		return r
+	}
 	return nil
 }
 
-func (t *table) Exists(name string) bool {
+func (t *table) Add(name string, pc *PingConfig, tc *TimeoutConfig, rc *RateLimitConfig) bool {
+	if IsEmpty(name) {
+		return false
+	}
+	if pc != nil {
+		t.pmu.Lock()
+		t.pings[name] = newPingAction(pc.enabled)
+		t.pmu.Unlock()
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.actuators[name] = &actuator{name: name, timeout: newTimeout(tc), limit: nil}
 	return false
 }
-func (t *table) Add(a Actuator) bool {
-	return false
-}
 
-func (t *table) Remove(name string) {
-
-}
-
-func (t *table) configureTimeout(v ...any) {
+func configureTimeout(timeout int, statusCode int) {
 	/*t.mu.Lock()
 	defer t.mu.Unlock()
 	if len(v) == 0 {

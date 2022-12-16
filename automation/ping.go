@@ -8,6 +8,14 @@ type PingAction struct {
 	enabled bool
 }
 
+type PingConfig struct {
+	enabled bool
+}
+
+func NewPingConfig(enabled bool) *PingConfig {
+	return &PingConfig{enabled: enabled}
+}
+
 type pingAction struct {
 	enabled bool
 }
