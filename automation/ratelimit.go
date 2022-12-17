@@ -18,6 +18,7 @@ type RateLimitConfig struct {
 type rateLimitAction struct {
 	Default int
 	current int
+	canary  int
 }
 
 func (a *rateLimitAction) Name() string {

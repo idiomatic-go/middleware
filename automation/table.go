@@ -1,11 +1,11 @@
 package automation
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 )
-
-var this *table
 
 type table struct {
 	mu         sync.RWMutex
@@ -13,19 +13,19 @@ type table struct {
 	defaultAct *actuator
 	match      Matcher
 	actuators  map[string]*actuator
-	pings      map[string]*pingAction
+	//	pings      map[string]*pingAction
 }
 
 func NewTable() Automation {
-	this = newTable()
+	this := newTable()
 	return this
 }
 
 func newTable() *table {
 	t := new(table)
-	t.pings = make(map[string]*pingAction, 100)
+	//t.pings = make(map[string]*pingAction, 100)
 	t.actuators = make(map[string]*actuator, 100)
-	t.defaultAct = &actuator{name: DefaultName, timeout: newTimeout(NewTimeoutConfig(NilValue, NilValue))}
+	t.defaultAct = &actuator{name: DefaultName, timeout: newTimeout(DefaultName, NewTimeoutConfig(NilValue, NilValue), t)}
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
@@ -38,8 +38,7 @@ func (t *table) SetDefault(name string, tc *TimeoutConfig) {
 	if name == "" {
 		name = DefaultName
 	}
-	t.defaultAct = &actuator{name: name, timeout: newTimeout(tc)}
-	t.mu.Unlock()
+	t.defaultAct = &actuator{name: name, timeout: newTimeout(name, tc, t)}
 }
 
 func (t *table) SetMatcher(fn Matcher) {
@@ -56,9 +55,9 @@ func (t *table) IsPingEnabled(name string) bool {
 		return false
 	}
 	t.pmu.RLock()
-	if p, ok := t.pings[name]; ok {
-		return p.IsEnabled()
-	}
+	//if p, ok := t.pings[name]; ok {
+	//	return p.IsEnabled()
+	//}
 	t.pmu.Unlock()
 	return false
 }
@@ -101,23 +100,51 @@ func (t *table) Add(name string, tc *TimeoutConfig) bool {
 	*/
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	t.actuators[name] = &actuator{name: name, timeout: newTimeout(tc)}
+	t.actuators[name] = &actuator{name: name, timeout: newTimeout(name, tc, t)}
+	return true
+}
+
+func (t *table) exists(name string) bool {
+	if name == "" {
+		return false
+	}
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	if _, ok := t.actuators[name]; ok {
+		return true
+	}
 	return false
 }
 
-func configureTimeout(timeout int, statusCode int) {
-	/*t.mu.Lock()
+func (t *table) update(name string, act *actuator) error {
+	if name == "" || act == nil {
+		return errors.New("invalid argument : name, act, or this is nil or empty")
+	}
+	t.mu.Lock()
 	defer t.mu.Unlock()
-	if len(v) == 0 {
-		a.current = a.Default
+	if _, ok := t.actuators[name]; ok {
+		delete(t.actuators, name)
+		t.actuators[name] = act
+		return nil
+	}
+	return errors.New(fmt.Sprintf("invalid argument : actuator not found [%v]", name))
+}
+
+func (t *table) count() int {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	return len(t.actuators)
+}
+
+func (t *table) isEmpty() bool {
+	return t.count() == 0
+}
+
+func (t *table) remove(name string) {
+	if name == "" {
 		return
 	}
-	if timeout, ok := v[0].(int); ok {
-		if timeout <= 0 {
-			timeout = NilValue
-		}
-		a.current = timeout
-	}
-
-	*/
+	t.mu.Lock()
+	delete(t.actuators, name)
+	t.mu.Unlock()
 }

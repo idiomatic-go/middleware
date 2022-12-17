@@ -9,11 +9,11 @@ const (
 type Invoke func(a Actuator)
 
 type Controller interface {
-	Name() string
+	//Name() string
 	IsEnabled() bool
 	Reset()
 	Disable()
-	Configure(event string)
+	Configure(event string) error
 	Adjust(up bool)
 	State() []string
 }
