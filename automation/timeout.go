@@ -8,9 +8,9 @@ const (
 	TimeoutName = "timeout"
 )
 
-type TimeoutAction interface {
+type TimeoutController interface {
 	Timeout() int
-	StatusCode() int
+	StatusCode(defaultStatusCode int) int
 	Duration() time.Duration
 }
 
@@ -23,11 +23,23 @@ func NewTimeoutConfig(timeout int, statusCode int) *TimeoutConfig {
 	if timeout <= 0 {
 		timeout = NilValue
 	}
+	if statusCode <= 0 {
+		timeout = NilValue
+	}
 	// TODO : validate status code
 	return &TimeoutConfig{timeout: timeout, statusCode: statusCode}
 }
 
-//func NewTimeoutAction()
+func NewTimeout(duration int, statusCode int) TimeoutController {
+	t := new(timeout)
+	if duration <= 0 {
+		duration = NilValue
+	}
+	t.current.timeout = duration
+	t.current.statusCode = statusCode
+	t.defaultC = t.current
+	return t
+}
 
 type timeout struct {
 	defaultC TimeoutConfig
@@ -38,14 +50,14 @@ func newTimeout(c *TimeoutConfig) *timeout {
 	if c == nil {
 		c = NewTimeoutConfig(NilValue, NilValue)
 	}
-	action := new(timeout)
+	t := new(timeout)
 	if c.timeout <= 0 {
 		c.timeout = NilValue
 	}
-	action.current.timeout = c.timeout
-	action.current.statusCode = c.statusCode
-	action.defaultC = action.current
-	return action
+	t.current.timeout = c.timeout
+	t.current.statusCode = c.statusCode
+	t.defaultC = t.current
+	return t
 }
 
 func (a *timeout) Name() string {
@@ -64,17 +76,29 @@ func (a *timeout) Disable() {
 	//a.configure(NilValue)
 }
 
-func (a *timeout) Configure(v ...any) {
+func (a *timeout) Configure(s string) {
 	//if len(v) != 0 {
 	//		a.configure(v)
 	//}
+}
+
+func (a *timeout) Adjust(up bool) {
+
+}
+
+func (a *timeout) State(s string) []string {
+
+	return nil
 }
 
 func (a *timeout) Timeout() int {
 	return a.current.timeout
 }
 
-func (a *timeout) StatusCode() int {
+func (a *timeout) StatusCode(defaultStatusCode int) int {
+	if a.current.statusCode == NilValue {
+		return defaultStatusCode
+	}
 	return a.current.statusCode
 }
 

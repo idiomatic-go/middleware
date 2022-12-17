@@ -25,20 +25,20 @@ func newTable() *table {
 	t := new(table)
 	t.pings = make(map[string]*pingAction, 100)
 	t.actuators = make(map[string]*actuator, 100)
-	t.defaultAct = &actuator{name: DefaultName, timeout: newTimeout(NewTimeoutConfig(NilValue, NilValue)), limit: nil}
+	t.defaultAct = &actuator{name: DefaultName, timeout: newTimeout(NewTimeoutConfig(NilValue, NilValue))}
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
 	return t
 }
 
-func (t *table) SetDefault(name string, tc *TimeoutConfig, rc *RateLimitConfig) {
+func (t *table) SetDefault(name string, tc *TimeoutConfig) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if name == "" {
 		name = DefaultName
 	}
-	t.defaultAct = &actuator{name: name, timeout: newTimeout(tc), limit: nil}
+	t.defaultAct = &actuator{name: name, timeout: newTimeout(tc)}
 	t.mu.Unlock()
 }
 
@@ -87,18 +87,21 @@ func (t *table) LookupByName(name string) Actuator {
 	return nil
 }
 
-func (t *table) Add(name string, pc *PingConfig, tc *TimeoutConfig, rc *RateLimitConfig) bool {
+func (t *table) Add(name string, tc *TimeoutConfig) bool {
 	if IsEmpty(name) {
 		return false
 	}
-	if pc != nil {
-		t.pmu.Lock()
-		t.pings[name] = newPingAction(pc.enabled)
-		t.pmu.Unlock()
-	}
+	/*
+		if pc != nil {
+			t.pmu.Lock()
+			t.pings[name] = newPingAction(pc.enabled)
+			t.pmu.Unlock()
+		}
+
+	*/
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	t.actuators[name] = &actuator{name: name, timeout: newTimeout(tc), limit: nil}
+	t.actuators[name] = &actuator{name: name, timeout: newTimeout(tc)}
 	return false
 }
 

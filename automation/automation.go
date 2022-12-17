@@ -4,19 +4,13 @@ import (
 	"net/http"
 )
 
-/*
-type NewActions interface {
-	NewTimeout(timeout int) TimeoutAction
-	NewPing(enable bool) Action
-	NewRateLimit(max rate.Limit, burst int) RateLimitAction
-}
-*/
+type Matcher func(req *http.Request) (routeName string)
 
 type Configuration interface {
-	SetDefault(name string, t *TimeoutConfig, r *RateLimitConfig)
+	SetDefault(name string, t *TimeoutConfig)
 	SetMatcher(fn Matcher)
-	IsPingEnabled(name string) bool
-	Add(name string, p *PingConfig, t *TimeoutConfig, r *RateLimitConfig) bool
+	// IsPingEnabled(name string) bool
+	Add(name string, t *TimeoutConfig) bool
 	//Exists(name string) bool
 	//Remove(name string)
 }
