@@ -15,7 +15,8 @@ type Controller interface {
 	Disable()
 	Configure(event string) error
 	Adjust(up bool)
-	State() []string
+	//State() string
+	Value(name string) string
 }
 
 type Actuator interface {

@@ -9,7 +9,7 @@ func (t *table) setTimeout(name string, timeout int) {
 		if timeout <= 0 {
 			timeout = NilValue
 		}
-		//a.timeout.current.timeout = timeout
+
 		clone := cloneTimeout(a)
 		clone.current.timeout = timeout
 		newAct := &actuator{name: name, timeout: clone}

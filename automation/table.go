@@ -8,11 +8,9 @@ import (
 
 type table struct {
 	mu         sync.RWMutex
-	pmu        sync.RWMutex
 	defaultAct *actuator
 	match      Matcher
 	actuators  map[string]*actuator
-	//	pings      map[string]*pingAction
 }
 
 func NewTable() Automation {
@@ -22,7 +20,6 @@ func NewTable() Automation {
 
 func newTable() *table {
 	t := new(table)
-	//t.pings = make(map[string]*pingAction, 100)
 	t.actuators = make(map[string]*actuator, 100)
 	t.defaultAct = &actuator{name: DefaultName, timeout: newTimeout(DefaultName, NewTimeoutConfig(NilValue, NilValue), t)}
 	t.match = func(req *http.Request) (name string) {
@@ -47,18 +44,6 @@ func (t *table) SetMatcher(fn Matcher) {
 	t.mu.Lock()
 	t.match = fn
 	t.mu.Unlock()
-}
-
-func (t *table) IsPingEnabled(name string) bool {
-	if name == "" {
-		return false
-	}
-	t.pmu.RLock()
-	//if p, ok := t.pings[name]; ok {
-	//	return p.IsEnabled()
-	//}
-	t.pmu.Unlock()
-	return false
 }
 
 func (t *table) Lookup(req *http.Request) Actuator {

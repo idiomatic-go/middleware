@@ -13,6 +13,7 @@ const (
 )
 
 type TimeoutController interface {
+	Controller
 	Timeout() int
 	StatusCode(defaultStatusCode int) int
 	Duration() time.Duration
@@ -28,28 +29,17 @@ func NewTimeoutConfig(timeout int, statusCode int) *TimeoutConfig {
 		timeout = NilValue
 	}
 	if statusCode <= 0 {
-		timeout = NilValue
+		statusCode = NilValue
 	}
 	// TODO : validate status code
 	return &TimeoutConfig{timeout: timeout, statusCode: statusCode}
 }
 
-func NewTimeout(duration int, statusCode int) TimeoutController {
-	t := new(timeout)
-	if duration <= 0 {
-		duration = NilValue
-	}
-	t.current.timeout = duration
-	t.current.statusCode = statusCode
-	t.defaultC = t.current
-	return t
-}
-
 type timeout struct {
+	table    *table
 	name     string
 	defaultC TimeoutConfig
 	current  TimeoutConfig
-	table    *table
 }
 
 func cloneTimeout(act Actuator) *timeout {
@@ -58,10 +48,7 @@ func cloneTimeout(act Actuator) *timeout {
 	}
 	t := new(timeout)
 	s := act.Timeout().(*timeout)
-	t.table = s.table
-	t.name = s.name
-	t.current = s.current
-	t.defaultC = s.defaultC
+	*t = *s
 	return t
 }
 
@@ -80,10 +67,6 @@ func newTimeout(name string, c *TimeoutConfig, table *table) *timeout {
 	t.defaultC = t.current
 	return t
 }
-
-//func (a *timeout) Name() string {
-//	return a.name
-//}
 
 func (a *timeout) IsEnabled() bool {
 	return a.current.timeout != NilValue
@@ -105,6 +88,9 @@ func (a *timeout) Configure(event string) error {
 	if len(tokens) <= 1 {
 		return errors.New("invalid event schema : no value found")
 	}
+	if tokens[0] != "timeout" {
+		return errors.New("invalid event schema : timeout tag not found")
+	}
 	to, err := strconv.Atoi(tokens[1])
 	if err != nil {
 		return err
@@ -117,14 +103,27 @@ func (a *timeout) Configure(event string) error {
 }
 
 func (a *timeout) Adjust(up bool) {
-	a.table.setTimeout(a.name, a.current.timeout+5)
+	if up {
+		a.table.setTimeout(a.name, a.current.timeout+5)
+	}
 }
 
-func (a *timeout) State() (tags []string) {
-	tags = append(tags, fmt.Sprintf("name:%v", a.name))
-	tags = append(tags, fmt.Sprintf("timeout:%v", a.current.timeout))
-	tags = append(tags, fmt.Sprintf("statusCode:%v", a.current.statusCode))
-	return
+func (a *timeout) State() string { //(names []string, values []string) {
+	//names = append(names, "timeout")
+	//names = append(names, "statusCode")
+	//values = append(values, strconv.Itoa(a.current.timeout))
+	//values = append(values, strconv.Itoa(a.current.statusCode))
+	return fmt.Sprintf("timeout: %v , statusCode:%v", a.current.timeout, a.current.statusCode)
+}
+
+func (a *timeout) Value(name string) string {
+	if name == "" {
+		return ""
+	}
+	if name == "timeout" {
+		return strconv.Itoa(a.current.timeout)
+	}
+	return ""
 }
 
 func (a *timeout) Timeout() int {

@@ -25,7 +25,7 @@ func ExampleTable_SetDefault() {
 
 }
 
-func ExampleTable_Add_Exists() {
+func ExampleTable_Add_Exists_LookupByName() {
 	name := "test-route"
 	t := newTable()
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())

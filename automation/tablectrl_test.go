@@ -51,15 +51,15 @@ func Example_Timeout() {
 	if a0 == nil {
 		return
 	}
-	prev := a0.Timeout().(Controller).State()
+	prev := a0.Timeout().Value("timeout")
 
 	t.setTimeout(name, 2000)
 	a := t.LookupByName(name)
 	if a == nil {
-		fmt.Printf("test: LookupByName(%v) -> [route:%v]", name, a)
+		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
 		return
 	}
-	curr := a.Timeout().(Controller).State()
+	curr := a.Timeout().Value("timeout")
 	fmt.Printf("test: setTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
@@ -69,23 +69,46 @@ func Example_Timeout() {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
 		return
 	}
-	curr = a.Timeout().(Controller).State()
+	curr = a.Timeout().Value("timeout")
 	fmt.Printf("test: resetTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
 	t.disableTimeout(name)
 	a = t.LookupByName(name)
 	if a == nil {
-		fmt.Printf("test: LookupByName(%v) -> [route:%v]", name, a)
+		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
 		return
 	}
-	curr = a.Timeout().(Controller).State()
+	curr = a.Timeout().Value("timeout")
 	fmt.Printf("test: disableTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
+	prev = curr
+	a.Timeout().Configure("timeout:50")
+	a = t.LookupByName(name)
+	if a == nil {
+		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
+		return
+	}
+	curr = a.Timeout().Value("timeout")
+	fmt.Printf("test: Configure(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
+
+	prev = curr
+	a.Timeout().Adjust(true)
+	a = t.LookupByName(name)
+	if a == nil {
+		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
+		return
+	}
+	curr = a.Timeout().Value("timeout")
+	fmt.Printf("test: Adjust(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
+
 	//Output:
-	//test: SetTimeout("timeout-route",2000) -> [prev:1000] [curr:2000]
-	//test: ResetTimeout("timeout-route") -> [prev:2000] [curr:1000]
-	//test: DisableTimeout("timeout-route") -> [prev:1000] [curr:-1]
+	//test: setTimeout(timeout-route) -> [prev:1000] [curr:2000]
+	//test: resetTimeout(timeout-route) -> [prev:2000] [curr:1000]
+	//test: disableTimeout(timeout-route) -> [prev:1000] [curr:-1]
+	//test: Configure(timeout-route) -> [prev:-1] [curr:50]
+	//test: Adjust(timeout-route) -> [prev:50] [curr:55]
+
 }
 
 /*

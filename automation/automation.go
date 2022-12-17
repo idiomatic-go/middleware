@@ -9,10 +9,7 @@ type Matcher func(req *http.Request) (routeName string)
 type Configuration interface {
 	SetDefault(name string, t *TimeoutConfig)
 	SetMatcher(fn Matcher)
-	// IsPingEnabled(name string) bool
 	Add(name string, t *TimeoutConfig) bool
-	//Exists(name string) bool
-	//Remove(name string)
 }
 
 type Actuators interface {

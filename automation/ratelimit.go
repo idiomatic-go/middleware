@@ -6,39 +6,47 @@ const (
 	RateLimitName = "ratelimit"
 )
 
-type RateLimitAction interface {
+type RateLimitController interface {
+	//Controller
 	Allow() bool
 }
 
 type RateLimitConfig struct {
-	limit rate.Limit
-	burst int
+	limit       rate.Limit
+	burst       int
+	canaryLimit rate.Limit
+	canaryBurst int
 }
 
-type rateLimitAction struct {
+func NewRateLimitConfig(max rate.Limit, burst int, canaryMax rate.Limit, canaryBurst int) *RateLimitConfig {
+	c := new(RateLimitConfig)
+	return c
+}
+
+type rateLimit struct {
 	Default int
 	current int
 	canary  int
 }
 
-func (a *rateLimitAction) Name() string {
+func (a *rateLimit) Name() string {
 	return TimeoutName
 }
 
-func (a *rateLimitAction) IsEnabled() bool {
+func (a *rateLimit) IsEnabled() bool {
 	return a.current != NilValue
 }
 
-func (a *rateLimitAction) Reset() {
+func (a *rateLimit) Reset() {
 
 }
 
-func (a *rateLimitAction) Disable() {
+func (a *rateLimit) Disable() {
 }
 
-func (a *rateLimitAction) Configure(v ...any) {
+func (a *rateLimit) Configure(v ...any) {
 }
 
-func (a *rateLimitAction) Allow() bool {
+func (a *rateLimit) Allow() bool {
 	return false
 }
