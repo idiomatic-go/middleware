@@ -52,6 +52,19 @@ type timeout struct {
 	table    *table
 }
 
+func cloneTimeout(act Actuator) *timeout {
+	if act == nil {
+		return nil
+	}
+	t := new(timeout)
+	s := act.Timeout().(*timeout)
+	t.table = s.table
+	t.name = s.name
+	t.current = s.current
+	t.defaultC = s.defaultC
+	return t
+}
+
 func newTimeout(name string, c *TimeoutConfig, table *table) *timeout {
 	if c == nil {
 		c = NewTimeoutConfig(NilValue, NilValue)

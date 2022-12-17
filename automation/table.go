@@ -2,7 +2,6 @@ package automation
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"sync"
 )
@@ -90,14 +89,6 @@ func (t *table) Add(name string, tc *TimeoutConfig) bool {
 	if IsEmpty(name) {
 		return false
 	}
-	/*
-		if pc != nil {
-			t.pmu.Lock()
-			t.pings[name] = newPingAction(pc.enabled)
-			t.pmu.Unlock()
-		}
-
-	*/
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.actuators[name] = &actuator{name: name, timeout: newTimeout(name, tc, t)}
@@ -118,16 +109,15 @@ func (t *table) exists(name string) bool {
 
 func (t *table) update(name string, act *actuator) error {
 	if name == "" || act == nil {
-		return errors.New("invalid argument : name, act, or this is nil or empty")
+		return errors.New("invalid argument : name or actuator is nil or empty")
 	}
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	if _, ok := t.actuators[name]; ok {
-		delete(t.actuators, name)
-		t.actuators[name] = act
-		return nil
-	}
-	return errors.New(fmt.Sprintf("invalid argument : actuator not found [%v]", name))
+	//t.mu.Lock()
+	//defer t.mu.Unlock()
+	delete(t.actuators, name)
+	t.actuators[name] = act
+	return nil
+	//}
+	//return errors.New(fmt.Sprintf("invalid argument : actuator not found [%v]", name))
 }
 
 func (t *table) count() int {

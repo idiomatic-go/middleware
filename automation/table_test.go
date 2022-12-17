@@ -79,5 +79,5 @@ func ExampleTable_Lookup() {
 	//test: Lookup(req) -> [actuator:*]
 	//test: Add(actuator) -> [actuator:true] [count:1] [exists:true]
 	//test: Lookup(req) ->  [actuator:test-route]
-	
+
 }
