@@ -8,8 +8,8 @@ type Matcher func(req *http.Request) (routeName string)
 
 type Configuration interface {
 	SetMatcher(fn Matcher)
-	SetDefault(name string, lc *LoggerConfig, tc *TimeoutConfig, rc []*RateLimiterConfig)
-	Add(name string, lc *LoggerConfig, tc *TimeoutConfig, rc []*RateLimiterConfig) bool
+	SetDefault(name string, lc *LoggerConfig, tc *TimeoutConfig, rc []*RateLimiterConfig, fc *FailoverConfig)
+	Add(name string, lc *LoggerConfig, tc *TimeoutConfig, rc []*RateLimiterConfig, fc *FailoverConfig) bool
 }
 
 type Actuators interface {
