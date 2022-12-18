@@ -22,7 +22,7 @@ func setup(t *table, name string, tc *TimeoutConfig, rc []*RateLimiterConfig) Ac
 	//	fmt.Printf("test: New(2000,_,_) -> [err:%v]\n", err)
 	//		return nil
 	//}
-	ok := t.Add(name, tc, rc)
+	ok := t.Add(name, nil, tc, rc, nil)
 	if !ok {
 		fmt.Printf("test: Add(actuator) -> [ok:%v]", ok)
 		return nil
@@ -82,7 +82,7 @@ func Example_Timeout() {
 	fmt.Printf("test: disableTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
-	a.Timeout().Configure("timeout:50")
+	a.Timeout().Configure(attribute{name: "timeout", value: 50})
 	a = t.LookupByName(name)
 	if a == nil {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)

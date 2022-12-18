@@ -16,6 +16,7 @@ const (
 
 type RateLimiterController interface {
 	Controller
+	Value(name string) string
 	Allow() bool
 }
 
@@ -99,7 +100,7 @@ func (r *rateLimiter) Reset() {
 func (r *rateLimiter) Disable() {
 }
 
-func (r *rateLimiter) Configure(events string) error {
+func (r *rateLimiter) Configure(items ...attribute) error {
 	// TODO : how to set canary
 	return nil
 }

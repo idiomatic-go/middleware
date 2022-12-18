@@ -10,6 +10,7 @@ type FailoverInvoke func(name string)
 
 type FailoverController interface {
 	Controller
+	Value(name string) string
 	Failover()
 }
 
@@ -59,7 +60,7 @@ func (f *failover) Disable() {
 	// TODO : set f.isEnabled = false
 }
 
-func (f *failover) Configure(event string) error {
+func (f *failover) Configure(items ...attribute) error {
 	return nil
 }
 
@@ -75,4 +76,3 @@ func (f *failover) Failover() {
 	}
 	f.invoke(f.name)
 }
-

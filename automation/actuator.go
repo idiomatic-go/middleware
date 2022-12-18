@@ -6,17 +6,19 @@ const (
 	DefaultBurst = 1
 )
 
-//type Invoke func(a Actuator)
+type attribute struct {
+	name  string
+	value any
+}
 
 type Controller interface {
-	//Name() string
 	IsEnabled() bool
 	Disable()
 	Reset()
-	Configure(event string) error
+	Configure(items ...attribute) error
 	Adjust(up bool)
 	//State() string
-	Value(name string) string
+	//Value(name string) string
 }
 
 type Actuator interface {

@@ -1,8 +1,6 @@
 package automation
 
 import (
-	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +12,7 @@ const (
 
 type TimeoutController interface {
 	Controller
+	Value(name string) string
 	Timeout() int
 	StatusCode(defaultStatusCode int) int
 	Duration() time.Duration
@@ -80,25 +79,15 @@ func (t *timeout) Disable() {
 	t.table.disableTimeout(t.name)
 }
 
-func (t *timeout) Configure(event string) error {
-	if event == "" {
-		return errors.New("invalid event : event is empty")
+func (t *timeout) Configure(items ...attribute) error {
+	if len(items) == 0 {
+		return nil //errors.New("invalid event : event is empty")
 	}
-	tokens := strings.Split(event, ":")
-	if len(tokens) <= 1 {
-		return errors.New("invalid event schema : no value found")
+	if items[0].name == TimeoutName {
+		if val, ok := items[0].value.(int); ok {
+			t.table.setTimeout(t.name, val)
+		}
 	}
-	if tokens[0] != "timeout" {
-		return errors.New("invalid event schema : timeout tag not found")
-	}
-	to, err := strconv.Atoi(tokens[1])
-	if err != nil {
-		return err
-	}
-	if to <= 0 {
-		to = NilValue
-	}
-	t.table.setTimeout(t.name, to)
 	return nil
 }
 
@@ -106,14 +95,6 @@ func (t *timeout) Adjust(up bool) {
 	if up {
 		t.table.setTimeout(t.name, t.current.timeout+5)
 	}
-}
-
-func (t *timeout) State() string { //(names []string, values []string) {
-	//names = append(names, "timeout")
-	//names = append(names, "statusCode")
-	//values = append(values, strconv.Itoa(a.current.timeout))
-	//values = append(values, strconv.Itoa(a.current.statusCode))
-	return fmt.Sprintf("timeout: %v , statusCode:%v", t.current.timeout, t.current.statusCode)
 }
 
 func (t *timeout) Value(name string) string {

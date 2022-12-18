@@ -61,16 +61,17 @@ func (l *logger) Reset() {
 func (l *logger) Disable() {
 
 }
-func (l *logger) Configure(event string) error {
+func (l *logger) Configure(items ...attribute) error {
 	return nil
 }
+
 func (l *logger) Adjust(up bool) {
 
 }
 
-func (l *logger) Value(name string) string {
-	return ""
-}
+//func (l *logger) Value(name string) string {
+//	return ""
+//}
 
 func (l *logger) IsPingTraffic() bool {
 	return l.defaultC.isPing
