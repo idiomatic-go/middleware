@@ -42,7 +42,8 @@ func NewRateLimiterConfig(limit rate.Limit, burst int, canaryLimit rate.Limit, c
 type rateLimiter struct {
 	name        string
 	table       *table
-	isCanary    bool
+	canaried    bool
+	enabled     bool
 	defaultC    RateLimiterConfig
 	current     RateLimiterConfig
 	canary      RateLimiterConfig
@@ -95,6 +96,9 @@ func (r *rateLimiter) Reset() {
 func (r *rateLimiter) Disable() {
 }
 
+func (r *rateLimiter) Enable() {
+}
+
 func (r *rateLimiter) Configure(items ...Attribute) error {
 	// TODO : how to set canary
 	return nil
@@ -111,7 +115,7 @@ func (r *rateLimiter) Attribute(name string) Attribute {
 		return NewAttribute(BurstName, r.current.burst)
 	}
 	if strings.Index(name, CanaryName) != -1 {
-		return NewAttribute(CanaryName, r.isCanary)
+		return NewAttribute(CanaryName, r.canaried)
 	}
 	return nilAttribute(name)
 }

@@ -22,7 +22,7 @@ func setup(t *table, name string, tc *TimeoutConfig, rc []*RateLimiterConfig) Ac
 	//	fmt.Printf("test: New(2000,_,_) -> [err:%v]\n", err)
 	//		return nil
 	//}
-	ok := t.Add(name, nil, tc, rc, nil)
+	ok := t.Add(name, tc, rc, nil)
 	if !ok {
 		fmt.Printf("test: Add(actuator) -> [ok:%v]", ok)
 		return nil

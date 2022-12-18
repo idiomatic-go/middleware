@@ -8,6 +8,7 @@ const (
 type Controller interface {
 	IsEnabled() bool
 	Disable()
+	Enable()
 	Reset()
 	Configure(items ...Attribute) error
 	Adjust(up bool)

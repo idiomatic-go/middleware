@@ -35,6 +35,7 @@ func NewTimeoutConfig(timeout int, statusCode int) *TimeoutConfig {
 type timeout struct {
 	table    *table
 	name     string
+	enabled  bool
 	defaultC TimeoutConfig
 	current  TimeoutConfig
 }
@@ -71,6 +72,10 @@ func (t *timeout) Reset() {
 
 func (t *timeout) Disable() {
 	t.table.setTimeout(t.name, NilValue)
+}
+
+func (t *timeout) Enable() {
+
 }
 
 func (t *timeout) Configure(items ...Attribute) error {

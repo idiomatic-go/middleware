@@ -20,10 +20,10 @@ func NewFailoverConfig(invoke FailoverInvoke) *FailoverConfig {
 }
 
 type failover struct {
-	table     *table
-	name      string
-	isEnabled bool
-	invoke    FailoverInvoke
+	table   *table
+	name    string
+	enabled bool
+	invoke  FailoverInvoke
 }
 
 func cloneFailover(curr *failover) *failover {
@@ -43,13 +43,17 @@ func newFailover(name string, config *FailoverConfig, table *table) *failover {
 	return t
 }
 
-func (f *failover) IsEnabled() bool { return f.isEnabled }
+func (f *failover) IsEnabled() bool { return f.enabled }
 
 func (f *failover) Reset() {
 	f.Disable()
 }
 
 func (f *failover) Disable() {
+	// TODO : set f.isEnabled = false
+}
+
+func (f *failover) Enable() {
 	// TODO : set f.isEnabled = false
 }
 
@@ -60,7 +64,7 @@ func (f *failover) Configure(items ...Attribute) error {
 func (f *failover) Adjust(up bool) {}
 
 func (f *failover) Attribute(name string) Attribute {
-	return NewAttribute(FailoverName, f.isEnabled)
+	return NewAttribute(FailoverName, f.enabled)
 }
 
 func (f *failover) Failover() {
