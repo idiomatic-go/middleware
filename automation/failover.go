@@ -1,7 +1,5 @@
 package automation
 
-import "fmt"
-
 const (
 	FailoverName = "failover"
 )
@@ -10,7 +8,6 @@ type FailoverInvoke func(name string)
 
 type FailoverController interface {
 	Controller
-	Value(name string) string
 	Failover()
 }
 
@@ -60,14 +57,14 @@ func (f *failover) Disable() {
 	// TODO : set f.isEnabled = false
 }
 
-func (f *failover) Configure(items ...attribute) error {
+func (f *failover) Configure(items ...Attribute) error {
 	return nil
 }
 
 func (f *failover) Adjust(up bool) {}
 
-func (f *failover) Value(name string) string {
-	return fmt.Sprintf("%v", f.isEnabled)
+func (f *failover) Attribute(name string) Attribute {
+	return NewAttribute(FailoverName, f.isEnabled)
 }
 
 func (f *failover) Failover() {

@@ -50,7 +50,7 @@ func Example_Timeout() {
 	if a0 == nil {
 		return
 	}
-	prev := a0.Timeout().Value("timeout")
+	prev := a0.Timeout().Attribute(TimeoutName).String()
 
 	t.setTimeout(name, 2000)
 	a := t.LookupByName(name)
@@ -58,7 +58,7 @@ func Example_Timeout() {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
 		return
 	}
-	curr := a.Timeout().Value("timeout")
+	curr := a.Timeout().Attribute(TimeoutName).String()
 	fmt.Printf("test: setTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
@@ -68,7 +68,7 @@ func Example_Timeout() {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
 		return
 	}
-	curr = a.Timeout().Value("timeout")
+	curr = a.Timeout().Attribute(TimeoutName).String()
 	fmt.Printf("test: resetTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
@@ -78,17 +78,17 @@ func Example_Timeout() {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
 		return
 	}
-	curr = a.Timeout().Value("timeout")
+	curr = a.Timeout().Attribute(TimeoutName).String()
 	fmt.Printf("test: disableTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
-	a.Timeout().Configure(attribute{name: "timeout", value: 50})
+	a.Timeout().Configure(NewAttribute(TimeoutName, 50))
 	a = t.LookupByName(name)
 	if a == nil {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
 		return
 	}
-	curr = a.Timeout().Value("timeout")
+	curr = a.Timeout().Attribute(TimeoutName).String()
 	fmt.Printf("test: Configure(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
@@ -98,7 +98,7 @@ func Example_Timeout() {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
 		return
 	}
-	curr = a.Timeout().Value("timeout")
+	curr = a.Timeout().Attribute(TimeoutName).String()
 	fmt.Printf("test: Adjust(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	//Output:

@@ -1,7 +1,6 @@
 package automation
 
 import (
-	"strconv"
 	"strings"
 	"time"
 )
@@ -12,7 +11,6 @@ const (
 
 type TimeoutController interface {
 	Controller
-	Value(name string) string
 	Timeout() int
 	StatusCode(defaultStatusCode int) int
 	Duration() time.Duration
@@ -79,12 +77,12 @@ func (t *timeout) Disable() {
 	t.table.disableTimeout(t.name)
 }
 
-func (t *timeout) Configure(items ...attribute) error {
+func (t *timeout) Configure(items ...Attribute) error {
 	if len(items) == 0 {
 		return nil //errors.New("invalid event : event is empty")
 	}
-	if items[0].name == TimeoutName {
-		if val, ok := items[0].value.(int); ok {
+	if items[0].Name() == TimeoutName {
+		if val, ok := items[0].Value().(int); ok {
 			t.table.setTimeout(t.name, val)
 		}
 	}
@@ -97,14 +95,11 @@ func (t *timeout) Adjust(up bool) {
 	}
 }
 
-func (t *timeout) Value(name string) string {
-	if name == "" {
-		return ""
-	}
+func (t *timeout) Attribute(name string) Attribute {
 	if strings.Index(name, TimeoutName) != -1 {
-		return strconv.Itoa(t.current.timeout)
+		return NewAttribute(TimeoutName, t.current.timeout)
 	}
-	return ""
+	return nilAttribute(name)
 }
 
 func (t *timeout) Timeout() int {

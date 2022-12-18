@@ -1,9 +1,7 @@
 package automation
 
 import (
-	"fmt"
 	"golang.org/x/time/rate"
-	"strconv"
 	"strings"
 )
 
@@ -12,6 +10,7 @@ const (
 	BurstName     = "burst"
 	CanaryName    = "canary"
 	InfValue      = "INF"
+	DefaultBurst  = 1
 )
 
 type RateLimiterController interface {
@@ -100,7 +99,7 @@ func (r *rateLimiter) Reset() {
 func (r *rateLimiter) Disable() {
 }
 
-func (r *rateLimiter) Configure(items ...attribute) error {
+func (r *rateLimiter) Configure(items ...Attribute) error {
 	// TODO : how to set canary
 	return nil
 }
@@ -108,22 +107,24 @@ func (r *rateLimiter) Configure(items ...attribute) error {
 func (r *rateLimiter) Adjust(up bool) {
 }
 
+func (r *rateLimiter) Attribute(name string) Attribute {
+	if strings.Index(name, RateLimitName) != -1 {
+		return NewAttribute(RateLimitName, r.current.limit)
+	}
+	if strings.Index(name, BurstName) != -1 {
+		return NewAttribute(BurstName, r.current.burst)
+	}
+	if strings.Index(name, CanaryName) != -1 {
+		return NewAttribute(CanaryName, r.isCanary)
+	}
+	return nilAttribute(name)
+}
+
 func (r *rateLimiter) Value(name string) string {
 	if name == "" {
 		return ""
 	}
-	if strings.Index(name, RateLimitName) != -1 {
-		if r.current.limit == rate.Inf {
-			return InfValue
-		}
-		return fmt.Sprintf("%v", r.current.limit)
-	}
-	if strings.Index(name, BurstName) != -1 {
-		return strconv.Itoa(r.current.burst)
-	}
-	if strings.Index(name, CanaryName) != -1 {
-		return fmt.Sprintf("%v", r.isCanary)
-	}
+
 	return ""
 }
 

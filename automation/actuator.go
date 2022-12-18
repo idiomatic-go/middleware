@@ -1,24 +1,17 @@
 package automation
 
 const (
-	DefaultName  = "*"
-	NilValue     = -1
-	DefaultBurst = 1
+	DefaultName = "*"
+	NilValue    = -1
 )
-
-type attribute struct {
-	name  string
-	value any
-}
 
 type Controller interface {
 	IsEnabled() bool
 	Disable()
 	Reset()
-	Configure(items ...attribute) error
+	Configure(items ...Attribute) error
 	Adjust(up bool)
-	//State() string
-	//Value(name string) string
+	Attribute(name string) Attribute
 }
 
 type Actuator interface {
