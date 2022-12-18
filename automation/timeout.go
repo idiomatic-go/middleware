@@ -39,13 +39,9 @@ type timeout struct {
 	current  TimeoutConfig
 }
 
-func cloneTimeout(act Actuator) *timeout {
-	if act == nil {
-		return nil
-	}
+func cloneTimeout(curr *timeout) *timeout {
 	t := new(timeout)
-	s := act.Timeout().(*timeout)
-	*t = *s
+	*t = *curr
 	return t
 }
 
@@ -70,11 +66,11 @@ func (t *timeout) IsEnabled() bool {
 }
 
 func (t *timeout) Reset() {
-	t.table.resetTimeout(t.name)
+	t.table.setTimeout(t.name, t.defaultC.timeout)
 }
 
 func (t *timeout) Disable() {
-	t.table.disableTimeout(t.name)
+	t.table.setTimeout(t.name, NilValue)
 }
 
 func (t *timeout) Configure(items ...Attribute) error {

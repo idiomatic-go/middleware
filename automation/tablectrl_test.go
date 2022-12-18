@@ -62,7 +62,7 @@ func Example_Timeout() {
 	fmt.Printf("test: setTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
-	t.resetTimeout(name)
+	t.setTimeout(name, NilValue)
 	a = t.LookupByName(name)
 	if a == nil {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
@@ -72,7 +72,7 @@ func Example_Timeout() {
 	fmt.Printf("test: resetTimeout(%v) -> [prev:%v] [curr:%v]\n", name, prev, curr)
 
 	prev = curr
-	t.disableTimeout(name)
+	t.setTimeout(name, NilValue)
 	a = t.LookupByName(name)
 	if a == nil {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)

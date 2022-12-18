@@ -26,13 +26,9 @@ type failover struct {
 	invoke    FailoverInvoke
 }
 
-func cloneFailover(act Actuator) *failover {
-	if act == nil {
-		return nil
-	}
+func cloneFailover(curr *failover) *failover {
 	t := new(failover)
-	s := act.Failover().(*failover)
-	*t = *s
+	*t = *curr
 	return t
 }
 

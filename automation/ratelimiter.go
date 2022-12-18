@@ -49,13 +49,9 @@ type rateLimiter struct {
 	rateLimiter *rate.Limiter
 }
 
-func cloneRateLimiter(act Actuator) *rateLimiter {
-	if act == nil {
-		return nil
-	}
+func cloneRateLimiter(curr *rateLimiter) *rateLimiter {
 	t := new(rateLimiter)
-	s := act.RateLimiter().(*rateLimiter)
-	*t = *s
+	*t = *curr
 	return t
 }
 

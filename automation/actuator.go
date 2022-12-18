@@ -31,6 +31,12 @@ type actuator struct {
 	failover *failover
 }
 
+func cloneActuator(curr *actuator) *actuator {
+	t := new(actuator)
+	*t = *curr
+	return t
+}
+
 func newActuator(l *logger, t *timeout, r *rateLimiter, f *failover) *actuator {
 	return &actuator{logger: l, timeout: t, limiter: r, failover: f}
 }

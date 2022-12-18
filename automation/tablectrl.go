@@ -5,30 +5,29 @@ func (t *table) setTimeout(name string, timeout int) {
 		return
 	}
 	t.mu.Lock()
+	defer t.mu.Unlock()
 	if a, ok := t.actuators[name]; ok {
 		if timeout <= 0 {
 			timeout = NilValue
 		}
-
-		clone := cloneTimeout(a)
-		clone.current.timeout = timeout
-		newAct := &actuator{name: name, timeout: clone}
-		t.update(name, newAct)
+		to := cloneTimeout(a.timeout)
+		to.current.timeout = timeout
+		clone := cloneActuator(a)
+		clone.timeout = to
+		t.update(name, clone)
 	}
-	t.mu.Unlock()
+
 }
 
-func (t *table) resetTimeout(name string) {
+func (t *table) setRateLimiterCanary(name string, enable bool) {
 	if name == "" {
 		return
 	}
 	t.mu.Lock()
+	defer t.mu.Unlock()
 	if a, ok := t.actuators[name]; ok {
-		a.timeout.current.timeout = a.timeout.defaultC.timeout
+		clone := cloneActuator(a)
+		clone.limiter = cloneRateLimiter(a.limiter)
+		t.update(name, clone)
 	}
-	t.mu.Unlock()
-}
-
-func (t *table) disableTimeout(name string) {
-	t.setTimeout(name, NilValue)
 }
