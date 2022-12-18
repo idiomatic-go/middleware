@@ -22,7 +22,7 @@ type TimeoutConfig struct {
 }
 
 func NewTimeoutConfig(timeout int, statusCode int) *TimeoutConfig {
-	if timeout <= 0 {
+	if timeout < 0 {
 		timeout = NilValue
 	}
 	if statusCode <= 0 {
@@ -51,7 +51,7 @@ func newTimeout(name string, config *TimeoutConfig, table *table) *timeout {
 		config = NewTimeoutConfig(NilValue, NilValue)
 	}
 	t := new(timeout)
-	if config.timeout <= 0 {
+	if config.timeout < 0 {
 		config.timeout = NilValue
 	}
 	t.table = table
@@ -59,23 +59,24 @@ func newTimeout(name string, config *TimeoutConfig, table *table) *timeout {
 	t.current.timeout = config.timeout
 	t.current.statusCode = config.statusCode
 	t.defaultC = t.current
+	t.enabled = t.current.timeout > 0
 	return t
 }
 
 func (t *timeout) IsEnabled() bool {
-	return t.current.timeout != NilValue
+	return t.enabled && t.current.timeout > 0
+}
+
+func (t *timeout) Disable() {
+	t.table.enableTimeout(t.name, false)
+}
+
+func (t *timeout) Enable() {
+	t.table.enableTimeout(t.name, true)
 }
 
 func (t *timeout) Reset() {
 	t.table.setTimeout(t.name, t.defaultC.timeout)
-}
-
-func (t *timeout) Disable() {
-	t.table.setTimeout(t.name, NilValue)
-}
-
-func (t *timeout) Enable() {
-
 }
 
 func (t *timeout) Configure(items ...Attribute) error {
