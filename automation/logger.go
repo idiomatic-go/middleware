@@ -12,7 +12,9 @@ type LoggingAccess func(act Actuator, traffic string, start time.Time, duration 
 var defaultLogger = newLogger(NewLoggerConfig(true, true, defaultAccess, nil))
 
 func SetDefaultLogger(lc *LoggerConfig) {
-	defaultLogger = newLogger(lc)
+	if lc != nil {
+		defaultLogger = newLogger(lc)
+	}
 }
 
 var defaultAccess LoggingAccess = func(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
@@ -40,9 +42,9 @@ func NewLoggerConfig(writeIngress, writeEgress bool, accessInvoke LoggingAccess,
 }
 
 type logger struct {
-	isEnabled bool
-	mu        sync.RWMutex
-	defaultC  LoggerConfig
+	enabled  bool
+	mu       sync.RWMutex
+	defaultC LoggerConfig
 }
 
 func newLogger(config *LoggerConfig) *logger {
@@ -57,23 +59,22 @@ func newLogger(config *LoggerConfig) *logger {
 }
 
 func (l *logger) IsEnabled() bool {
-	return l.isEnabled
+	return l.enabled
 }
 
 func (l *logger) Reset() {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.isEnabled = true
 }
 
 func (l *logger) Disable() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	l.isEnabled = false
+	l.enabled = false
 }
 
 func (l *logger) Enable() {
-
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.enabled = true
 }
 
 func (l *logger) Configure(items ...Attribute) error {
@@ -105,7 +106,7 @@ func (l *logger) WriteEgress() bool {
 }
 
 func (l *logger) LogAccess(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
-	if !l.isEnabled || act == nil || l.defaultC.accessInvoke == nil {
+	if !l.enabled || act == nil || l.defaultC.accessInvoke == nil {
 		return
 	}
 	l.defaultC.accessInvoke(act, traffic, start, duration, req, resp, respFlags)
