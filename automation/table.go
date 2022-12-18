@@ -21,20 +21,23 @@ func NewTable() Automation {
 func newTable() *table {
 	t := new(table)
 	t.actuators = make(map[string]*actuator, 100)
-	t.defaultAct = &actuator{name: DefaultName, timeout: newTimeout(DefaultName, NewTimeoutConfig(NilValue, NilValue), t)}
+	t.defaultAct = &actuator{name: DefaultName,
+		timeout: newTimeout(DefaultName, nil, t),
+		limiter: newRateLimiter(DefaultName, nil, t),
+	}
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
 	return t
 }
 
-func (t *table) SetDefault(name string, tc *TimeoutConfig) {
+func (t *table) SetDefault(name string, lc *LoggerConfig, tc *TimeoutConfig, rc []*RateLimiterConfig) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if name == "" {
 		name = DefaultName
 	}
-	t.defaultAct = &actuator{name: name, timeout: newTimeout(name, tc, t)}
+	t.defaultAct = &actuator{name: name, logger: newLogger(name, lc, t), timeout: newTimeout(name, tc, t), limiter: newRateLimiter(name, rc, t)}
 }
 
 func (t *table) SetMatcher(fn Matcher) {
@@ -70,13 +73,13 @@ func (t *table) LookupByName(name string) Actuator {
 	return nil
 }
 
-func (t *table) Add(name string, tc *TimeoutConfig) bool {
+func (t *table) Add(name string, lc *LoggerConfig, tc *TimeoutConfig, rc []*RateLimiterConfig) bool {
 	if IsEmpty(name) {
 		return false
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	t.actuators[name] = &actuator{name: name, timeout: newTimeout(name, tc, t)}
+	t.actuators[name] = &actuator{name: name, logger: newLogger(name, lc, t), timeout: newTimeout(name, tc, t), limiter: newRateLimiter(name, rc, t)}
 	return true
 }
 

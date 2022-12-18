@@ -2,7 +2,6 @@ package automation
 
 import (
 	"fmt"
-	"golang.org/x/time/rate"
 )
 
 type Ok func(name string) bool
@@ -17,13 +16,13 @@ func current(r Route) config {
 
 
 */
-func setup(t *table, name string, tcfg *TimeoutConfig, limit rate.Limit, burst int) Actuator {
+func setup(t *table, name string, tc *TimeoutConfig, rc []*RateLimiterConfig) Actuator {
 	//r, err := NewRouteWithConfig(name, timeout, limit, burst, false, false)
 	//if err != nil {
 	//	fmt.Printf("test: New(2000,_,_) -> [err:%v]\n", err)
 	//		return nil
 	//}
-	ok := t.Add(name, tcfg)
+	ok := t.Add(name, tc, rc)
 	if !ok {
 		fmt.Printf("test: Add(actuator) -> [ok:%v]", ok)
 		return nil
@@ -47,7 +46,7 @@ func setupCall(t Routes, name string, fn Ok) (Route, bool) {
 func Example_Timeout() {
 	name := "timeout-route"
 	t := newTable()
-	a0 := setup(t, name, NewTimeoutConfig(1000, NilValue), NilValue, NilValue)
+	a0 := setup(t, name, NewTimeoutConfig(1000, NilValue), nil)
 	if a0 == nil {
 		return
 	}

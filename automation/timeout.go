@@ -52,35 +52,35 @@ func cloneTimeout(act Actuator) *timeout {
 	return t
 }
 
-func newTimeout(name string, c *TimeoutConfig, table *table) *timeout {
-	if c == nil {
-		c = NewTimeoutConfig(NilValue, NilValue)
+func newTimeout(name string, config *TimeoutConfig, table *table) *timeout {
+	if config == nil {
+		config = NewTimeoutConfig(NilValue, NilValue)
 	}
 	t := new(timeout)
-	if c.timeout <= 0 {
-		c.timeout = NilValue
+	if config.timeout <= 0 {
+		config.timeout = NilValue
 	}
 	t.table = table
 	t.name = name
-	t.current.timeout = c.timeout
-	t.current.statusCode = c.statusCode
+	t.current.timeout = config.timeout
+	t.current.statusCode = config.statusCode
 	t.defaultC = t.current
 	return t
 }
 
-func (a *timeout) IsEnabled() bool {
-	return a.current.timeout != NilValue
+func (t *timeout) IsEnabled() bool {
+	return t.current.timeout != NilValue
 }
 
-func (a *timeout) Reset() {
-	a.table.resetTimeout(a.name)
+func (t *timeout) Reset() {
+	t.table.resetTimeout(t.name)
 }
 
-func (a *timeout) Disable() {
-	a.table.disableTimeout(a.name)
+func (t *timeout) Disable() {
+	t.table.disableTimeout(t.name)
 }
 
-func (a *timeout) Configure(event string) error {
+func (t *timeout) Configure(event string) error {
 	if event == "" {
 		return errors.New("invalid event : event is empty")
 	}
@@ -98,48 +98,48 @@ func (a *timeout) Configure(event string) error {
 	if to <= 0 {
 		to = NilValue
 	}
-	a.table.setTimeout(a.name, to)
+	t.table.setTimeout(t.name, to)
 	return nil
 }
 
-func (a *timeout) Adjust(up bool) {
+func (t *timeout) Adjust(up bool) {
 	if up {
-		a.table.setTimeout(a.name, a.current.timeout+5)
+		t.table.setTimeout(t.name, t.current.timeout+5)
 	}
 }
 
-func (a *timeout) State() string { //(names []string, values []string) {
+func (t *timeout) State() string { //(names []string, values []string) {
 	//names = append(names, "timeout")
 	//names = append(names, "statusCode")
 	//values = append(values, strconv.Itoa(a.current.timeout))
 	//values = append(values, strconv.Itoa(a.current.statusCode))
-	return fmt.Sprintf("timeout: %v , statusCode:%v", a.current.timeout, a.current.statusCode)
+	return fmt.Sprintf("timeout: %v , statusCode:%v", t.current.timeout, t.current.statusCode)
 }
 
-func (a *timeout) Value(name string) string {
+func (t *timeout) Value(name string) string {
 	if name == "" {
 		return ""
 	}
-	if name == "timeout" {
-		return strconv.Itoa(a.current.timeout)
+	if strings.Index(name, TimeoutName) != -1 {
+		return strconv.Itoa(t.current.timeout)
 	}
 	return ""
 }
 
-func (a *timeout) Timeout() int {
-	return a.current.timeout
+func (t *timeout) Timeout() int {
+	return t.current.timeout
 }
 
-func (a *timeout) StatusCode(defaultStatusCode int) int {
-	if a.current.statusCode == NilValue {
+func (t *timeout) StatusCode(defaultStatusCode int) int {
+	if t.current.statusCode == NilValue {
 		return defaultStatusCode
 	}
-	return a.current.statusCode
+	return t.current.statusCode
 }
 
-func (a *timeout) Duration() time.Duration {
-	if a.current.timeout == NilValue {
+func (t *timeout) Duration() time.Duration {
+	if t.current.timeout == NilValue {
 		return 0
 	}
-	return time.Duration(a.current.timeout) * time.Millisecond
+	return time.Duration(t.current.timeout) * time.Millisecond
 }

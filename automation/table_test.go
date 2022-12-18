@@ -14,7 +14,7 @@ func ExampleTable_SetDefault() {
 	fmt.Printf("test: Lookup(nil) -> [default:%v]\n", a.(*actuator).name == DefaultName)
 	//fmt.Printf("IsDefault : %v\n", r.(*route).name == DefaultName)
 
-	t.SetDefault("not-default", nil)
+	t.SetDefault("not-default", nil, nil)
 	a = t.Lookup(nil)
 	fmt.Printf("test: Lookup(req) -> [default:%v]\n", a.(*actuator).name == DefaultName)
 
@@ -30,10 +30,10 @@ func ExampleTable_Add_Exists_LookupByName() {
 	t := newTable()
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
 
-	ok := t.Add("", nil)
+	ok := t.Add("", nil, nil)
 	fmt.Printf("test: Add(nil) -> [ok:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.exists(name), t.LookupByName(name))
 
-	ok = t.Add(name, nil)
+	ok = t.Add(name, nil, nil)
 	fmt.Printf("test: Add(actuator) -> [ok:%v] [count:%v] [exists:%v] [lookup:%v]\n", ok, t.count(), t.exists(name), t.LookupByName(name) != nil)
 
 	t.remove("")
@@ -63,7 +63,7 @@ func ExampleTable_Lookup() {
 	r = t.Lookup(req)
 	fmt.Printf("test: Lookup(req) -> [actuator:%v]\n", r.Name())
 
-	ok := t.Add(name, NewTimeoutConfig(100, NilValue))
+	ok := t.Add(name, NewTimeoutConfig(100, NilValue), nil)
 	fmt.Printf("test: Add(actuator) -> [actuator:%v] [count:%v] [exists:%v]\n", ok, t.count(), t.exists(name))
 
 	t.SetMatcher(func(req *http.Request) string {

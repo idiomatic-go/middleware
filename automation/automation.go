@@ -7,9 +7,9 @@ import (
 type Matcher func(req *http.Request) (routeName string)
 
 type Configuration interface {
-	SetDefault(name string, t *TimeoutConfig)
 	SetMatcher(fn Matcher)
-	Add(name string, t *TimeoutConfig) bool
+	SetDefault(name string, lc *LoggerConfig, tc *TimeoutConfig, rc []*RateLimiterConfig)
+	Add(name string, lc *LoggerConfig, tc *TimeoutConfig, rc []*RateLimiterConfig) bool
 }
 
 type Actuators interface {
