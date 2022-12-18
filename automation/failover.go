@@ -6,10 +6,11 @@ const (
 	FailoverName = "failover"
 )
 
-type FailoverInvoke func(act Actuator)
+type FailoverInvoke func(name string)
 
 type FailoverController interface {
 	Controller
+	Failover()
 }
 
 type FailoverConfig struct {
@@ -51,11 +52,13 @@ func newFailover(name string, config *FailoverConfig, table *table) *failover {
 func (f *failover) IsEnabled() bool { return f.isEnabled }
 
 func (f *failover) Reset() {
-
+	f.Disable()
 }
+
 func (f *failover) Disable() {
-
+	// TODO : set f.isEnabled = false
 }
+
 func (f *failover) Configure(event string) error {
 	return nil
 }
@@ -65,3 +68,11 @@ func (f *failover) Adjust(up bool) {}
 func (f *failover) Value(name string) string {
 	return fmt.Sprintf("%v", f.isEnabled)
 }
+
+func (f *failover) Failover() {
+	if f.invoke == nil {
+		return
+	}
+	f.invoke(f.name)
+}
+

@@ -11,8 +11,8 @@ const (
 type Controller interface {
 	//Name() string
 	IsEnabled() bool
-	Reset()
 	Disable()
+	Reset()
 	Configure(event string) error
 	Adjust(up bool)
 	//State() string

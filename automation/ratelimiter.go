@@ -10,6 +10,7 @@ import (
 const (
 	RateLimitName = "rateLimit"
 	BurstName     = "burst"
+	CanaryName    = "canary"
 	InfValue      = "INF"
 )
 
@@ -41,6 +42,7 @@ func NewRateLimiterConfig(limit rate.Limit, burst int, canaryLimit rate.Limit, c
 type rateLimiter struct {
 	name        string
 	table       *table
+	isCanary    bool
 	defaultC    RateLimiterConfig
 	current     RateLimiterConfig
 	canary      RateLimiterConfig
@@ -86,40 +88,44 @@ func validateLimiter(max *rate.Limit, burst *int) {
 	}
 }
 
-func (a *rateLimiter) IsEnabled() bool {
-	return a.current.limit != rate.Inf
+func (r *rateLimiter) IsEnabled() bool {
+	return r.current.limit != rate.Inf
 }
 
-func (a *rateLimiter) Reset() {
-
+func (r *rateLimiter) Reset() {
+	// TODO : set isCanary to false
 }
 
-func (a *rateLimiter) Disable() {
+func (r *rateLimiter) Disable() {
 }
 
-func (a *rateLimiter) Configure(events string) error {
+func (r *rateLimiter) Configure(events string) error {
+	// TODO : how to set canary
 	return nil
 }
 
-func (a *rateLimiter) Adjust(up bool) {
+func (r *rateLimiter) Adjust(up bool) {
 }
 
-func (a *rateLimiter) Value(name string) string {
+func (r *rateLimiter) Value(name string) string {
 	if name == "" {
 		return ""
 	}
 	if strings.Index(name, RateLimitName) != -1 {
-		if a.current.limit == rate.Inf {
+		if r.current.limit == rate.Inf {
 			return InfValue
 		}
-		return fmt.Sprintf("%v", a.current.limit)
+		return fmt.Sprintf("%v", r.current.limit)
 	}
 	if strings.Index(name, BurstName) != -1 {
-		return strconv.Itoa(a.current.burst)
+		return strconv.Itoa(r.current.burst)
+	}
+	if strings.Index(name, CanaryName) != -1 {
+		return fmt.Sprintf("%v", r.isCanary)
 	}
 	return ""
 }
 
-func (a *rateLimiter) Allow() bool {
-	return false
+func (r *rateLimiter) Allow() bool {
+	return r.rateLimiter.Allow()
 }
