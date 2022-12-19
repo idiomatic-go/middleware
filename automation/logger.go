@@ -30,7 +30,6 @@ type LoggingController interface {
 }
 
 type LoggerConfig struct {
-	enabled      bool
 	writeIngress bool
 	writeEgress  bool
 	accessInvoke LoggingAccess
@@ -38,13 +37,13 @@ type LoggerConfig struct {
 }
 
 func NewLoggerConfig(writeIngress, writeEgress bool, accessInvoke LoggingAccess, exclude []string) *LoggerConfig {
-	return &LoggerConfig{enabled: true, writeIngress: writeIngress, writeEgress: writeEgress, accessInvoke: accessInvoke, exclude: exclude}
+	return &LoggerConfig{writeIngress: writeIngress, writeEgress: writeEgress, accessInvoke: accessInvoke, exclude: exclude}
 }
 
 type logger struct {
-	enabled  bool
-	mu       sync.RWMutex
-	defaultC LoggerConfig
+	enabled bool
+	mu      sync.RWMutex
+	config  LoggerConfig
 }
 
 func newLogger(config *LoggerConfig) *logger {
@@ -54,8 +53,7 @@ func newLogger(config *LoggerConfig) *logger {
 	if config.accessInvoke == nil {
 		config.accessInvoke = defaultAccess
 	}
-	config.enabled = true
-	return &logger{defaultC: *config}
+	return &logger{enabled: true, config: *config}
 }
 
 func (l *logger) IsEnabled() bool {
@@ -89,7 +87,7 @@ func (l *logger) Attribute(name string) Attribute {
 }
 
 func (l *logger) IsPingTraffic(name string) bool {
-	for _, n := range l.defaultC.exclude {
+	for _, n := range l.config.exclude {
 		if n == name {
 			return true
 		}
@@ -98,16 +96,16 @@ func (l *logger) IsPingTraffic(name string) bool {
 }
 
 func (l *logger) WriteIngress() bool {
-	return l.defaultC.writeIngress
+	return l.config.writeIngress
 }
 
 func (l *logger) WriteEgress() bool {
-	return l.defaultC.writeEgress
+	return l.config.writeEgress
 }
 
 func (l *logger) LogAccess(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
-	if !l.enabled || act == nil || l.defaultC.accessInvoke == nil {
+	if !l.enabled || l.config.accessInvoke == nil {
 		return
 	}
-	l.defaultC.accessInvoke(act, traffic, start, duration, req, resp, respFlags)
+	l.config.accessInvoke(act, traffic, start, duration, req, resp, respFlags)
 }
