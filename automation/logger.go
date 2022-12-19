@@ -18,7 +18,7 @@ func SetDefaultLogger(lc *LoggerConfig) {
 }
 
 var defaultAccess LoggingAccess = func(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
-	log.Printf("traffic: %v start_time: %v duration_ms: %v request: %v response: %v responseFlags: %v\n", traffic, start, duration, req, resp, respFlags)
+	log.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"responseFlags\":\"%v\"}\n", traffic, start, duration, req, resp, respFlags)
 }
 
 type LoggingController interface {

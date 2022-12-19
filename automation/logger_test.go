@@ -47,15 +47,19 @@ func Example_defaultLogger() {
 
 }
 
-func Example_LogAccess() {
+func _Example_LogAccess() {
 	start := time.Now()
 	fn := func(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
-		//fmt.Printf("traffic: %v start_time: %v duration_ms: %v request: %v response: %v responseFlags: %v\n", traffic, start, duration, req, resp, respFlags)
+		fmt.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"responseFlags\":\"%v\"}\n", traffic, start, duration, req, resp, respFlags)
 	}
+
+	defaultLogger.LogAccess(nil, "ingress", start, time.Since(start), nil, nil, "flags")
+	time.Sleep(time.Second * 1)
+	start = time.Now()
 	l := newLogger(NewLoggerConfig(true, true, fn, nil))
-	l.LogAccess(nil, "egress", start, time.Since(start), nil, nil, "flags")
+	l.LogAccess(nil, "egress", start, time.Since(start), nil, nil, "new-flags")
 
 	//Output:
-	//traffic: egress start_time: 2022-12-19 07:30:58.670857 -0600 CST m=+0.004981001 duration_ms: 0s request: <nil> response: <nil> responseFlags: flags
+	//{"traffic":"egress","start_time":"2022-12-19 07:53:31.9875524 -0600 CST m=+0.006632001","duration_ms":0s,"request":"<nil>","response":"<nil>","responseFlags":"flags"}
 
 }

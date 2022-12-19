@@ -11,7 +11,6 @@ const (
 
 type TimeoutController interface {
 	Controller
-	Timeout() int
 	StatusCode(defaultStatusCode int) int
 	Duration() time.Duration
 }
@@ -51,9 +50,6 @@ func newTimeout(name string, config *TimeoutConfig, table *table) *timeout {
 		config = NewTimeoutConfig(NilValue, NilValue)
 	}
 	t := new(timeout)
-	if config.timeout < 0 {
-		config.timeout = NilValue
-	}
 	t.table = table
 	t.name = name
 	t.current.timeout = config.timeout
@@ -102,10 +98,6 @@ func (t *timeout) Attribute(name string) Attribute {
 		return NewAttribute(TimeoutName, t.current.timeout)
 	}
 	return nilAttribute(name)
-}
-
-func (t *timeout) Timeout() int {
-	return t.current.timeout
 }
 
 func (t *timeout) StatusCode(defaultStatusCode int) int {
