@@ -46,3 +46,65 @@ func Example_Controller_ReadOnly() {
 	//test: Attribute("") -> [name:] [value:<nil>] [string:nil]
 	//test: Attribute("Timeout") -> [name:timeout] [value:2000] [string:2000]
 }
+
+func Example_Controller_Status() {
+	name := "test-route"
+	config := NewTimeoutConfig(2000, 504)
+	t := newTable()
+
+	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
+	ok := t.Add(name, config, nil, nil)
+	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
+
+	act := t.LookupByName(name)
+	//fmt.Printf("test: LookupByName(%v) -> [%v]\n", name, act != nil)
+
+	fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
+	fmt.Printf("test: StatusCode() -> [%v]\n", act.Timeout().StatusCode(200))
+
+	fmt.Printf("test: IsEnabled() -> [%v]\n", act.Timeout().IsEnabled())
+
+	act.Timeout().Disable()
+	act1 := t.LookupByName(name)
+	fmt.Printf("test: IsEnabled() -> [%v]\n", act1.Timeout().IsEnabled())
+
+	act1.Timeout().Enable()
+	act = t.LookupByName(name)
+	fmt.Printf("test: IsEnabled() -> [%v]\n", act.Timeout().IsEnabled())
+
+	//Output:
+	//test: empty() -> [true]
+	//test: Add() -> [true] [count:1]
+	//test: Duration() -> [2s]
+	//test: StatusCode() -> [504]
+	//test: IsEnabled() -> [true]
+	//test: IsEnabled() -> [false]
+	//test: IsEnabled() -> [true]
+}
+
+func Example_Controller_State() {
+	name := "test-route"
+	config := NewTimeoutConfig(2000, 504)
+	t := newTable()
+
+	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
+	ok := t.Add(name, config, nil, nil)
+	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
+
+	act := t.LookupByName(name)
+	fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
+	fmt.Printf("test: StatusCode() -> [%v]\n", act.Timeout().StatusCode(200))
+
+	act.Timeout().Configure(NewAttribute(TimeoutName, 1500))
+	act1 := t.LookupByName(name)
+	fmt.Printf("test: Configure(%v) -> [%v]\n", TimeoutName, act1.Timeout().Attribute(TimeoutName))
+	fmt.Printf("test: Duration() -> [%v]\n", act1.Timeout().Duration())
+
+	//Output:
+	//test: empty() -> [true]
+	//test: Add() -> [true] [count:1]
+	//test: Duration() -> [2s]
+	//test: StatusCode() -> [504]
+	//test: Configure(timeout) -> [1500]
+	//test: Duration() -> [1.5s]
+}
