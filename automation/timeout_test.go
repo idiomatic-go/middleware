@@ -47,7 +47,7 @@ func Example_Controller_ReadOnly() {
 	//test: Attribute("Timeout") -> [name:timeout] [value:2000] [string:2000]
 }
 
-func Example_Controller_Status() {
+func Example_Timeout_Controller_Status() {
 	name := "test-route"
 	config := NewTimeoutConfig(2000, 504)
 	t := newTable()
@@ -82,29 +82,35 @@ func Example_Controller_Status() {
 	//test: IsEnabled() -> [true]
 }
 
-func Example_Controller_State() {
+func Example_Timeout_Controller_State() {
 	name := "test-route"
 	config := NewTimeoutConfig(2000, 504)
 	t := newTable()
 
-	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
 	ok := t.Add(name, config, nil, nil)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
 
 	act := t.LookupByName(name)
+	fmt.Printf("test: Timeout() -> [%v]\n", act.Timeout().Attribute(TimeoutName))
 	fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
 	fmt.Printf("test: StatusCode() -> [%v]\n", act.Timeout().StatusCode(200))
 
 	act.Timeout().Configure(NewAttribute(TimeoutName, 1500))
 	act1 := t.LookupByName(name)
-	fmt.Printf("test: Configure(%v) -> [%v]\n", TimeoutName, act1.Timeout().Attribute(TimeoutName))
-	fmt.Printf("test: Duration() -> [%v]\n", act1.Timeout().Duration())
+	fmt.Printf("test: Configure(1500) -> [%v]\n", act1.Timeout().Attribute(TimeoutName))
+	//fmt.Printf("test: Duration() -> [%v]\n", act1.Timeout().Duration())
+
+	act1.Timeout().Reset()
+	act = t.LookupByName(name)
+	fmt.Printf("test: Reset() -> [%v]\n", act.Timeout().Attribute(TimeoutName))
+	//fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
 
 	//Output:
-	//test: empty() -> [true]
 	//test: Add() -> [true] [count:1]
+	//test: Timeout() -> [2000]
 	//test: Duration() -> [2s]
 	//test: StatusCode() -> [504]
-	//test: Configure(timeout) -> [1500]
-	//test: Duration() -> [1.5s]
+	//test: Configure(1500) -> [1500]
+	//test: Reset() -> [2000]
+
 }

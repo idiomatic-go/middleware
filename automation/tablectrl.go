@@ -1,5 +1,20 @@
 package automation
 
+func (t *table) enableFailover(name string, enabled bool) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if a, ok := t.actuators[name]; ok {
+		fc := cloneFailover(a.failover)
+		fc.enabled = enabled
+		clone := cloneActuator(a)
+		clone.failover = fc
+		t.update(name, clone)
+	}
+}
+
 func (t *table) enableTimeout(name string, enabled bool) {
 	if name == "" {
 		return
@@ -7,10 +22,10 @@ func (t *table) enableTimeout(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if a, ok := t.actuators[name]; ok {
-		to := cloneTimeout(a.timeout)
-		to.enabled = enabled
+		tc := cloneTimeout(a.timeout)
+		tc.enabled = enabled
 		clone := cloneActuator(a)
-		clone.timeout = to
+		clone.timeout = tc
 		t.update(name, clone)
 	}
 }

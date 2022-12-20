@@ -1,14 +1,12 @@
 package automation
 
-const (
-	FailoverName = "failover"
-)
+const ()
 
 type FailoverInvoke func(name string)
 
 type FailoverController interface {
 	Controller
-	Failover()
+	Invoke()
 }
 
 type FailoverConfig struct {
@@ -40,35 +38,37 @@ func newFailover(name string, config *FailoverConfig, table *table) *failover {
 	t.table = table
 	t.name = name
 	t.invoke = config.invoke
+	if t.invoke != nil {
+		t.enabled = true
+	}
 	return t
 }
 
 func (f *failover) IsEnabled() bool { return f.enabled }
 
-func (f *failover) Reset() {
-	f.Disable()
-}
-
 func (f *failover) Disable() {
-	// TODO : set f.isEnabled = false
+	f.table.enableFailover(f.name, false)
 }
 
 func (f *failover) Enable() {
-	// TODO : set f.isEnabled = false
+	f.table.enableFailover(f.name, true)
 }
 
-func (f *failover) Configure(items ...Attribute) error {
+func (f *failover) Reset() {
+}
+
+func (f *failover) Configure(...Attribute) error {
 	return nil
 }
 
-func (f *failover) Adjust(up bool) {}
+func (f *failover) Adjust(bool) {}
 
-func (f *failover) Attribute(name string) Attribute {
-	return NewAttribute(FailoverName, f.enabled)
+func (f *failover) Attribute(string) Attribute {
+	return nilAttribute("")
 }
 
-func (f *failover) Failover() {
-	if f.invoke == nil {
+func (f *failover) Invoke() {
+	if !f.IsEnabled() || f.invoke == nil {
 		return
 	}
 	f.invoke(f.name)
