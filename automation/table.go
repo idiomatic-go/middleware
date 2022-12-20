@@ -22,9 +22,9 @@ func newTable() *table {
 	t := new(table)
 	t.actuators = make(map[string]*actuator, 100)
 	t.defaultAct = &actuator{name: DefaultName,
-		logger:  defaultLogger,
-		timeout: newTimeout(DefaultName, nil, t),
-		limiter: newRateLimiter(DefaultName, nil, t),
+		logger:      defaultLogger,
+		timeout:     newTimeout(DefaultName, nil, t),
+		rateLimiter: newRateLimiter(DefaultName, nil, t),
 	}
 	t.match = func(req *http.Request) (name string) {
 		return ""
@@ -38,7 +38,7 @@ func (t *table) SetDefault(name string, tc *TimeoutConfig, rc []*RateLimiterConf
 	if name == "" {
 		name = DefaultName
 	}
-	t.defaultAct = &actuator{name: name, logger: defaultLogger, timeout: newTimeout(name, tc, t), limiter: newRateLimiter(name, rc, t), failover: newFailover(name, fc, t)}
+	t.defaultAct = &actuator{name: name, logger: defaultLogger, timeout: newTimeout(name, tc, t), rateLimiter: newRateLimiter(name, rc, t), failover: newFailover(name, fc, t)}
 }
 
 func (t *table) SetMatcher(fn Matcher) {
@@ -80,7 +80,7 @@ func (t *table) Add(name string, tc *TimeoutConfig, rc []*RateLimiterConfig, fc 
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	t.actuators[name] = &actuator{name: name, logger: defaultLogger, timeout: newTimeout(name, tc, t), limiter: newRateLimiter(name, rc, t), failover: newFailover(name, fc, t)}
+	t.actuators[name] = &actuator{name: name, logger: defaultLogger, timeout: newTimeout(name, tc, t), rateLimiter: newRateLimiter(name, rc, t), failover: newFailover(name, fc, t)}
 	return true
 }
 

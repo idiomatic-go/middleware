@@ -6,12 +6,10 @@ func (t *table) enableFailover(name string, enabled bool) {
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if a, ok := t.actuators[name]; ok {
-		fc := cloneFailover(a.failover)
+	if act, ok := t.actuators[name]; ok {
+		fc := cloneFailover(act.failover)
 		fc.enabled = enabled
-		clone := cloneActuator(a)
-		clone.failover = fc
-		t.update(name, clone)
+		t.update(name, cloneActuator[*failover](act, fc))
 	}
 }
 
@@ -21,12 +19,10 @@ func (t *table) enableTimeout(name string, enabled bool) {
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if a, ok := t.actuators[name]; ok {
-		tc := cloneTimeout(a.timeout)
+	if act, ok := t.actuators[name]; ok {
+		tc := cloneTimeout(act.timeout)
 		tc.enabled = enabled
-		clone := cloneActuator(a)
-		clone.timeout = tc
-		t.update(name, clone)
+		t.update(name, cloneActuator[*timeout](act, tc))
 	}
 }
 
@@ -36,15 +32,26 @@ func (t *table) setTimeout(name string, timeout int) {
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if a, ok := t.actuators[name]; ok {
+	if act, ok := t.actuators[name]; ok {
 		if timeout <= 0 {
 			timeout = NilValue
 		}
-		to := cloneTimeout(a.timeout)
-		to.current.timeout = timeout
-		clone := cloneActuator(a)
-		clone.timeout = to
-		t.update(name, clone)
+		tc := cloneTimeout(act.timeout)
+		tc.current.timeout = timeout
+		t.update(name, cloneActuator(act, tc))
+	}
+}
+
+func (t *table) enableRateLimiter(name string, enabled bool) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if act, ok := t.actuators[name]; ok {
+		lc := cloneRateLimiter(act.rateLimiter)
+		lc.enabled = enabled
+		t.update(name, cloneActuator[*rateLimiter](act, lc))
 	}
 }
 
@@ -54,9 +61,9 @@ func (t *table) setRateLimiterCanary(name string, enable bool) {
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if a, ok := t.actuators[name]; ok {
-		clone := cloneActuator(a)
-		clone.limiter = cloneRateLimiter(a.limiter)
-		t.update(name, clone)
+	if act, ok := t.actuators[name]; ok {
+		//clone := cloneActuator(act)
+		//clone.limiter = cloneRateLimiter(a.limiter)
+		t.update(name, cloneActuator[*rateLimiter](act, nil))
 	}
 }
