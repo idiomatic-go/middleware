@@ -1,6 +1,7 @@
 package automation
 
 import (
+	"errors"
 	"fmt"
 	"golang.org/x/time/rate"
 	"strconv"
@@ -10,6 +11,7 @@ type Attribute interface {
 	Name() string
 	Value() any
 	String() string
+	Validate() error
 }
 
 type attribute struct {
@@ -53,4 +55,14 @@ func (a *attribute) String() string {
 		return val
 	}
 	return "nil"
+}
+
+func (a *attribute) Validate() error {
+	if a.Name() == "" {
+		return errors.New("invalid attribute name : name is empty")
+	}
+	if a.Value() == nil {
+		return errors.New(fmt.Sprintf("invalid attribute value: value is nil for [%v]", a.Name()))
+	}
+	return nil
 }

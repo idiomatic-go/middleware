@@ -10,8 +10,8 @@ type Controller interface {
 	Disable()
 	Enable()
 	Reset()
-	Configure(items ...Attribute) error
 	Adjust(up bool)
+	Configure(attr Attribute) error
 	Attribute(name string) Attribute
 }
 

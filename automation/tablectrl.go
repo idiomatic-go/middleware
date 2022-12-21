@@ -80,15 +80,17 @@ func (t *table) setBurst(name string, burst int) {
 	}
 }
 
-func (t *table) setRateLimiterCanary(name string, enable bool) {
+func (t *table) setRateLimiter(name string, config RateLimiterConfig, canary bool) {
 	if name == "" {
 		return
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		//clone := cloneActuator(act)
-		//clone.limiter = cloneRateLimiter(a.limiter)
-		t.update(name, cloneActuator[*rateLimiter](act, nil))
+		lc := cloneRateLimiter(act.rateLimiter)
+		lc.currentConfig.limit = config.limit
+		lc.currentConfig.burst = config.burst
+		lc.canary = canary
+		t.update(name, cloneActuator[*rateLimiter](act, lc))
 	}
 }

@@ -75,11 +75,11 @@ func (l *logger) Enable() {
 	l.enabled = true
 }
 
-func (l *logger) Configure(items ...Attribute) error {
+func (l *logger) Configure(Attribute) error {
 	return nil
 }
 
-func (l *logger) Adjust(_ bool) {
+func (l *logger) Adjust(bool) {
 }
 
 func (l *logger) Attribute(name string) Attribute {

@@ -1,6 +1,8 @@
 package automation
 
 import (
+	"errors"
+	"fmt"
 	"golang.org/x/time/rate"
 	"strings"
 )
@@ -16,6 +18,8 @@ const (
 type RateLimiterController interface {
 	Controller
 	Allow() bool
+	SetLimit(limit rate.Limit)
+	SetBurst(burst int)
 }
 
 type RateLimiterConfig struct {
@@ -93,12 +97,20 @@ func (r *rateLimiter) Disable() { r.table.enableRateLimiter(r.name, false) }
 func (r *rateLimiter) Enable() { r.table.enableRateLimiter(r.name, false) }
 
 func (r *rateLimiter) Reset() {
-	// TODO : set isCanary to false
+	r.table.setRateLimiter(r.name, r.defaultConfig, false)
 }
 
-func (r *rateLimiter) Configure(items ...Attribute) error {
-	// TODO : how to set canary
-	return nil
+func (r *rateLimiter) Configure(attr Attribute) error {
+	err := attr.Validate()
+	if err != nil {
+		return err
+	}
+	switch attr.Name() {
+	case RateLimitName:
+	case BurstName:
+	case CanaryName:
+	}
+	return errors.New(fmt.Sprintf("invalid attribute name: name not found [%v]", attr.Name()))
 }
 
 func (r *rateLimiter) Adjust(up bool) {
@@ -123,4 +135,8 @@ func (r *rateLimiter) Allow() bool {
 
 func (r *rateLimiter) SetLimit(limit rate.Limit) {
 	r.table.setLimit(r.name, limit)
+}
+
+func (r *rateLimiter) SetBurst(burst int) {
+	r.table.setBurst(r.name, burst)
 }

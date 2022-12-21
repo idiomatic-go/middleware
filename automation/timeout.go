@@ -1,6 +1,8 @@
 package automation
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -75,16 +77,15 @@ func (t *timeout) Reset() {
 	t.table.setTimeout(t.name, t.defaultC.timeout)
 }
 
-func (t *timeout) Configure(items ...Attribute) error {
-	if len(items) == 0 {
-		return nil //errors.New("invalid event : event is empty")
+func (t *timeout) Configure(attr Attribute) error {
+	err := attr.Validate()
+	if err != nil {
+		return err
 	}
-	if items[0].Name() == TimeoutName {
-		if val, ok := items[0].Value().(int); ok {
-			t.table.setTimeout(t.name, val)
-		}
+	switch attr.Name() {
+	case TimeoutName:
 	}
-	return nil
+	return errors.New(fmt.Sprintf("invalid attribute name: name not found [%v]", attr.Name()))
 }
 
 func (t *timeout) Adjust(up bool) {

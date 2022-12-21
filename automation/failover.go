@@ -57,7 +57,7 @@ func (f *failover) Enable() {
 func (f *failover) Reset() {
 }
 
-func (f *failover) Configure(...Attribute) error {
+func (f *failover) Configure(Attribute) error {
 	return nil
 }
 
