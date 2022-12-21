@@ -15,7 +15,6 @@ const (
 
 type RateLimiterController interface {
 	Controller
-	Value(name string) string
 	Allow() bool
 }
 
@@ -40,39 +39,41 @@ func NewRateLimiterConfig(limit rate.Limit, burst int, canaryLimit rate.Limit, c
 }
 
 type rateLimiter struct {
-	name        string
-	table       *table
-	canaried    bool
-	enabled     bool
-	defaultC    RateLimiterConfig
-	current     RateLimiterConfig
-	canary      RateLimiterConfig
-	rateLimiter *rate.Limiter
+	name          string
+	table         *table
+	enabled       bool
+	canary        bool
+	defaultConfig RateLimiterConfig
+	currentConfig RateLimiterConfig
+	canaryConfig  RateLimiterConfig
+	rateLimiter   *rate.Limiter
 }
 
 func cloneRateLimiter(curr *rateLimiter) *rateLimiter {
-	t := new(rateLimiter)
-	*t = *curr
-	return t
+	newLimiter := new(rateLimiter)
+	*newLimiter = *curr
+	return newLimiter
 }
 
 func newRateLimiter(name string, config []*RateLimiterConfig, table *table) *rateLimiter {
 	var t = rateLimiter{
-		name:        name,
-		table:       table,
-		defaultC:    RateLimiterConfig{rate.Inf, DefaultBurst},
-		current:     RateLimiterConfig{rate.Inf, DefaultBurst},
-		canary:      RateLimiterConfig{rate.Inf, DefaultBurst},
-		rateLimiter: nil,
+		name:          name,
+		table:         table,
+		enabled:       false,
+		canary:        false,
+		defaultConfig: RateLimiterConfig{rate.Inf, DefaultBurst},
+		currentConfig: RateLimiterConfig{rate.Inf, DefaultBurst},
+		canaryConfig:  RateLimiterConfig{rate.Inf, DefaultBurst},
+		rateLimiter:   nil,
 	}
 	if len(config) > 0 {
-		t.current = *config[0]
+		t.currentConfig = *config[0]
 		if len(config) == 2 {
-			t.canary = *config[1]
+			t.canaryConfig = *config[1]
 		}
-		t.defaultC = t.current
+		t.defaultConfig = t.currentConfig
 	}
-	t.rateLimiter = rate.NewLimiter(t.current.limit, t.current.burst)
+	t.rateLimiter = rate.NewLimiter(t.currentConfig.limit, t.currentConfig.burst)
 	return &t
 }
 
@@ -85,18 +86,14 @@ func validateLimiter(max *rate.Limit, burst *int) {
 	}
 }
 
-func (r *rateLimiter) IsEnabled() bool {
-	return r.current.limit != rate.Inf
-}
+func (r *rateLimiter) IsEnabled() bool { return r.enabled }
+
+func (r *rateLimiter) Disable() { r.table.enableRateLimiter(r.name, false) }
+
+func (r *rateLimiter) Enable() { r.table.enableRateLimiter(r.name, false) }
 
 func (r *rateLimiter) Reset() {
 	// TODO : set isCanary to false
-}
-
-func (r *rateLimiter) Disable() {
-}
-
-func (r *rateLimiter) Enable() {
 }
 
 func (r *rateLimiter) Configure(items ...Attribute) error {
@@ -109,25 +106,21 @@ func (r *rateLimiter) Adjust(up bool) {
 
 func (r *rateLimiter) Attribute(name string) Attribute {
 	if strings.Index(name, RateLimitName) != -1 {
-		return NewAttribute(RateLimitName, r.current.limit)
+		return NewAttribute(RateLimitName, r.currentConfig.limit)
 	}
 	if strings.Index(name, BurstName) != -1 {
-		return NewAttribute(BurstName, r.current.burst)
+		return NewAttribute(BurstName, r.currentConfig.burst)
 	}
 	if strings.Index(name, CanaryName) != -1 {
-		return NewAttribute(CanaryName, r.canaried)
+		return NewAttribute(CanaryName, r.canary)
 	}
 	return nilAttribute(name)
 }
 
-func (r *rateLimiter) Value(name string) string {
-	if name == "" {
-		return ""
-	}
-
-	return ""
-}
-
 func (r *rateLimiter) Allow() bool {
 	return r.rateLimiter.Allow()
+}
+
+func (r *rateLimiter) SetLimit(limit rate.Limit) {
+	r.table.setLimit(r.name, limit)
 }

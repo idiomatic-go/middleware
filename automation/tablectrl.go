@@ -1,5 +1,7 @@
 package automation
 
+import "golang.org/x/time/rate"
+
 func (t *table) enableFailover(name string, enabled bool) {
 	if name == "" {
 		return
@@ -33,9 +35,6 @@ func (t *table) setTimeout(name string, timeout int) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		if timeout <= 0 {
-			timeout = NilValue
-		}
 		tc := cloneTimeout(act.timeout)
 		tc.current.timeout = timeout
 		t.update(name, cloneActuator(act, tc))
@@ -51,6 +50,32 @@ func (t *table) enableRateLimiter(name string, enabled bool) {
 	if act, ok := t.actuators[name]; ok {
 		lc := cloneRateLimiter(act.rateLimiter)
 		lc.enabled = enabled
+		t.update(name, cloneActuator[*rateLimiter](act, lc))
+	}
+}
+
+func (t *table) setLimit(name string, limit rate.Limit) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if act, ok := t.actuators[name]; ok {
+		lc := cloneRateLimiter(act.rateLimiter)
+		lc.currentConfig.limit = limit
+		t.update(name, cloneActuator[*rateLimiter](act, lc))
+	}
+}
+
+func (t *table) setBurst(name string, burst int) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if act, ok := t.actuators[name]; ok {
+		lc := cloneRateLimiter(act.rateLimiter)
+		lc.currentConfig.burst = burst
 		t.update(name, cloneActuator[*rateLimiter](act, lc))
 	}
 }
