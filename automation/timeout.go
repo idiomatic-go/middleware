@@ -15,6 +15,7 @@ type TimeoutController interface {
 	Controller
 	StatusCode(defaultStatusCode int) int
 	Duration() time.Duration
+	SetTimeout(timeout int)
 }
 
 type TimeoutConfig struct {
@@ -77,6 +78,12 @@ func (t *timeout) Reset() {
 	t.table.setTimeout(t.name, t.defaultC.timeout)
 }
 
+func (t *timeout) Adjust(up bool) {
+	if up {
+		t.table.setTimeout(t.name, t.current.timeout+5)
+	}
+}
+
 func (t *timeout) Configure(attr Attribute) error {
 	err := attr.Validate()
 	if err != nil {
@@ -84,14 +91,11 @@ func (t *timeout) Configure(attr Attribute) error {
 	}
 	switch attr.Name() {
 	case TimeoutName:
+		if val, ok := attr.Value().(int); ok {
+			t.SetTimeout(val)
+		}
 	}
 	return errors.New(fmt.Sprintf("invalid attribute name: name not found [%v]", attr.Name()))
-}
-
-func (t *timeout) Adjust(up bool) {
-	if up {
-		t.table.setTimeout(t.name, t.current.timeout+5)
-	}
 }
 
 func (t *timeout) Attribute(name string) Attribute {
@@ -113,4 +117,11 @@ func (t *timeout) Duration() time.Duration {
 		return 0
 	}
 	return time.Duration(t.current.timeout) * time.Millisecond
+}
+
+func (t *timeout) SetTimeout(timeout int) {
+	if timeout < 0 {
+		return
+	}
+	t.table.setTimeout(t.name, timeout)
 }

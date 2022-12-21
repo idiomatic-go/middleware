@@ -63,7 +63,7 @@ func newRateLimiter(name string, config []*RateLimiterConfig, table *table) *rat
 	var t = rateLimiter{
 		name:          name,
 		table:         table,
-		enabled:       false,
+		enabled:       true,
 		canary:        false,
 		defaultConfig: RateLimiterConfig{rate.Inf, DefaultBurst},
 		currentConfig: RateLimiterConfig{rate.Inf, DefaultBurst},
