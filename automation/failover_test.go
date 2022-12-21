@@ -32,7 +32,7 @@ func Example_Failover_Controller_Status() {
 	name := "failover-test"
 	t := newTable()
 
-	ok := t.Add(name, nil, nil, NewFailoverConfig(testFn))
+	ok := t.Add(name, nil, nil, nil, NewFailoverConfig(testFn))
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
 
 	f := t.LookupByName(name)
@@ -57,7 +57,7 @@ func Example_Failover_Controller_State() {
 	name := "failover-test"
 	t := newTable()
 
-	ok := t.Add(name, nil, nil, NewFailoverConfig(testFn))
+	ok := t.Add(name, nil, nil, nil, NewFailoverConfig(testFn))
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
 
 	f1 := t.LookupByName(name)

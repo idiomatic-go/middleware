@@ -48,7 +48,7 @@ func Example_Timeout_Controller_Status() {
 	t := newTable()
 
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
-	ok := t.Add(name, config, nil, nil)
+	ok := t.Add(name, config, nil, nil, nil)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
 
 	act := t.LookupByName(name)
@@ -74,7 +74,3 @@ func Example_Timeout_Controller_Status() {
 	//test: IsEnabled() -> [false]
 	//test: IsEnabled() -> [true]
 }
-
-
-
-

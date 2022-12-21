@@ -22,10 +22,9 @@ type RateLimiterController interface {
 }
 
 type RateLimiterConfig struct {
-	enabled bool
-	limit   rate.Limit
-	burst   int
-	step    int
+	limit rate.Limit
+	burst int
+	step  int
 }
 
 func NewRateLimiterConfig(limit rate.Limit, burst int, step int) *RateLimiterConfig {
