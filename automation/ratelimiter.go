@@ -100,6 +100,9 @@ func (r *rateLimiter) Reset() {
 	r.table.setRateLimiter(r.name, r.defaultConfig, false)
 }
 
+func (r *rateLimiter) Adjust(up bool) {
+}
+
 func (r *rateLimiter) Configure(attr Attribute) error {
 	err := attr.Validate()
 	if err != nil {
@@ -107,13 +110,28 @@ func (r *rateLimiter) Configure(attr Attribute) error {
 	}
 	switch attr.Name() {
 	case RateLimitName:
+		if val, ok := attr.Value().(rate.Limit); ok {
+			r.SetLimit(val)
+		}
 	case BurstName:
+		if val, ok := attr.Value().(int); ok {
+			r.SetBurst(val)
+		}
 	case CanaryName:
+		if val, ok := attr.Value().(bool); ok {
+			if val == false && r.canary {
+				r.Reset()
+				return nil
+			}
+			if val == true && !r.canary {
+				r.SetCanary()
+				return nil
+			}
+		}
+	default:
+		errors.New(fmt.Sprintf("invalid attribute name: name not found [%v]", attr.Name()))
 	}
-	return errors.New(fmt.Sprintf("invalid attribute name: name not found [%v]", attr.Name()))
-}
-
-func (r *rateLimiter) Adjust(up bool) {
+	return nil
 }
 
 func (r *rateLimiter) Attribute(name string) Attribute {
@@ -139,4 +157,13 @@ func (r *rateLimiter) SetLimit(limit rate.Limit) {
 
 func (r *rateLimiter) SetBurst(burst int) {
 	r.table.setBurst(r.name, burst)
+}
+
+func (r *rateLimiter) SetCanary() {
+	r.table.setRateLimiter(r.name, r.canaryConfig, true)
+}
+
+func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {
+	validateLimiter(&limit, &burst)
+	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: limit, burst: burst}, false)
 }
