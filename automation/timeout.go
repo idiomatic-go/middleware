@@ -78,10 +78,8 @@ func (t *timeout) Reset() {
 	t.table.setTimeout(t.name, t.defaultC.timeout)
 }
 
-func (t *timeout) Adjust(up bool) {
-	if up {
-		t.table.setTimeout(t.name, t.current.timeout+5)
-	}
+func (t *timeout) Adjust(change any) {
+
 }
 
 func (t *timeout) Configure(attr Attribute) error {

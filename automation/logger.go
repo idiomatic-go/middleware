@@ -79,7 +79,7 @@ func (l *logger) Configure(Attribute) error {
 	return nil
 }
 
-func (l *logger) Adjust(bool) {
+func (l *logger) Adjust(any) {
 }
 
 func (l *logger) Attribute(name string) Attribute {

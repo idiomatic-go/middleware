@@ -1,7 +1,5 @@
 package automation
 
-const ()
-
 type FailoverInvoke func(name string)
 
 type FailoverController interface {
@@ -61,7 +59,7 @@ func (f *failover) Configure(Attribute) error {
 	return nil
 }
 
-func (f *failover) Adjust(bool) {}
+func (f *failover) Adjust(change any) {}
 
 func (f *failover) Attribute(string) Attribute {
 	return nilAttribute("")

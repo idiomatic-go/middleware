@@ -100,7 +100,8 @@ func (r *rateLimiter) Reset() {
 	r.table.setRateLimiter(r.name, r.defaultConfig, false)
 }
 
-func (r *rateLimiter) Adjust(up bool) {
+func (r *rateLimiter) Adjust(change any) {
+	return
 }
 
 func (r *rateLimiter) Configure(attr Attribute) error {

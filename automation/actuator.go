@@ -5,12 +5,14 @@ const (
 	NilValue    = -1
 )
 
+// https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+
 type Controller interface {
 	IsEnabled() bool
 	Disable()
 	Enable()
 	Reset()
-	Adjust(up bool)
+	Adjust(change any)
 	Configure(attr Attribute) error
 	Attribute(name string) Attribute
 }
