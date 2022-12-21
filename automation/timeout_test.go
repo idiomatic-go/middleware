@@ -8,7 +8,7 @@ func Example_newTimeout() {
 	t := newTimeout("test-route", nil, newTable())
 	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [default:%v] [current:%v]\n", t.enabled, t.name, t.defaultC, t.current)
 
-	t = newTimeout("test-route2", NewTimeoutConfig(2000, 504), newTable())
+	t = newTimeout("test-route2", NewTimeoutConfig(2000), newTable())
 	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [default:%v] [current:%v]\n", t.enabled, t.name, t.defaultC, t.current)
 
 	t2 := cloneTimeout(t)
@@ -22,15 +22,12 @@ func Example_newTimeout() {
 }
 
 func Example_Controller_ReadOnly() {
-	t := newTimeout("test-route", NewTimeoutConfig(2000, 504), newTable())
+	t := newTimeout("test-route", NewTimeoutConfig(2000), newTable())
 	fmt.Printf("test: IsEnabled() -> [%v]\n", t.IsEnabled())
 
 	fmt.Printf("test: Duration() -> [%v]\n", t.Duration())
 
-	fmt.Printf("test: StatusCode(200) -> [%v]\n", t.StatusCode(200))
-
-	t = newTimeout("test-route", NewTimeoutConfig(2000, NilValue), newTable())
-	fmt.Printf("test: StatusCode(503) -> [%v]\n", t.StatusCode(503))
+	t = newTimeout("test-route", NewTimeoutConfig(2000), newTable())
 
 	a := t.Attribute("")
 	fmt.Printf("test: Attribute(\"\") -> [name:%v] [value:%v] [string:%v]\n", a.Name(), a.Value(), a)
@@ -49,7 +46,7 @@ func Example_Controller_ReadOnly() {
 
 func Example_Timeout_Controller_Status() {
 	name := "test-route"
-	config := NewTimeoutConfig(2000, 504)
+	config := NewTimeoutConfig(2000)
 	t := newTable()
 
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
@@ -60,7 +57,6 @@ func Example_Timeout_Controller_Status() {
 	//fmt.Printf("test: LookupByName(%v) -> [%v]\n", name, act != nil)
 
 	fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
-	fmt.Printf("test: StatusCode() -> [%v]\n", act.Timeout().StatusCode(200))
 
 	fmt.Printf("test: IsEnabled() -> [%v]\n", act.Timeout().IsEnabled())
 
@@ -84,7 +80,7 @@ func Example_Timeout_Controller_Status() {
 
 func Example_Timeout_Controller_State() {
 	name := "test-route"
-	config := NewTimeoutConfig(2000, 504)
+	config := NewTimeoutConfig(2000)
 	t := newTable()
 
 	ok := t.Add(name, config, nil, nil)
@@ -93,7 +89,6 @@ func Example_Timeout_Controller_State() {
 	act := t.LookupByName(name)
 	fmt.Printf("test: Timeout() -> [%v]\n", act.Timeout().Attribute(TimeoutName))
 	fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
-	fmt.Printf("test: StatusCode() -> [%v]\n", act.Timeout().StatusCode(200))
 
 	act.Timeout().Configure(NewAttribute(TimeoutName, 1500))
 	act1 := t.LookupByName(name)

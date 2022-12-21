@@ -43,16 +43,17 @@ func setupCall(t Routes, name string, fn Ok) (Route, bool) {
 
 
 */
+/*
 func Example_Timeout() {
 	name := "timeout-route"
 	t := newTable()
-	a0 := setup(t, name, NewTimeoutConfig(1000, NilValue), nil)
+	a0 := setup(t, name, NewTimeoutConfig(1000), nil)
 	if a0 == nil {
 		return
 	}
 	prev := a0.Timeout().Attribute(TimeoutName).String()
 
-	t.setTimeout(name, 2000)
+	t.setTimeout(name)
 	a := t.LookupByName(name)
 	if a == nil {
 		fmt.Printf("test: LookupByName(%v) -> [actuator:%v]", name, a)
@@ -110,6 +111,8 @@ func Example_Timeout() {
 
 }
 
+
+*/
 /*
 func Example_RateLimit_Limit() {
 	name := "limit-route"

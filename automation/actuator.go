@@ -6,6 +6,7 @@ const (
 )
 
 // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+// https://github.com/keikoproj/inverse-exp-backoff
 
 type Controller interface {
 	IsEnabled() bool

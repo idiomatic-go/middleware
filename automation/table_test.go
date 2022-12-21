@@ -63,7 +63,7 @@ func ExampleTable_Lookup() {
 	r = t.Lookup(req)
 	fmt.Printf("test: Lookup(req) -> [actuator:%v]\n", r.Name())
 
-	ok := t.Add(name, NewTimeoutConfig(100, NilValue), nil, nil)
+	ok := t.Add(name, NewTimeoutConfig(100), nil, nil)
 	fmt.Printf("test: Add(actuator) -> [actuator:%v] [count:%v] [exists:%v]\n", ok, t.count(), t.exists(name))
 
 	t.SetMatcher(func(req *http.Request) string {

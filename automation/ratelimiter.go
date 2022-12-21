@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"golang.org/x/time/rate"
 	"strings"
+	"time"
 )
 
 const (
@@ -23,8 +24,12 @@ type RateLimiterController interface {
 }
 
 type RateLimiterConfig struct {
-	limit rate.Limit
-	burst int
+	enabled bool
+	startup bool
+	limit   rate.Limit
+	burst   int
+	steps   []int
+	hold    time.Duration
 }
 
 func NewRateLimiterConfig(limit rate.Limit, burst int, canaryLimit rate.Limit, canaryBurst int) (configs []*RateLimiterConfig) {
@@ -65,9 +70,9 @@ func newRateLimiter(name string, config []*RateLimiterConfig, table *table) *rat
 		table:         table,
 		enabled:       true,
 		canary:        false,
-		defaultConfig: RateLimiterConfig{rate.Inf, DefaultBurst},
-		currentConfig: RateLimiterConfig{rate.Inf, DefaultBurst},
-		canaryConfig:  RateLimiterConfig{rate.Inf, DefaultBurst},
+		defaultConfig: RateLimiterConfig{limit: rate.Inf, burst: DefaultBurst},
+		currentConfig: RateLimiterConfig{limit: rate.Inf, burst: DefaultBurst},
+		canaryConfig:  RateLimiterConfig{limit: rate.Inf, burst: DefaultBurst},
 		rateLimiter:   nil,
 	}
 	if len(config) > 0 {
