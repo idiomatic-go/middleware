@@ -16,13 +16,13 @@ func current(r Route) config {
 
 
 */
-func setup(t *table, name string, tc *TimeoutConfig, rc []*RateLimiterConfig) Actuator {
+func setup(t *table, name string, tc *TimeoutConfig, rlc *RateLimiterConfig) Actuator {
 	//r, err := NewRouteWithConfig(name, timeout, limit, burst, false, false)
 	//if err != nil {
 	//	fmt.Printf("test: New(2000,_,_) -> [err:%v]\n", err)
 	//		return nil
 	//}
-	ok := t.Add(name, tc, rc, nil)
+	ok := t.Add(name, tc, rlc, nil)
 	if !ok {
 		fmt.Printf("test: Add(actuator) -> [ok:%v]", ok)
 		return nil

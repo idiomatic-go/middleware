@@ -67,7 +67,7 @@ func (t *table) setBurst(name string, burst int) {
 	}
 }
 
-func (t *table) setRateLimiter(name string, config RateLimiterConfig, canary bool) {
+func (t *table) setRateLimiter(name string, config RateLimiterConfig) {
 	if name == "" {
 		return
 	}
@@ -77,7 +77,6 @@ func (t *table) setRateLimiter(name string, config RateLimiterConfig, canary boo
 		lc := cloneRateLimiter(act.rateLimiter)
 		lc.currentConfig.limit = config.limit
 		lc.currentConfig.burst = config.burst
-		lc.canary = canary
 		t.update(name, cloneActuator[*rateLimiter](act, lc))
 	}
 }

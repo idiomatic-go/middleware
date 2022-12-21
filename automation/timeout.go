@@ -52,29 +52,17 @@ func newTimeout(name string, config *TimeoutConfig, table *table) *timeout {
 	return t
 }
 
-func (t *timeout) IsEnabled() bool {
-	return t.enabled && t.current.timeout > 0
-}
+func (t *timeout) IsEnabled() bool { return t.enabled && t.current.timeout > 0 }
 
-func (t *timeout) Disable() {
-	t.table.enableTimeout(t.name, false)
-}
+func (t *timeout) Disable() { t.table.enableTimeout(t.name, false) }
 
-func (t *timeout) Enable() {
-	t.table.enableTimeout(t.name, true)
-}
+func (t *timeout) Enable() { t.table.enableTimeout(t.name, true) }
 
-func (t *timeout) Reset() {
+func (t *timeout) Reset() {}
 
-}
+func (t *timeout) Adjust(any) {}
 
-func (t *timeout) Adjust(any) {
-
-}
-
-func (t *timeout) Configure(Attribute) error {
-	return nil
-}
+func (t *timeout) Configure(Attribute) error { return nil }
 
 func (t *timeout) Attribute(name string) Attribute {
 	if strings.Index(name, TimeoutName) != -1 {

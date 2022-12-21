@@ -16,8 +16,8 @@ func Example_newTimeout() {
 	fmt.Printf("test: cloneTimeout() -> [prev-enabled:%v] [prev-name:%v] [curr-enabled:%v] [curr-name:%v]\n", t.enabled, t.name, t2.enabled, t2.name)
 
 	//Output:
-	//test: newTimeout() -> [enabled:false] [name:test-route] [default:{-1 -1}] [current:{-1 -1}]
-	//test: newTimeout() -> [enabled:true] [name:test-route2] [default:{2000 504}] [current:{2000 504}]
+	//test: newTimeout() -> [enabled:false] [name:test-route] [default:{-1}] [current:{-1}]
+	//test: newTimeout() -> [enabled:true] [name:test-route2] [default:{2000}] [current:{2000}]
 	//test: cloneTimeout() -> [prev-enabled:true] [prev-name:test-route2] [curr-enabled:false] [curr-name:test-route2]
 }
 
@@ -38,8 +38,6 @@ func Example_Controller_ReadOnly() {
 	//Output:
 	//test: IsEnabled() -> [true]
 	//test: Duration() -> [2s]
-	//test: StatusCode(200) -> [504]
-	//test: StatusCode(503) -> [503]
 	//test: Attribute("") -> [name:] [value:<nil>] [string:nil]
 	//test: Attribute("Timeout") -> [name:timeout] [value:2000] [string:2000]
 }
@@ -72,40 +70,11 @@ func Example_Timeout_Controller_Status() {
 	//test: empty() -> [true]
 	//test: Add() -> [true] [count:1]
 	//test: Duration() -> [2s]
-	//test: StatusCode() -> [504]
 	//test: IsEnabled() -> [true]
 	//test: IsEnabled() -> [false]
 	//test: IsEnabled() -> [true]
 }
 
-func Example_Timeout_Controller_State() {
-	name := "test-route"
-	config := NewTimeoutConfig(2000)
-	t := newTable()
 
-	ok := t.Add(name, config, nil, nil)
-	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
 
-	act := t.LookupByName(name)
-	fmt.Printf("test: Timeout() -> [%v]\n", act.Timeout().Attribute(TimeoutName))
-	fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
 
-	act.Timeout().Configure(NewAttribute(TimeoutName, 1500))
-	act1 := t.LookupByName(name)
-	fmt.Printf("test: Configure(1500) -> [%v]\n", act1.Timeout().Attribute(TimeoutName))
-	//fmt.Printf("test: Duration() -> [%v]\n", act1.Timeout().Duration())
-
-	act1.Timeout().Reset()
-	act = t.LookupByName(name)
-	fmt.Printf("test: Reset() -> [%v]\n", act.Timeout().Attribute(TimeoutName))
-	//fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
-
-	//Output:
-	//test: Add() -> [true] [count:1]
-	//test: Timeout() -> [2000]
-	//test: Duration() -> [2s]
-	//test: StatusCode() -> [504]
-	//test: Configure(1500) -> [1500]
-	//test: Reset() -> [2000]
-
-}

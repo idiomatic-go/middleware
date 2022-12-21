@@ -32,13 +32,13 @@ func newTable() *table {
 	return t
 }
 
-func (t *table) SetDefault(name string, tc *TimeoutConfig, rc []*RateLimiterConfig, fc *FailoverConfig) {
+func (t *table) SetDefault(name string, tc *TimeoutConfig, rlc *RateLimiterConfig, fc *FailoverConfig) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if name == "" {
 		name = DefaultName
 	}
-	t.defaultAct = &actuator{name: name, logger: defaultLogger, timeout: newTimeout(name, tc, t), rateLimiter: newRateLimiter(name, rc, t), failover: newFailover(name, fc, t)}
+	t.defaultAct = &actuator{name: name, logger: defaultLogger, timeout: newTimeout(name, tc, t), rateLimiter: newRateLimiter(name, rlc, t), failover: newFailover(name, fc, t)}
 }
 
 func (t *table) SetMatcher(fn Matcher) {
@@ -74,13 +74,13 @@ func (t *table) LookupByName(name string) Actuator {
 	return nil
 }
 
-func (t *table) Add(name string, tc *TimeoutConfig, rc []*RateLimiterConfig, fc *FailoverConfig) bool {
+func (t *table) Add(name string, tc *TimeoutConfig, rlc *RateLimiterConfig, fc *FailoverConfig) bool {
 	if IsEmpty(name) {
 		return false
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	t.actuators[name] = &actuator{name: name, logger: defaultLogger, timeout: newTimeout(name, tc, t), rateLimiter: newRateLimiter(name, rc, t), failover: newFailover(name, fc, t)}
+	t.actuators[name] = &actuator{name: name, logger: defaultLogger, timeout: newTimeout(name, tc, t), rateLimiter: newRateLimiter(name, rlc, t), failover: newFailover(name, fc, t)}
 	return true
 }
 
