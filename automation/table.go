@@ -7,24 +7,34 @@ import (
 )
 
 type table struct {
+	egress     bool
 	mu         sync.RWMutex
 	match      Matcher
+	hostAct    *actuator
 	defaultAct *actuator
 	actuators  map[string]*actuator
 }
 
-func NewTable() Automation {
-	this := newTable()
+func NewEgressTable() Automation {
+	this := newTable(true)
 	return this
 }
 
-func newTable() *table {
+func NewIngressTable() Automation {
+	this := newTable(false)
+	return this
+}
+
+func newTable(egress bool) *table {
 	t := new(table)
+	t.egress = egress
 	t.actuators = make(map[string]*actuator, 100)
-	t.defaultAct = &actuator{name: DefaultName,
-		logger:      defaultLogger,
-		timeout:     newTimeout(DefaultName, nil, t),
-		rateLimiter: newRateLimiter(DefaultName, nil, t),
+	if egress {
+		t.defaultAct = newActuator(DefaultName, t, newTimeout(DefaultName, t, nil),
+			newCircuitBreaker(DefaultName, t, nil),
+			newFailover(DefaultName, t, nil))
+	} else {
+		t.defaultAct = newActuator(DefaultName, t, newTimeout(DefaultName, t, nil), newRateLimiter(DefaultName, t, nil))
 	}
 	t.match = func(req *http.Request) (name string) {
 		return ""
@@ -32,18 +42,21 @@ func newTable() *table {
 	return t
 }
 
-func (t *table) SetDefault(name string, tc *TimeoutConfig, rlc *RateLimiterConfig, cbc *CircuitBreakerConfig, fc *FailoverConfig) {
+func (t *table) isEgress() bool { return t.egress }
+
+func (t *table) SetDefault(name string, config ...any) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if name == "" {
 		name = DefaultName
 	}
-	t.defaultAct = &actuator{name: name,
-		logger:         defaultLogger,
-		timeout:        newTimeout(name, tc, t),
-		rateLimiter:    newRateLimiter(name, rlc, t),
-		circuitBreaker: newCircuitBreaker(name, cbc, t),
-		failover:       newFailover(name, fc, t)}
+	act := newActuator(name, t, config...)
+	err := act.validate(t.egress)
+	if err != nil {
+		return err
+	}
+	t.defaultAct = act
+	return nil
 }
 
 func (t *table) SetMatcher(fn Matcher) {
@@ -79,19 +92,19 @@ func (t *table) LookupByName(name string) Actuator {
 	return nil
 }
 
-func (t *table) Add(name string, tc *TimeoutConfig, rlc *RateLimiterConfig, cbc *CircuitBreakerConfig, fc *FailoverConfig) bool {
+func (t *table) Add(name string, config ...any) error {
 	if IsEmpty(name) {
-		return false
+		return errors.New("invalid argument: name is empty")
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	t.actuators[name] = &actuator{name: name,
-		logger:         defaultLogger,
-		timeout:        newTimeout(name, tc, t),
-		rateLimiter:    newRateLimiter(name, rlc, t),
-		circuitBreaker: newCircuitBreaker(name, cbc, t),
-		failover:       newFailover(name, fc, t)}
-	return true
+	act := newActuator(name, t, config...)
+	err := act.validate(t.egress)
+	if err != nil {
+		return err
+	}
+	t.actuators[name] = act
+	return nil
 }
 
 func (t *table) exists(name string) bool {

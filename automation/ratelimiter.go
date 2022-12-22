@@ -50,7 +50,7 @@ func cloneRateLimiter(curr *rateLimiter) *rateLimiter {
 	return newLimiter
 }
 
-func newRateLimiter(name string, config *RateLimiterConfig, table *table) *rateLimiter {
+func newRateLimiter(name string, table *table, config *RateLimiterConfig) *rateLimiter {
 	t := new(rateLimiter)
 	t.name = name
 	t.table = table

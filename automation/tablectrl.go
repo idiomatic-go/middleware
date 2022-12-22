@@ -28,6 +28,19 @@ func (t *table) enableTimeout(name string, enabled bool) {
 	}
 }
 
+func (t *table) setTimeout(name string, to int) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if act, ok := t.actuators[name]; ok {
+		tc := cloneTimeout(act.timeout)
+		tc.current.timeout = to
+		t.update(name, cloneActuator[*timeout](act, tc))
+	}
+}
+
 func (t *table) enableRateLimiter(name string, enabled bool) {
 	if name == "" {
 		return

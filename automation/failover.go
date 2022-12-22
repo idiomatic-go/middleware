@@ -28,7 +28,7 @@ func cloneFailover(curr *failover) *failover {
 	return t
 }
 
-func newFailover(name string, config *FailoverConfig, table *table) *failover {
+func newFailover(name string, table *table, config *FailoverConfig) *failover {
 	if config == nil {
 		config = NewFailoverConfig(nil)
 	}
@@ -42,31 +42,27 @@ func newFailover(name string, config *FailoverConfig, table *table) *failover {
 	return t
 }
 
-func (f *failover) IsEnabled() bool { return f.enabled }
+func (f *failover) IsEnabled() bool { return f.enabled && f.invoke != nil }
 
 func (f *failover) Disable() {
-	f.table.enableFailover(f.name, false)
+	if f.IsEnabled() {
+		f.table.enableFailover(f.name, false)
+	}
 }
 
 func (f *failover) Enable() {
-	f.table.enableFailover(f.name, true)
+	if !f.enabled && f.invoke != nil {
+		f.table.enableFailover(f.name, true)
+	}
 }
 
-func (f *failover) Reset() {
-}
-
-func (f *failover) Configure(Attribute) error {
-	return nil
-}
-
-func (f *failover) Adjust(change any) {}
-
-func (f *failover) Attribute(string) Attribute {
-	return nilAttribute("")
-}
+func (f *failover) Reset()                     {}
+func (f *failover) Configure(Attribute) error  { return nil }
+func (f *failover) Adjust(any)                 {}
+func (f *failover) Attribute(string) Attribute { return nilAttribute("") }
 
 func (f *failover) Invoke() {
-	if !f.IsEnabled() || f.invoke == nil {
+	if !f.IsEnabled() {
 		return
 	}
 	f.invoke(f.name)

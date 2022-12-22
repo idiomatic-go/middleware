@@ -37,7 +37,7 @@ type circuitBreaker struct {
 	rateLimiter *rate.Limiter
 }
 
-func newCircuitBreaker(name string, config *CircuitBreakerConfig, table *table) *circuitBreaker {
+func newCircuitBreaker(name string, table *table, config *CircuitBreakerConfig) *circuitBreaker {
 	t := new(circuitBreaker)
 	t.name = name
 	t.table = table

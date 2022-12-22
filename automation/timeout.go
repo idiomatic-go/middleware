@@ -39,7 +39,7 @@ func cloneTimeout(curr *timeout) *timeout {
 	return t
 }
 
-func newTimeout(name string, config *TimeoutConfig, table *table) *timeout {
+func newTimeout(name string, table *table, config *TimeoutConfig) *timeout {
 	if config == nil {
 		config = NewTimeoutConfig(NilValue)
 	}

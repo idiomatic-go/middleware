@@ -8,8 +8,8 @@ type Matcher func(req *http.Request) (routeName string)
 
 type Configuration interface {
 	SetMatcher(fn Matcher)
-	SetDefault(name string, tc *TimeoutConfig, rlc *RateLimiterConfig, cbc *CircuitBreakerConfig, fc *FailoverConfig)
-	Add(name string, tc *TimeoutConfig, rlc *RateLimiterConfig, cbc *CircuitBreakerConfig, fc *FailoverConfig) bool
+	SetDefault(name string, config ...any) error
+	Add(name string, config ...any) error
 }
 
 type Actuators interface {
@@ -22,5 +22,5 @@ type Automation interface {
 	Actuators
 }
 
-var Ingress = NewTable()
-var Egress = NewTable()
+var Ingress = NewIngressTable()
+var Egress = NewEgressTable()

@@ -1,5 +1,7 @@
 package automation
 
+import "errors"
+
 const (
 	DefaultName = "*"
 	NilValue    = -1
@@ -37,7 +39,7 @@ type actuator struct {
 	circuitBreaker *circuitBreaker
 }
 
-func cloneActuator[T *timeout | *rateLimiter | *failover](curr *actuator, controller T) *actuator {
+func cloneActuator[T *timeout | *rateLimiter | *circuitBreaker | *failover](curr *actuator, controller T) *actuator {
 	newAct := new(actuator)
 	*newAct = *curr
 	switch i := any(controller).(type) {
@@ -47,13 +49,50 @@ func cloneActuator[T *timeout | *rateLimiter | *failover](curr *actuator, contro
 		newAct.rateLimiter = i
 	case *failover:
 		newAct.failover = i
+	case *circuitBreaker:
+		newAct.circuitBreaker = i
 	default:
 	}
 	return newAct
 }
 
-func newActuator(l *logger, t *timeout, r *rateLimiter, c *circuitBreaker, f *failover) *actuator {
-	return &actuator{logger: l, timeout: t, rateLimiter: r, circuitBreaker: c, failover: f}
+func newActuator(name string, t *table, config ...any) *actuator {
+	act := new(actuator)
+	act.name = name
+	act.logger = defaultLogger
+	for _, cfg := range config {
+		switch c := cfg.(type) {
+		case *TimeoutConfig:
+			act.timeout = newTimeout(name, t, c)
+		case *RateLimiterConfig:
+			act.rateLimiter = newRateLimiter(name, t, c)
+		case *CircuitBreakerConfig:
+			act.circuitBreaker = newCircuitBreaker(name, t, c)
+		case *FailoverConfig:
+			act.failover = newFailover(name, t, c)
+		}
+	}
+	return act
+}
+
+func newDefaultActuator(name string, t *table) *actuator {
+	return newActuator(name, t, newTimeout(name, t, nil),
+		newRateLimiter(name, t, nil),
+		newCircuitBreaker(name, t, nil),
+		newFailover(name, t, nil))
+}
+
+func (a *actuator) validate(egress bool) error {
+	if egress {
+		if a.rateLimiter != nil {
+			return errors.New("invalid configuration: rate limiter controller is not valid for egress traffic")
+		}
+	} else {
+		if a.circuitBreaker != nil || a.failover != nil {
+			return errors.New("invalid configuration: circuit breaker, failover, and retry controllers are not valid for ingress traffic")
+		}
+	}
+	return nil
 }
 
 func (a *actuator) Name() string {
