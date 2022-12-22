@@ -16,11 +16,11 @@ type CircuitBreakerConfig struct {
 	limit   rate.Limit
 	burst   int
 	steps   []int
-	timeout int
+	timeout time.Duration
 	hold    time.Duration
 }
 
-func NewCircuitBreakerConfig(limit rate.Limit, burst int, steps []int, timeout int, hold time.Duration) *CircuitBreakerConfig {
+func NewCircuitBreakerConfig(limit rate.Limit, burst int, steps []int, timeout time.Duration, hold time.Duration) *CircuitBreakerConfig {
 	validateLimiter(&limit, &burst)
 	c := new(CircuitBreakerConfig)
 	c.limit = limit
@@ -48,6 +48,7 @@ func newCircuitBreaker(name string, table *table, config *CircuitBreakerConfig) 
 	t.name = name
 	t.table = table
 	t.enabled = true
+	t.tripped = false
 	if config != nil {
 		t.current = *config
 	}
@@ -86,5 +87,11 @@ func (c *circuitBreaker) Attribute(name string) Attribute {
 }
 
 func (c *circuitBreaker) Allow() (bool, bool) {
+	if !c.IsEnabled() {
+		return false, true
+	}
+	if !c.tripped {
+		return true, true
+	}
 	return c.enabled, true
 }

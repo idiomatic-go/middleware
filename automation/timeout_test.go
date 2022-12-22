@@ -1,6 +1,9 @@
 package automation
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // TODO : test nil attribute
 
@@ -8,8 +11,8 @@ func Example_newTimeout() {
 	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(NilValue))
 	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [current:%v]\n", t.enabled, t.name, t.current)
 
-	t = newTimeout("test-route2", newTable(true), NewTimeoutConfig(2000))
-	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [current:%v]\n", t.enabled, t.name, t.current)
+	t = newTimeout("test-route2", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
+	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [current:%v]\n", t.enabled, t.name, t.current.timeout)
 
 	t2 := cloneTimeout(t)
 	t2.enabled = false
@@ -17,18 +20,19 @@ func Example_newTimeout() {
 
 	//Output:
 	//test: newTimeout() -> [enabled:false] [name:test-route] [current:{-1}]
-	//test: newTimeout() -> [enabled:true] [name:test-route2] [current:{2000}]
+	//test: newTimeout() -> [enabled:true] [name:test-route2] [current:2s]
 	//test: cloneTimeout() -> [prev-enabled:true] [prev-name:test-route2] [curr-enabled:false] [curr-name:test-route2]
+
 }
 
 func Example_Controller_ReadOnly() {
-	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(2000))
+	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
 	fmt.Printf("test: IsEnabled() -> [%v]\n", t.IsEnabled())
 
 	_, d := t.Duration()
 	fmt.Printf("test: Duration() -> [%v]\n", d)
 
-	t = newTimeout("test-route", newTable(true), NewTimeoutConfig(2000))
+	t = newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
 
 	a := t.Attribute("")
 	fmt.Printf("test: Attribute(\"\") -> [name:%v] [value:%v] [string:%v]\n", a.Name(), a.Value(), a)
@@ -40,12 +44,13 @@ func Example_Controller_ReadOnly() {
 	//test: IsEnabled() -> [true]
 	//test: Duration() -> [2s]
 	//test: Attribute("") -> [name:] [value:<nil>] [string:nil]
-	//test: Attribute("Timeout") -> [name:timeout] [value:2000] [string:2000]
+	//test: Attribute("Timeout") -> [name:timeout] [value:2s] [string:2s]
+
 }
 
 func Example_Timeout_Controller_Status() {
 	name := "test-route"
-	config := NewTimeoutConfig(2000)
+	config := NewTimeoutConfig(time.Millisecond * 2000)
 	t := newTable(true)
 
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())

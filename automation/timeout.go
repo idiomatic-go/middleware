@@ -12,14 +12,14 @@ const (
 type TimeoutController interface {
 	Controller
 	Duration() (bool, time.Duration)
-	SetTimeout(timeout int, enable bool)
+	//SetTimeout(timeout int, enable bool)
 }
 
 type TimeoutConfig struct {
-	timeout int
+	timeout time.Duration
 }
 
-func NewTimeoutConfig(timeout int) *TimeoutConfig {
+func NewTimeoutConfig(timeout time.Duration) *TimeoutConfig {
 	if timeout < 0 {
 		timeout = NilValue
 	}
@@ -85,12 +85,16 @@ func (t *timeout) Duration() (bool, time.Duration) {
 	if t.current.timeout <= 0 {
 		return true, 0
 	}
-	return true, time.Duration(t.current.timeout) * time.Millisecond
+	return true, t.current.timeout
 }
 
-func (t *timeout) SetTimeout(timeout int, enable bool) {
+/*
+func (t *timeout) SetTimeout(timeout time.Duration, enable bool) {
 	if t.current.timeout == timeout || timeout <= 0 {
 		return
 	}
 	t.table.setTimeout(t.name, timeout, enable)
 }
+
+
+*/

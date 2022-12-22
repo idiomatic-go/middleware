@@ -1,6 +1,8 @@
 package automation
 
-import "golang.org/x/time/rate"
+import (
+	"golang.org/x/time/rate"
+)
 
 func (t *table) enableFailover(name string, enabled bool) {
 	if name == "" {
@@ -9,9 +11,11 @@ func (t *table) enableFailover(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		fc := cloneFailover(act.failover)
-		fc.enabled = enabled
-		t.update(name, cloneActuator[*failover](act, fc))
+		//fc := cloneFailover(act.failover)
+		//fc.enabled = enabled
+		//t.update(name, cloneActuator[*failover](act, fc))
+		act.failover.enabled = enabled
+		//t.actuators[name] = act
 	}
 }
 
@@ -37,13 +41,16 @@ func (t *table) enableTimeout(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		tc := cloneTimeout(act.timeout)
-		tc.enabled = enabled
-		t.update(name, cloneActuator[*timeout](act, tc))
+		//tc := cloneTimeout(act.timeout)
+		//tc.enabled = enabled
+		//t.update(name, cloneActuator[*timeout](act, tc))
+		act.timeout.enabled = enabled
+		//t.actuators[name] = act
 	}
 }
 
-func (t *table) setTimeout(name string, to int, enable bool) {
+/*
+func (t *table) setTimeout(name string, to time.Duration, enable bool) {
 	if name == "" {
 		return
 	}
@@ -57,6 +64,8 @@ func (t *table) setTimeout(name string, to int, enable bool) {
 	}
 }
 
+
+*/
 func (t *table) enableRateLimiter(name string, enabled bool) {
 	if name == "" {
 		return
@@ -64,9 +73,10 @@ func (t *table) enableRateLimiter(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		lc := cloneRateLimiter(act.rateLimiter)
-		lc.enabled = enabled
-		t.update(name, cloneActuator[*rateLimiter](act, lc))
+		//lc := cloneRateLimiter(act.rateLimiter)
+		//lc.enabled = enabled
+		//t.update(name, cloneActuator[*rateLimiter](act, lc))
+		act.rateLimiter.enabled = enabled
 	}
 }
 
@@ -117,9 +127,10 @@ func (t *table) enableCircuitBreaker(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		c := cloneCircuitBreaker(act.circuitBreaker)
-		c.enabled = enabled
-		t.update(name, cloneActuator[*circuitBreaker](act, c))
+		//c := cloneCircuitBreaker(act.circuitBreaker)
+		//c.enabled = enabled
+		//t.update(name, cloneActuator[*circuitBreaker](act, c))
+		act.circuitBreaker.enabled = enabled
 	}
 }
 
@@ -130,8 +141,9 @@ func (t *table) enableRetry(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		c := cloneRetry(act.retry)
-		c.enabled = enabled
-		t.update(name, cloneActuator[*retry](act, c))
+		//c := cloneRetry(act.retry)
+		//c.enabled = enabled
+		//t.update(name, cloneActuator[*retry](act, c))
+		act.retry.enabled = enabled
 	}
 }

@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-const ()
-
 type RetryController interface {
 	Controller
 	IsRetryable(statusCode int) (bool, bool)

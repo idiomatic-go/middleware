@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"golang.org/x/time/rate"
 	"strconv"
+	"time"
 )
 
 type Attribute interface {
@@ -58,6 +59,9 @@ func (a *attribute) String() string {
 		if val == rate.Inf {
 			return InfValue
 		}
+		return fmt.Sprintf("%v", val)
+	}
+	if val, ok := a.Value().(time.Duration); ok {
 		return fmt.Sprintf("%v", val)
 	}
 	if val, ok := a.Value().(string); ok {
