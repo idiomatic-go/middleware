@@ -16,8 +16,8 @@ func Example_newTimeout() {
 	fmt.Printf("test: cloneTimeout() -> [prev-enabled:%v] [prev-name:%v] [curr-enabled:%v] [curr-name:%v]\n", t.enabled, t.name, t2.enabled, t2.name)
 
 	//Output:
-	//test: newTimeout() -> [enabled:false] [name:test-route] [default:{-1}] [current:{-1}]
-	//test: newTimeout() -> [enabled:true] [name:test-route2] [default:{2000}] [current:{2000}]
+	//test: newTimeout() -> [enabled:false] [name:test-route] [current:{-1}]
+	//test: newTimeout() -> [enabled:true] [name:test-route2] [current:{2000}]
 	//test: cloneTimeout() -> [prev-enabled:true] [prev-name:test-route2] [curr-enabled:false] [curr-name:test-route2]
 }
 
@@ -70,7 +70,7 @@ func Example_Timeout_Controller_Status() {
 
 	//Output:
 	//test: empty() -> [true]
-	//test: Add() -> [true] [count:1]
+	//test: Add() -> [<nil>] [count:1]
 	//test: Duration() -> [2s]
 	//test: IsEnabled() -> [true]
 	//test: IsEnabled() -> [false]
