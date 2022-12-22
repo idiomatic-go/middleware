@@ -25,7 +25,7 @@ func Example_newTimeout() {
 
 }
 
-func Example_Controller_ReadOnly() {
+func Example_Timeout_Controller_ReadOnly() {
 	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
 	fmt.Printf("test: IsEnabled() -> [%v]\n", t.IsEnabled())
 
