@@ -7,7 +7,7 @@ import (
 
 type CircuitBreakerController interface {
 	Controller
-	//Allow() bool
+	Allow() (bool, bool)
 	//SetLimit(limit rate.Limit)
 	//SetBurst(burst int)
 }
@@ -83,4 +83,8 @@ func (c *circuitBreaker) Configure(attr Attribute) error {
 
 func (c *circuitBreaker) Attribute(name string) Attribute {
 	return nilAttribute(name)
+}
+
+func (c *circuitBreaker) Allow() (bool, bool) {
+	return c.enabled, true
 }
