@@ -27,6 +27,7 @@ type Actuator interface {
 	Timeout() TimeoutController
 	RateLimiter() RateLimiterController
 	CircuitBreaker() CircuitBreakerController
+	Retry() RetryController
 	Failover() FailoverController
 	Actuate(events string) error
 }
@@ -53,6 +54,8 @@ func cloneActuator[T *timeout | *rateLimiter | *circuitBreaker | *retry | *failo
 		newAct.failover = i
 	case *circuitBreaker:
 		newAct.circuitBreaker = i
+	case *retry:
+		newAct.retry = i
 	default:
 	}
 	return newAct
@@ -72,6 +75,8 @@ func newActuator(name string, t *table, config ...any) *actuator {
 			act.circuitBreaker = newCircuitBreaker(name, t, c)
 		case *FailoverConfig:
 			act.failover = newFailover(name, t, c)
+		case *RetryConfig:
+			act.retry = newRetry(name, t, c)
 		}
 	}
 	return act
@@ -81,6 +86,7 @@ func newDefaultActuator(name string, t *table) *actuator {
 	return newActuator(name, t, newTimeout(name, t, nil),
 		newRateLimiter(name, t, nil),
 		newCircuitBreaker(name, t, nil),
+		newRetry(name, t, nil),
 		newFailover(name, t, nil))
 }
 
@@ -90,7 +96,7 @@ func (a *actuator) validate(egress bool) error {
 			return errors.New("invalid configuration: rate limiter controller is not valid for egress traffic")
 		}
 	} else {
-		if a.circuitBreaker != nil || a.failover != nil {
+		if a.circuitBreaker != nil || a.failover != nil || a.retry != nil {
 			return errors.New("invalid configuration: circuit breaker, failover, and retry controllers are not valid for ingress traffic")
 		}
 	}
@@ -115,6 +121,10 @@ func (a *actuator) RateLimiter() RateLimiterController {
 
 func (a *actuator) CircuitBreaker() CircuitBreakerController {
 	return a.rateLimiter
+}
+
+func (a *actuator) Retry() RetryController {
+	return a.retry
 }
 
 func (a *actuator) Failover() FailoverController {
