@@ -5,11 +5,11 @@ import "fmt"
 // TODO : test nil attribute
 
 func Example_newTimeout() {
-	t := newTimeout("test-route", nil, newTable())
-	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [default:%v] [current:%v]\n", t.enabled, t.name, t.defaultC, t.current)
+	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(NilValue))
+	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [current:%v]\n", t.enabled, t.name, t.current)
 
-	t = newTimeout("test-route2", NewTimeoutConfig(2000), newTable())
-	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [default:%v] [current:%v]\n", t.enabled, t.name, t.defaultC, t.current)
+	t = newTimeout("test-route2", newTable(true), NewTimeoutConfig(2000))
+	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [current:%v]\n", t.enabled, t.name, t.current)
 
 	t2 := cloneTimeout(t)
 	t2.enabled = false
@@ -22,12 +22,12 @@ func Example_newTimeout() {
 }
 
 func Example_Controller_ReadOnly() {
-	t := newTimeout("test-route", NewTimeoutConfig(2000), newTable())
+	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(2000))
 	fmt.Printf("test: IsEnabled() -> [%v]\n", t.IsEnabled())
 
 	fmt.Printf("test: Duration() -> [%v]\n", t.Duration())
 
-	t = newTimeout("test-route", NewTimeoutConfig(2000), newTable())
+	t = newTimeout("test-route", newTable(true), NewTimeoutConfig(2000))
 
 	a := t.Attribute("")
 	fmt.Printf("test: Attribute(\"\") -> [name:%v] [value:%v] [string:%v]\n", a.Name(), a.Value(), a)
@@ -45,7 +45,7 @@ func Example_Controller_ReadOnly() {
 func Example_Timeout_Controller_Status() {
 	name := "test-route"
 	config := NewTimeoutConfig(2000)
-	t := newTable()
+	t := newTable(true)
 
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
 	ok := t.Add(name, config, nil, nil, nil)

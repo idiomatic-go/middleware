@@ -12,6 +12,7 @@ const (
 type TimeoutController interface {
 	Controller
 	Duration() time.Duration
+	SetTimeout(timeout int)
 }
 
 type TimeoutConfig struct {
@@ -26,11 +27,10 @@ func NewTimeoutConfig(timeout int) *TimeoutConfig {
 }
 
 type timeout struct {
-	table    *table
-	name     string
-	enabled  bool
-	defaultC TimeoutConfig
-	current  TimeoutConfig
+	table   *table
+	name    string
+	enabled bool
+	current TimeoutConfig
 }
 
 func cloneTimeout(curr *timeout) *timeout {
@@ -47,16 +47,23 @@ func newTimeout(name string, table *table, config *TimeoutConfig) *timeout {
 	t.table = table
 	t.name = name
 	t.current.timeout = config.timeout
-	t.defaultC = t.current
 	t.enabled = t.current.timeout > 0
 	return t
 }
 
-func (t *timeout) IsEnabled() bool { return t.enabled && t.current.timeout > 0 }
+func (t *timeout) IsEnabled() bool { return t.enabled }
 
-func (t *timeout) Disable() { t.table.enableTimeout(t.name, false) }
+func (t *timeout) Disable() {
+	if t.IsEnabled() {
+		t.table.enableTimeout(t.name, false)
+	}
+}
 
-func (t *timeout) Enable() { t.table.enableTimeout(t.name, true) }
+func (t *timeout) Enable() {
+	if !t.enabled && t.current.timeout > 0 {
+		t.table.enableTimeout(t.name, true)
+	}
+}
 
 func (t *timeout) Reset() {}
 
@@ -76,4 +83,11 @@ func (t *timeout) Duration() time.Duration {
 		return 0
 	}
 	return time.Duration(t.current.timeout) * time.Millisecond
+}
+
+func (t *timeout) SetTimeout(timeout int) {
+	if timeout <= 0 {
+		return
+	}
+	t.table.setTimeout(t.name, timeout)
 }

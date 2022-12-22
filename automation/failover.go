@@ -42,7 +42,7 @@ func newFailover(name string, table *table, config *FailoverConfig) *failover {
 	return t
 }
 
-func (f *failover) IsEnabled() bool { return f.enabled && f.invoke != nil }
+func (f *failover) IsEnabled() bool { return f.enabled }
 
 func (f *failover) Disable() {
 	if f.IsEnabled() {
@@ -66,4 +66,11 @@ func (f *failover) Invoke() {
 		return
 	}
 	f.invoke(f.name)
+}
+
+func (f *failover) SetInvoke(fn FailoverInvoke) {
+	if fn == nil {
+		return
+	}
+	f.table.setFailoverInvoke(f.name, fn)
 }

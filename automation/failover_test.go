@@ -10,7 +10,7 @@ func Example_newFailover() {
 	f := newFailover(name, nil, nil)
 	fmt.Printf("test: newFailover(nil) -> [enabled:%v]\n", f.enabled)
 
-	f = newFailover(name, NewFailoverConfig(testFn), nil)
+	f = newFailover(name, nil, NewFailoverConfig(testFn))
 	fmt.Printf("test: newFailover(testFn) -> [enabled:%v]\n", f.enabled)
 
 	f2 := cloneFailover(f)
@@ -30,7 +30,7 @@ func Example_newFailover() {
 
 func Example_Failover_Controller_Status() {
 	name := "failover-test"
-	t := newTable()
+	t := newTable(true)
 
 	ok := t.Add(name, nil, nil, nil, NewFailoverConfig(testFn))
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
@@ -55,7 +55,7 @@ func Example_Failover_Controller_Status() {
 
 func Example_Failover_Controller_State() {
 	name := "failover-test"
-	t := newTable()
+	t := newTable(true)
 
 	ok := t.Add(name, nil, nil, nil, NewFailoverConfig(testFn))
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())

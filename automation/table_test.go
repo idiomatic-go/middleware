@@ -6,7 +6,7 @@ import (
 )
 
 func ExampleTable_SetDefault() {
-	t := newTable()
+	t := newTable(true)
 
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
 
@@ -27,7 +27,7 @@ func ExampleTable_SetDefault() {
 
 func ExampleTable_Add_Exists_LookupByName() {
 	name := "test-route"
-	t := newTable()
+	t := newTable(true)
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
 
 	ok := t.Add("", nil, nil, nil, nil)
@@ -53,7 +53,7 @@ func ExampleTable_Add_Exists_LookupByName() {
 
 func ExampleTable_Lookup() {
 	name := "test-route"
-	t := newTable()
+	t := newTable(true)
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
 
 	r := t.Lookup(nil)

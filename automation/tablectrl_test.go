@@ -22,9 +22,9 @@ func setup(t *table, name string, tc *TimeoutConfig, rlc *RateLimiterConfig) Act
 	//	fmt.Printf("test: New(2000,_,_) -> [err:%v]\n", err)
 	//		return nil
 	//}
-	ok := t.Add(name, tc, rlc, nil, nil)
-	if !ok {
-		fmt.Printf("test: Add(actuator) -> [ok:%v]", ok)
+	err := t.Add(name, tc, rlc, nil, nil)
+	if err != nil {
+		fmt.Printf("test: Add(actuator) -> [error:%v]", err)
 		return nil
 	}
 	return t.LookupByName(name)

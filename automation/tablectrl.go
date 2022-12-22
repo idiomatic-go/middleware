@@ -15,6 +15,20 @@ func (t *table) enableFailover(name string, enabled bool) {
 	}
 }
 
+func (t *table) setFailoverInvoke(name string, fn FailoverInvoke) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if act, ok := t.actuators[name]; ok {
+		fc := cloneFailover(act.failover)
+		fc.enabled = true
+		fc.invoke = fn
+		t.update(name, cloneActuator[*failover](act, fc))
+	}
+}
+
 func (t *table) enableTimeout(name string, enabled bool) {
 	if name == "" {
 		return
