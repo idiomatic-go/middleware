@@ -29,12 +29,13 @@ func newTable(egress bool) *table {
 	t := new(table)
 	t.egress = egress
 	t.actuators = make(map[string]*actuator, 100)
+	t.hostAct = newDefaultActuator(HostActuatorName, t)
 	if egress {
-		t.defaultAct = newActuator(DefaultName, t, newTimeout(DefaultName, t, nil),
-			newCircuitBreaker(DefaultName, t, nil),
-			newFailover(DefaultName, t, nil))
+		t.defaultAct = newActuator(DefaultActuatorName, t, newTimeout(DefaultActuatorName, t, nil),
+			newCircuitBreaker(DefaultActuatorName, t, nil),
+			newFailover(DefaultActuatorName, t, nil))
 	} else {
-		t.defaultAct = newActuator(DefaultName, t, newTimeout(DefaultName, t, nil), newRateLimiter(DefaultName, t, nil))
+		t.defaultAct = newActuator(DefaultActuatorName, t, newTimeout(DefaultActuatorName, t, nil), newRateLimiter(DefaultActuatorName, t, nil))
 	}
 	t.match = func(req *http.Request) (name string) {
 		return ""
@@ -44,11 +45,23 @@ func newTable(egress bool) *table {
 
 func (t *table) isEgress() bool { return t.egress }
 
-func (t *table) SetDefault(name string, config ...any) error {
+func (t *table) SetHostActuator(config ...any) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	act := newActuator(HostActuatorName, t, config...)
+	err := act.validate(t.egress)
+	if err != nil {
+		return err
+	}
+	t.hostAct = act
+	return nil
+}
+
+func (t *table) SetDefaultActuator(name string, config ...any) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if name == "" {
-		name = DefaultName
+		name = DefaultActuatorName
 	}
 	act := newActuator(name, t, config...)
 	err := act.validate(t.egress)
@@ -66,6 +79,10 @@ func (t *table) SetMatcher(fn Matcher) {
 	t.mu.Lock()
 	t.match = fn
 	t.mu.Unlock()
+}
+
+func (t *table) Host() Actuator {
+	return t.hostAct
 }
 
 func (t *table) Lookup(req *http.Request) Actuator {

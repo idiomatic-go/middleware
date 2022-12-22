@@ -3,8 +3,9 @@ package automation
 import "errors"
 
 const (
-	DefaultName = "*"
-	NilValue    = -1
+	HostActuatorName    = "host"
+	DefaultActuatorName = "*"
+	NilValue            = -1
 )
 
 // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/

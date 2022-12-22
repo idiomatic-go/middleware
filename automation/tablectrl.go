@@ -15,7 +15,7 @@ func (t *table) enableFailover(name string, enabled bool) {
 	}
 }
 
-func (t *table) setFailoverInvoke(name string, fn FailoverInvoke) {
+func (t *table) setFailoverInvoke(name string, fn FailoverInvoke, enable bool) {
 	if name == "" {
 		return
 	}
@@ -25,6 +25,7 @@ func (t *table) setFailoverInvoke(name string, fn FailoverInvoke) {
 		fc := cloneFailover(act.failover)
 		fc.enabled = true
 		fc.invoke = fn
+		fc.enabled = enable
 		t.update(name, cloneActuator[*failover](act, fc))
 	}
 }
@@ -42,7 +43,7 @@ func (t *table) enableTimeout(name string, enabled bool) {
 	}
 }
 
-func (t *table) setTimeout(name string, to int) {
+func (t *table) setTimeout(name string, to int, enable bool) {
 	if name == "" {
 		return
 	}
@@ -51,6 +52,7 @@ func (t *table) setTimeout(name string, to int) {
 	if act, ok := t.actuators[name]; ok {
 		tc := cloneTimeout(act.timeout)
 		tc.current.timeout = to
+		tc.enabled = enable
 		t.update(name, cloneActuator[*timeout](act, tc))
 	}
 }

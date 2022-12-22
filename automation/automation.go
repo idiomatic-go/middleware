@@ -8,11 +8,13 @@ type Matcher func(req *http.Request) (routeName string)
 
 type Configuration interface {
 	SetMatcher(fn Matcher)
-	SetDefault(name string, config ...any) error
+	SetDefaultActuator(name string, config ...any) error
+	SetHostActuator(config ...any) error
 	Add(name string, config ...any) error
 }
 
 type Actuators interface {
+	Host() Actuator
 	Lookup(req *http.Request) Actuator
 	LookupByName(name string) Actuator
 }

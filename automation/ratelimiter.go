@@ -75,9 +75,19 @@ func validateLimiter(max *rate.Limit, burst *int) {
 
 func (r *rateLimiter) IsEnabled() bool { return r.enabled }
 
-func (r *rateLimiter) Disable() { r.table.enableRateLimiter(r.name, false) }
+func (r *rateLimiter) Disable() {
+	if !r.IsEnabled() {
+		return
+	}
+	r.table.enableRateLimiter(r.name, false)
+}
 
-func (r *rateLimiter) Enable() { r.table.enableRateLimiter(r.name, false) }
+func (r *rateLimiter) Enable() {
+	if r.IsEnabled() {
+		return
+	}
+	r.table.enableRateLimiter(r.name, false)
+}
 
 func (r *rateLimiter) Reset() { r.table.setRateLimiter(r.name, r.defaultConfig) }
 
@@ -120,14 +130,23 @@ func (r *rateLimiter) Allow() bool {
 }
 
 func (r *rateLimiter) SetLimit(limit rate.Limit) {
+	if r.currentConfig.limit == limit {
+		return
+	}
 	r.table.setLimit(r.name, limit)
 }
 
 func (r *rateLimiter) SetBurst(burst int) {
+	if r.currentConfig.burst == burst {
+		return
+	}
 	r.table.setBurst(r.name, burst)
 }
 
 func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {
 	validateLimiter(&limit, &burst)
+	if r.currentConfig.limit == limit && r.currentConfig.burst == burst {
+		return
+	}
 	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: limit, burst: burst})
 }

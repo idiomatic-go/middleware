@@ -12,7 +12,7 @@ const (
 type TimeoutController interface {
 	Controller
 	Duration() time.Duration
-	SetTimeout(timeout int)
+	SetTimeout(timeout int, enable bool)
 }
 
 type TimeoutConfig struct {
@@ -54,15 +54,17 @@ func newTimeout(name string, table *table, config *TimeoutConfig) *timeout {
 func (t *timeout) IsEnabled() bool { return t.enabled }
 
 func (t *timeout) Disable() {
-	if t.IsEnabled() {
-		t.table.enableTimeout(t.name, false)
+	if !t.IsEnabled() {
+		return
 	}
+	t.table.enableTimeout(t.name, false)
 }
 
 func (t *timeout) Enable() {
-	if !t.enabled && t.current.timeout > 0 {
-		t.table.enableTimeout(t.name, true)
+	if t.IsEnabled() || t.current.timeout <= 0 {
+		return
 	}
+	t.table.enableTimeout(t.name, true)
 }
 
 func (t *timeout) Reset() {}
@@ -85,9 +87,9 @@ func (t *timeout) Duration() time.Duration {
 	return time.Duration(t.current.timeout) * time.Millisecond
 }
 
-func (t *timeout) SetTimeout(timeout int) {
-	if timeout <= 0 {
+func (t *timeout) SetTimeout(timeout int, enable bool) {
+	if t.current.timeout == timeout || timeout <= 0 {
 		return
 	}
-	t.table.setTimeout(t.name, timeout)
+	t.table.setTimeout(t.name, timeout, enable)
 }

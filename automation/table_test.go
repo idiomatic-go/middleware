@@ -11,12 +11,12 @@ func ExampleTable_SetDefault() {
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
 
 	a := t.Lookup(nil)
-	fmt.Printf("test: Lookup(nil) -> [default:%v]\n", a.(*actuator).name == DefaultName)
+	fmt.Printf("test: Lookup(nil) -> [default:%v]\n", a.(*actuator).name == DefaultActuatorName)
 	//fmt.Printf("IsDefault : %v\n", r.(*route).name == DefaultName)
 
-	t.SetDefault("not-default", nil, nil, nil, nil)
+	t.SetDefaultActuator("not-default", nil, nil, nil, nil)
 	a = t.Lookup(nil)
-	fmt.Printf("test: Lookup(req) -> [default:%v]\n", a.(*actuator).name == DefaultName)
+	fmt.Printf("test: Lookup(req) -> [default:%v]\n", a.(*actuator).name == DefaultActuatorName)
 
 	//Output:
 	//test: empty() -> [true]
