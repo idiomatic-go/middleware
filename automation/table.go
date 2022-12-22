@@ -136,16 +136,14 @@ func (t *table) exists(name string) bool {
 	return false
 }
 
-func (t *table) update(name string, act *actuator) error {
+func (t *table) update(name string, act *actuator) {
 	if name == "" || act == nil {
-		return errors.New("invalid argument : name or actuator is nil or empty")
+		return
 	}
 	//t.mu.Lock()
 	//defer t.mu.Unlock()
 	delete(t.actuators, name)
 	t.actuators[name] = act
-	return nil
-	//}
 	//return errors.New(fmt.Sprintf("invalid argument : actuator not found [%v]", name))
 }
 

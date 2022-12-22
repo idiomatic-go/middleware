@@ -38,9 +38,10 @@ type actuator struct {
 	rateLimiter    *rateLimiter
 	failover       *failover
 	circuitBreaker *circuitBreaker
+	retry          *retry
 }
 
-func cloneActuator[T *timeout | *rateLimiter | *circuitBreaker | *failover](curr *actuator, controller T) *actuator {
+func cloneActuator[T *timeout | *rateLimiter | *circuitBreaker | *retry | *failover](curr *actuator, controller T) *actuator {
 	newAct := new(actuator)
 	*newAct = *curr
 	switch i := any(controller).(type) {

@@ -109,3 +109,29 @@ func (t *table) setRateLimiter(name string, config RateLimiterConfig) {
 		t.update(name, cloneActuator[*rateLimiter](act, lc))
 	}
 }
+
+func (t *table) enableCircuitBreaker(name string, enabled bool) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if act, ok := t.actuators[name]; ok {
+		c := cloneCircuitBreaker(act.circuitBreaker)
+		c.enabled = enabled
+		t.update(name, cloneActuator[*circuitBreaker](act, c))
+	}
+}
+
+func (t *table) enableRetry(name string, enabled bool) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if act, ok := t.actuators[name]; ok {
+		c := cloneRetry(act.retry)
+		c.enabled = enabled
+		t.update(name, cloneActuator[*retry](act, c))
+	}
+}

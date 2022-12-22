@@ -28,6 +28,12 @@ func NewCircuitBreakerConfig(limit rate.Limit, burst int, steps []int, timeout i
 	return c
 }
 
+func cloneCircuitBreaker(curr *circuitBreaker) *circuitBreaker {
+	t := new(circuitBreaker)
+	*t = *curr
+	return t
+}
+
 type circuitBreaker struct {
 	name        string
 	table       *table
@@ -51,9 +57,19 @@ func newCircuitBreaker(name string, table *table, config *CircuitBreakerConfig) 
 
 func (c *circuitBreaker) IsEnabled() bool { return c.enabled }
 
-func (c *circuitBreaker) Disable() { c.table.enableRateLimiter(c.name, false) }
+func (c *circuitBreaker) Disable() {
+	if !c.IsEnabled() {
+		return
+	}
+	c.table.enableCircuitBreaker(c.name, false)
+}
 
-func (c *circuitBreaker) Enable() { c.table.enableRateLimiter(c.name, false) }
+func (c *circuitBreaker) Enable() {
+	if c.IsEnabled() {
+		return
+	}
+	c.table.enableCircuitBreaker(c.name, false)
+}
 
 func (c *circuitBreaker) Reset() {}
 
