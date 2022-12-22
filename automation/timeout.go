@@ -11,7 +11,7 @@ const (
 
 type TimeoutController interface {
 	Controller
-	Duration() time.Duration
+	Duration() (bool, time.Duration)
 	SetTimeout(timeout int, enable bool)
 }
 
@@ -67,10 +67,8 @@ func (t *timeout) Enable() {
 	t.table.enableTimeout(t.name, true)
 }
 
-func (t *timeout) Reset() {}
-
-func (t *timeout) Adjust(any) {}
-
+func (t *timeout) Reset()                    {}
+func (t *timeout) Adjust(any)                {}
 func (t *timeout) Configure(Attribute) error { return nil }
 
 func (t *timeout) Attribute(name string) Attribute {
@@ -80,11 +78,14 @@ func (t *timeout) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
-func (t *timeout) Duration() time.Duration {
-	if t.current.timeout == NilValue {
-		return 0
+func (t *timeout) Duration() (bool, time.Duration) {
+	if !t.IsEnabled() {
+		return false, 0
 	}
-	return time.Duration(t.current.timeout) * time.Millisecond
+	if t.current.timeout <= 0 {
+		return true, 0
+	}
+	return true, time.Duration(t.current.timeout) * time.Millisecond
 }
 
 func (t *timeout) SetTimeout(timeout int, enable bool) {

@@ -4,7 +4,7 @@ type FailoverInvoke func(name string)
 
 type FailoverController interface {
 	Controller
-	Invoke()
+	Invoke() bool
 	SetInvoke(fn FailoverInvoke, enable bool)
 }
 
@@ -64,11 +64,12 @@ func (f *failover) Configure(Attribute) error  { return nil }
 func (f *failover) Adjust(any)                 {}
 func (f *failover) Attribute(string) Attribute { return nilAttribute("") }
 
-func (f *failover) Invoke() {
+func (f *failover) Invoke() bool {
 	if !f.IsEnabled() {
-		return
+		return false
 	}
 	f.invoke(f.name)
+	return true
 }
 
 func (f *failover) SetInvoke(fn FailoverInvoke, enable bool) {

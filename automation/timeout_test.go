@@ -25,7 +25,8 @@ func Example_Controller_ReadOnly() {
 	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(2000))
 	fmt.Printf("test: IsEnabled() -> [%v]\n", t.IsEnabled())
 
-	fmt.Printf("test: Duration() -> [%v]\n", t.Duration())
+	_, d := t.Duration()
+	fmt.Printf("test: Duration() -> [%v]\n", d)
 
 	t = newTimeout("test-route", newTable(true), NewTimeoutConfig(2000))
 
@@ -54,7 +55,8 @@ func Example_Timeout_Controller_Status() {
 	act := t.LookupByName(name)
 	//fmt.Printf("test: LookupByName(%v) -> [%v]\n", name, act != nil)
 
-	fmt.Printf("test: Duration() -> [%v]\n", act.Timeout().Duration())
+	_, d := act.Timeout().Duration()
+	fmt.Printf("test: Duration() -> [%v]\n", d)
 
 	fmt.Printf("test: IsEnabled() -> [%v]\n", act.Timeout().IsEnabled())
 

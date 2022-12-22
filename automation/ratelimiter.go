@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/time/rate"
+	"net/http"
 	"strings"
 )
 
@@ -16,22 +17,28 @@ const (
 
 type RateLimiterController interface {
 	Controller
-	Allow() bool
+	Allow() (bool, bool)
+	StatusCode() (bool, int)
 	SetLimit(limit rate.Limit)
 	SetBurst(burst int)
 }
 
 type RateLimiterConfig struct {
-	limit rate.Limit
-	burst int
-	step  int
+	limit      rate.Limit
+	burst      int
+	step       int
+	statusCode int
 }
 
-func NewRateLimiterConfig(limit rate.Limit, burst int, step int) *RateLimiterConfig {
+func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int, step int) *RateLimiterConfig {
 	validateLimiter(&limit, &burst)
 	c := new(RateLimiterConfig)
 	c.limit = limit
 	c.burst = burst
+	if statusCode <= 0 {
+		statusCode = http.StatusTooManyRequests
+	}
+	c.statusCode = statusCode
 	return c
 }
 
@@ -125,8 +132,18 @@ func (r *rateLimiter) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
-func (r *rateLimiter) Allow() bool {
-	return r.currentConfig.limit == rate.Inf || r.rateLimiter.Allow()
+func (r *rateLimiter) Allow() (bool, bool) {
+	if !r.IsEnabled() {
+		return false, true
+	}
+	if r.currentConfig.limit == rate.Inf {
+		return true, true
+	}
+	return true, r.rateLimiter.Allow()
+}
+
+func (r *rateLimiter) StatusCode() (bool, int) {
+	return r.enabled, r.currentConfig.statusCode
 }
 
 func (r *rateLimiter) SetLimit(limit rate.Limit) {
