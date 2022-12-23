@@ -1,11 +1,12 @@
 package automation
 
+import "errors"
+
 type FailoverInvoke func(name string)
 
 type FailoverController interface {
 	Controller
 	Invoke() (bool, bool)
-	//SetInvoke(fn FailoverInvoke, enable bool)
 }
 
 type FailoverConfig struct {
@@ -30,17 +31,24 @@ func cloneFailover(curr *failover) *failover {
 }
 
 func newFailover(name string, table *table, config *FailoverConfig) *failover {
-	if config == nil {
-		config = NewFailoverConfig(nil)
-	}
+	//if config == nil {
+	//	config = NewFailoverConfig(nil)
+	//}
 	t := new(failover)
 	t.table = table
 	t.name = name
-	t.invoke = config.invoke
-	if t.invoke != nil {
-		t.enabled = true
+	if config != nil {
+		t.invoke = config.invoke
 	}
+	t.enabled = true
 	return t
+}
+
+func (f *failover) validate() error {
+	if f.invoke == nil {
+		return errors.New("invalid configuration: failover controller FailureInvoke function cannot be nil")
+	}
+	return nil
 }
 
 func (f *failover) IsEnabled() bool { return f.enabled }

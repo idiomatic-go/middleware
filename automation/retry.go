@@ -1,6 +1,7 @@
 package automation
 
 import (
+	"errors"
 	"math/rand"
 	"net/http"
 	"time"
@@ -43,10 +44,17 @@ func newRetry(name string, table *table, config *RetryConfig) *retry {
 	t.table = table
 	t.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	if config != nil {
-		t.enabled = true
 		t.current = *config
 	}
+	t.enabled = true
 	return t
+}
+
+func (r *retry) validate() error {
+	if len(r.current.codes) == 0 {
+		return errors.New("invalid configuration: retry controller status codes are empty")
+	}
+	return nil
 }
 
 func (r *retry) IsEnabled() bool { return r.enabled }

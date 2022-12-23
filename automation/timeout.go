@@ -1,6 +1,7 @@
 package automation
 
 import (
+	"errors"
 	"strings"
 	"time"
 )
@@ -20,9 +21,6 @@ type TimeoutConfig struct {
 }
 
 func NewTimeoutConfig(timeout time.Duration) *TimeoutConfig {
-	if timeout < 0 {
-		timeout = NilValue
-	}
 	return &TimeoutConfig{timeout: timeout}
 }
 
@@ -40,15 +38,24 @@ func cloneTimeout(curr *timeout) *timeout {
 }
 
 func newTimeout(name string, table *table, config *TimeoutConfig) *timeout {
-	if config == nil {
-		config = NewTimeoutConfig(NilValue)
-	}
+	//if config == nil {
+	//	config = NewTimeoutConfig(NilValue)
+	//}
 	t := new(timeout)
 	t.table = table
 	t.name = name
-	t.current.timeout = config.timeout
-	t.enabled = t.current.timeout > 0
+	if config != nil {
+		t.current = *config
+	}
+	t.enabled = true
 	return t
+}
+
+func (t *timeout) validate() error {
+	if t.current.timeout <= 0 {
+		return errors.New("invalid configuration: timeout controller duration cannot be <= 0")
+	}
+	return nil
 }
 
 func (t *timeout) IsEnabled() bool { return t.enabled }
