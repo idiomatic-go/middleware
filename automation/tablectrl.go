@@ -2,6 +2,7 @@ package automation
 
 import (
 	"golang.org/x/time/rate"
+	"time"
 )
 
 func (t *table) enableFailover(name string, enabled bool) {
@@ -49,8 +50,7 @@ func (t *table) enableTimeout(name string, enabled bool) {
 	}
 }
 
-/*
-func (t *table) setTimeout(name string, to time.Duration, enable bool) {
+func (t *table) setTimeout(name string, to time.Duration) {
 	if name == "" {
 		return
 	}
@@ -59,13 +59,11 @@ func (t *table) setTimeout(name string, to time.Duration, enable bool) {
 	if act, ok := t.actuators[name]; ok {
 		tc := cloneTimeout(act.timeout)
 		tc.current.timeout = to
-		tc.enabled = enable
+		//tc.enabled = enable
 		t.update(name, cloneActuator[*timeout](act, tc))
 	}
 }
 
-
-*/
 func (t *table) enableRateLimiter(name string, enabled bool) {
 	if name == "" {
 		return

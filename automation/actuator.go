@@ -40,6 +40,7 @@ type actuator struct {
 	failover       *failover
 	circuitBreaker *circuitBreaker
 	retry          *retry
+	failoverBackup *failover
 }
 
 func cloneActuator[T *timeout | *rateLimiter | *circuitBreaker | *retry | *failover](curr *actuator, controller T) *actuator {

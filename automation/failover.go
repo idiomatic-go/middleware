@@ -2,11 +2,10 @@ package automation
 
 import "errors"
 
-type FailoverInvoke func(name string)
+type FailoverInvoke func(name string, failover bool)
 
 type FailoverController interface {
 	Controller
-	Invoke() (bool, bool)
 }
 
 type FailoverConfig struct {
@@ -31,16 +30,13 @@ func cloneFailover(curr *failover) *failover {
 }
 
 func newFailover(name string, table *table, config *FailoverConfig) *failover {
-	//if config == nil {
-	//	config = NewFailoverConfig(nil)
-	//}
 	t := new(failover)
 	t.table = table
 	t.name = name
 	if config != nil {
 		t.invoke = config.invoke
 	}
-	t.enabled = true
+	t.enabled = false
 	return t
 }
 
@@ -57,12 +53,18 @@ func (f *failover) Disable() {
 	if !f.IsEnabled() {
 		return
 	}
+	if f.invoke != nil {
+		f.invoke(f.name, false)
+	}
 	f.table.enableFailover(f.name, false)
 }
 
 func (f *failover) Enable() {
-	if f.enabled || f.invoke == nil {
+	if f.IsEnabled() {
 		return
+	}
+	if f.invoke != nil {
+		f.invoke(f.name, true)
 	}
 	f.table.enableFailover(f.name, true)
 }
@@ -71,24 +73,3 @@ func (f *failover) Reset()                     {}
 func (f *failover) Configure(Attribute) error  { return nil }
 func (f *failover) Adjust(any)                 {}
 func (f *failover) Attribute(string) Attribute { return nilAttribute("") }
-
-func (f *failover) Invoke() (bool, bool) {
-	if !f.IsEnabled() {
-		return false, false
-	}
-	if f.invoke == nil {
-		return true, false
-	}
-	f.invoke(f.name)
-	return true, true
-}
-
-/*
-func (f *failover) SetInvoke(fn FailoverInvoke, enable bool) {
-	if fn == nil {
-		return
-	}
-	f.table.setFailoverInvoke(f.name, fn, enable)
-}
-
-*/
