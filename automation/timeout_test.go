@@ -111,5 +111,5 @@ func Example_Timeout_SetTimeout() {
 	//test: Duration() -> [1.5s]
 	//test: SetTimeout(2s) -> [prev-duration:1.5s] [curr-duration:2s]
 	//test: Reset() -> [prev-duration:2s] [curr-duration:1.5s]
-	
+
 }
