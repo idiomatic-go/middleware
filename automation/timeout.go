@@ -25,11 +25,11 @@ func NewTimeoutConfig(timeout time.Duration) *TimeoutConfig {
 }
 
 type timeout struct {
-	table    *table
-	name     string
-	enabled  bool
-	defaultC TimeoutConfig
-	current  TimeoutConfig
+	table         *table
+	name          string
+	enabled       bool
+	defaultConfig TimeoutConfig
+	currentConfig TimeoutConfig
 }
 
 func cloneTimeout(curr *timeout) *timeout {
@@ -46,15 +46,15 @@ func newTimeout(name string, table *table, config *TimeoutConfig) *timeout {
 	t.table = table
 	t.name = name
 	if config != nil {
-		t.current = *config
-		t.defaultC = *config
+		t.currentConfig = *config
+		t.defaultConfig = *config
 	}
 	t.enabled = true
 	return t
 }
 
 func (t *timeout) validate() error {
-	if t.current.timeout <= 0 {
+	if t.currentConfig.timeout <= 0 {
 		return errors.New("invalid configuration: TimeoutController duration cannot be <= 0")
 	}
 	return nil
@@ -70,21 +70,21 @@ func (t *timeout) Disable() {
 }
 
 func (t *timeout) Enable() {
-	if t.IsEnabled() || t.current.timeout <= 0 {
+	if t.IsEnabled() || t.currentConfig.timeout <= 0 {
 		return
 	}
 	t.table.enableTimeout(t.name, true)
 }
 
 func (t *timeout) Reset() {
-	t.SetTimeout(t.defaultC.timeout)
+	t.SetTimeout(t.defaultConfig.timeout)
 }
 func (t *timeout) Adjust(any)                {}
 func (t *timeout) Configure(Attribute) error { return nil }
 
 func (t *timeout) Attribute(name string) Attribute {
 	if strings.Index(name, TimeoutName) != -1 {
-		return NewAttribute(TimeoutName, t.current.timeout)
+		return NewAttribute(TimeoutName, t.currentConfig.timeout)
 	}
 	return nilAttribute(name)
 }
@@ -93,14 +93,14 @@ func (t *timeout) Duration() (bool, time.Duration) {
 	if !t.IsEnabled() {
 		return false, 0
 	}
-	if t.current.timeout <= 0 {
+	if t.currentConfig.timeout <= 0 {
 		return true, 0
 	}
-	return true, t.current.timeout
+	return true, t.currentConfig.timeout
 }
 
 func (t *timeout) SetTimeout(timeout time.Duration) {
-	if t.current.timeout == timeout || timeout <= 0 {
+	if t.currentConfig.timeout == timeout || timeout <= 0 {
 		return
 	}
 	t.table.setTimeout(t.name, timeout)

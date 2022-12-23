@@ -19,18 +19,20 @@ type RateLimiterController interface {
 	Controller
 	Allow() (bool, bool)
 	StatusCode() (bool, int)
+	IsStatic() bool
 	SetLimit(limit rate.Limit)
 	SetBurst(burst int)
+	SetRateLimiter(limit rate.Limit, burst int)
 }
 
 type RateLimiterConfig struct {
 	limit      rate.Limit
 	burst      int
-	step       int
 	statusCode int
+	static     bool
 }
 
-func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int, step int) *RateLimiterConfig {
+func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int, static bool) *RateLimiterConfig {
 	validateLimiter(&limit, &burst)
 	c := new(RateLimiterConfig)
 	c.limit = limit
@@ -39,6 +41,7 @@ func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int, step int)
 		statusCode = http.StatusTooManyRequests
 	}
 	c.statusCode = statusCode
+	c.static = static
 	return c
 }
 
@@ -80,6 +83,10 @@ func validateLimiter(max *rate.Limit, burst *int) {
 	}
 }
 
+func (r *rateLimiter) IsStatic() bool {
+	return r.defaultConfig.static
+}
+
 func (r *rateLimiter) IsEnabled() bool { return r.enabled }
 
 func (r *rateLimiter) Disable() {
@@ -96,7 +103,12 @@ func (r *rateLimiter) Enable() {
 	r.table.enableRateLimiter(r.name, false)
 }
 
-func (r *rateLimiter) Reset() { r.table.setRateLimiter(r.name, r.defaultConfig) }
+func (r *rateLimiter) Reset() {
+	if r.IsStatic() {
+		return
+	}
+	r.table.setRateLimiter(r.name, r.defaultConfig)
+}
 
 func (r *rateLimiter) Adjust(change any) {
 	return
@@ -147,6 +159,9 @@ func (r *rateLimiter) StatusCode() (bool, int) {
 }
 
 func (r *rateLimiter) SetLimit(limit rate.Limit) {
+	if r.IsStatic() {
+		return
+	}
 	if r.currentConfig.limit == limit {
 		return
 	}
@@ -154,6 +169,9 @@ func (r *rateLimiter) SetLimit(limit rate.Limit) {
 }
 
 func (r *rateLimiter) SetBurst(burst int) {
+	if r.IsStatic() {
+		return
+	}
 	if r.currentConfig.burst == burst {
 		return
 	}
@@ -161,6 +179,9 @@ func (r *rateLimiter) SetBurst(burst int) {
 }
 
 func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {
+	if r.IsStatic() {
+		return
+	}
 	validateLimiter(&limit, &burst)
 	if r.currentConfig.limit == limit && r.currentConfig.burst == burst {
 		return

@@ -26,8 +26,6 @@ type Actuator interface {
 	Logger() LoggingController
 	Timeout() TimeoutController
 	RateLimiter() RateLimiterController
-	CircuitBreaker() CircuitBreakerController
-	Retry() RetryController
 	Failover() FailoverController
 	Actuate(events string) error
 }
@@ -72,33 +70,27 @@ func newActuator(name string, t *table, config ...any) *actuator {
 			act.timeout = newTimeout(name, t, c)
 		case *RateLimiterConfig:
 			act.rateLimiter = newRateLimiter(name, t, c)
-		case *CircuitBreakerConfig:
-			act.circuitBreaker = newCircuitBreaker(name, t, c)
+		//case *CircuitBreakerConfig:
+		//	act.circuitBreaker = newCircuitBreaker(name, t, c)
 		case *FailoverConfig:
 			act.failover = newFailover(name, t, c)
-		case *RetryConfig:
-			act.retry = newRetry(name, t, c)
+			//case *RetryConfig:
+			//		act.retry = newRetry(name, t, c)
 		}
 	}
 	return act
 }
 
-func newDefaultActuator(name string, t *table) *actuator {
-	return newActuator(name, t, newTimeout(name, t, nil),
-		newRateLimiter(name, t, nil),
-		newCircuitBreaker(name, t, nil),
-		newRetry(name, t, nil),
-		newFailover(name, t, nil))
+func newDefaultActuator(name string) *actuator {
+	return &actuator{name: name, logger: defaultLogger}
 }
 
 func (a *actuator) validate(egress bool) error {
 	if egress {
-		if a.rateLimiter != nil {
-			return errors.New("invalid configuration: rate limiter controller is not valid for egress traffic")
-		}
+
 	} else {
-		if a.circuitBreaker != nil || a.failover != nil || a.retry != nil {
-			return errors.New("invalid configuration: circuit breaker, failover, and retry controllers are not valid for ingress traffic")
+		if a.failover != nil {
+			return errors.New("invalid configuration: FailoverController is not valid for ingress traffic")
 		}
 	}
 	return nil
@@ -120,6 +112,7 @@ func (a *actuator) RateLimiter() RateLimiterController {
 	return a.rateLimiter
 }
 
+/*
 func (a *actuator) CircuitBreaker() CircuitBreakerController {
 	return a.rateLimiter
 }
@@ -128,6 +121,8 @@ func (a *actuator) Retry() RetryController {
 	return a.retry
 }
 
+
+*/
 func (a *actuator) Failover() FailoverController {
 	return a.failover
 }

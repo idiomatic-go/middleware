@@ -29,14 +29,17 @@ func newTable(egress bool) *table {
 	t := new(table)
 	t.egress = egress
 	t.actuators = make(map[string]*actuator, 100)
-	t.hostAct = newDefaultActuator(HostActuatorName, t)
-	if egress {
+	t.hostAct = newDefaultActuator(HostActuatorName)
+	t.defaultAct = newDefaultActuator(DefaultActuatorName)
+	/*if egress {
 		t.defaultAct = newActuator(DefaultActuatorName, t, newTimeout(DefaultActuatorName, t, nil),
 			newCircuitBreaker(DefaultActuatorName, t, nil),
 			newFailover(DefaultActuatorName, t, nil))
 	} else {
 		t.defaultAct = newActuator(DefaultActuatorName, t, newTimeout(DefaultActuatorName, t, nil), newRateLimiter(DefaultActuatorName, t, nil))
 	}
+
+	*/
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}

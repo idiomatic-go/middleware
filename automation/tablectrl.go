@@ -58,7 +58,7 @@ func (t *table) setTimeout(name string, to time.Duration) {
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
 		tc := cloneTimeout(act.timeout)
-		tc.current.timeout = to
+		tc.currentConfig.timeout = to
 		//tc.enabled = enable
 		t.update(name, cloneActuator[*timeout](act, tc))
 	}
