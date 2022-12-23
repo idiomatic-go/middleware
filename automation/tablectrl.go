@@ -20,6 +20,7 @@ func (t *table) enableFailover(name string, enabled bool) {
 	}
 }
 
+/*
 func (t *table) setFailoverInvoke(name string, fn FailoverInvoke, enable bool) {
 	if name == "" {
 		return
@@ -35,6 +36,8 @@ func (t *table) setFailoverInvoke(name string, fn FailoverInvoke, enable bool) {
 	}
 }
 
+
+*/
 func (t *table) enableTimeout(name string, enabled bool) {
 	if name == "" {
 		return
@@ -118,6 +121,7 @@ func (t *table) setRateLimiter(name string, config RateLimiterConfig) {
 	}
 }
 
+/*
 func (t *table) enableCircuitBreaker(name string, enabled bool) {
 	if name == "" {
 		return
@@ -131,6 +135,9 @@ func (t *table) enableCircuitBreaker(name string, enabled bool) {
 		act.circuitBreaker.enabled = enabled
 	}
 }
+
+
+*/
 
 func (t *table) enableRetry(name string, enabled bool) {
 	if name == "" {

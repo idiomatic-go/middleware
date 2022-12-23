@@ -31,17 +31,15 @@ type Actuator interface {
 }
 
 type actuator struct {
-	name           string
-	logger         *logger
-	timeout        *timeout
-	rateLimiter    *rateLimiter
-	failover       *failover
-	circuitBreaker *circuitBreaker
-	retry          *retry
-	failoverBackup *failover
+	name        string
+	logger      *logger
+	timeout     *timeout
+	rateLimiter *rateLimiter
+	failover    *failover
+	retry       *retry
 }
 
-func cloneActuator[T *timeout | *rateLimiter | *circuitBreaker | *retry | *failover](curr *actuator, controller T) *actuator {
+func cloneActuator[T *timeout | *rateLimiter](curr *actuator, controller T) *actuator {
 	newAct := new(actuator)
 	*newAct = *curr
 	switch i := any(controller).(type) {
@@ -51,8 +49,6 @@ func cloneActuator[T *timeout | *rateLimiter | *circuitBreaker | *retry | *failo
 		newAct.rateLimiter = i
 	case *failover:
 		newAct.failover = i
-	case *circuitBreaker:
-		newAct.circuitBreaker = i
 	case *retry:
 		newAct.retry = i
 	default:
