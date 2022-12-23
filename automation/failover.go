@@ -6,6 +6,7 @@ type FailoverInvoke func(name string, failover bool)
 
 type FailoverController interface {
 	Controller
+	Invoke(failover bool)
 }
 
 type FailoverConfig struct {
@@ -36,7 +37,7 @@ func newFailover(name string, table *table, config *FailoverConfig) *failover {
 	if config != nil {
 		t.invoke = config.invoke
 	}
-	t.enabled = false
+	t.enabled = true
 	return t
 }
 
@@ -53,18 +54,12 @@ func (f *failover) Disable() {
 	if !f.IsEnabled() {
 		return
 	}
-	if f.invoke != nil {
-		f.invoke(f.name, false)
-	}
 	f.table.enableFailover(f.name, false)
 }
 
 func (f *failover) Enable() {
 	if f.IsEnabled() {
 		return
-	}
-	if f.invoke != nil {
-		f.invoke(f.name, true)
 	}
 	f.table.enableFailover(f.name, true)
 }
@@ -73,3 +68,10 @@ func (f *failover) Reset()                     {}
 func (f *failover) Configure(Attribute) error  { return nil }
 func (f *failover) Adjust(any)                 {}
 func (f *failover) Attribute(string) Attribute { return nilAttribute("") }
+
+func (f *failover) Invoke(failover bool) {
+	if !f.IsEnabled() || f.invoke == nil {
+		return
+	}
+	f.invoke(f.name, failover)
+}

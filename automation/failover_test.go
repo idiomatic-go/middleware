@@ -23,14 +23,14 @@ func Example_newFailover() {
 	//fmt.Printf("test: Attribute(f2) -> [enabled:%v]\n", f2.enabled)
 
 	//Output:
-	//test: newFailover(nil) -> [enabled:false]
+	//test: newFailover(nil) -> [enabled:true]
 	//test: newFailover(nil) -> [validate:invalid configuration: failover controller FailureInvoke function cannot be nil]
-	//test: newFailover(testFn) -> [enabled:false]
+	//test: newFailover(testFn) -> [enabled:true]
 	//test: newFailover(testFn) -> [validate:<nil>]
 
 }
 
-func Example_Failover_Controller_Status() {
+func Example_Failover_Status() {
 	prevEnabled := false
 	name := "failover-test"
 	t := newTable(true)
@@ -63,12 +63,31 @@ func Example_Failover_Controller_Status() {
 
 	//Output:
 	//test: Add() -> [error:<nil>] [count:1]
-	//test: IsEnabled() -> [false]
-	//test: Disable() -> [prev-enabled:false] [curr-enabled:false]
-	//test: Invoke(failover-test,true)
+	//test: IsEnabled() -> [true]
+	//test: Disable() -> [prev-enabled:true] [curr-enabled:false]
 	//test: Enable() -> [prev-enabled:false] [curr-enabled:true]
 	//test: Enable() -> [prev-enabled:true] [curr-enabled:true]
-	//test: Invoke(failover-test,false)
 	//test: Disable() -> [prev-enabled:true] [curr-enabled:false]
 
+}
+
+func Example_Failover_Invoke() {
+	name := "failover-test"
+	t := newTable(true)
+	err := t.Add(name, NewFailoverConfig(testFn))
+	fmt.Printf("test: Add() -> [error:%v] [count:%v]\n", err, t.count())
+
+	f := t.LookupByName(name)
+	f.Failover().Invoke(true)
+	fmt.Printf("test: Invoke(true) -> []\n")
+
+	f.Failover().Invoke(false)
+	fmt.Printf("test: Invoke(false) -> []\n")
+
+	//Output:
+	//test: Add() -> [error:<nil>] [count:1]
+	//test: Invoke(failover-test,true)
+	//test: Invoke(true) -> []
+	//test: Invoke(failover-test,false)
+	//test: Invoke(false) -> []
 }
