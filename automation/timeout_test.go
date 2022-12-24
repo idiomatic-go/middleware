@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-// TODO : test nil attribute
-
 func Example_newTimeout() {
 	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(NilValue))
 	fmt.Printf("test: newTimeout() -> [enabled:%v] [name:%v] [current:%v] [default:%v]\n", t.enabled, t.name, t.currentConfig.timeout, t.defaultConfig.timeout)
@@ -101,10 +99,14 @@ func Example_Timeout_SetTimeout() {
 	_, d = act.Timeout().Duration()
 	fmt.Printf("test: Reset() -> [prev-duration:%v] [curr-duration:%v]\n", prevDuration, d)
 
+	a := act.Timeout().Attribute(TimeoutName)
+	fmt.Printf("test: Attribute(TimeoutName) -> [name:%v] [string:%v]\n", a.Name(), a.String())
+
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
 	//test: Duration() -> [1.5s]
 	//test: SetTimeout(2s) -> [prev-duration:1.5s] [curr-duration:2s]
 	//test: Reset() -> [prev-duration:2s] [curr-duration:1.5s]
+	//test: Attribute(TimeoutName) -> [name:timeout] [string:1.5s]
 
 }

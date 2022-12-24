@@ -38,5 +38,5 @@ func Example_String() {
 	//test: NewAttribute(100) -> [name:limit] [string:100]
 	//test: NewAttribute(rate.Inf) -> [name:limit] [string:INF]
 	//test: NewAttribute("test of a string attribute") -> [name:string] [string:test of a string attribute]
-	
+
 }
