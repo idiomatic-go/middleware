@@ -39,7 +39,7 @@ func ExampleTable_SetHostActuator() {
 	//Output:
 	//test: Host() -> [name:host] [timeout-controller:<nil>]
 	//test: SetHostActuator(NewTimeoutConfig()) -> [name:host] [timeout-controller:true]
-	
+
 }
 
 func ExampleTable_Add_Exists_LookupByName() {

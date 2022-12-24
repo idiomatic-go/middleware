@@ -9,10 +9,12 @@ import (
 )
 
 const (
-	RateLimitName = "rateLimit"
-	BurstName     = "burst"
-	InfValue      = "INF"
-	DefaultBurst  = 1
+	RateLimitName  = "rateLimit"
+	BurstName      = "burst"
+	StatusCodeName = "statusCode"
+	StaticName     = "static"
+	InfValue       = "INF"
+	DefaultBurst   = 1
 )
 
 type RateLimiterController interface {
@@ -100,7 +102,7 @@ func (r *rateLimiter) Enable() {
 	if r.IsEnabled() {
 		return
 	}
-	r.table.enableRateLimiter(r.name, false)
+	r.table.enableRateLimiter(r.name, true)
 }
 
 func (r *rateLimiter) Reset() {
@@ -140,6 +142,12 @@ func (r *rateLimiter) Attribute(name string) Attribute {
 	}
 	if strings.Index(name, BurstName) != -1 {
 		return NewAttribute(BurstName, r.currentConfig.burst)
+	}
+	if strings.Index(name, StatusCodeName) != -1 {
+		return NewAttribute(StatusCodeName, r.currentConfig.statusCode)
+	}
+	if strings.Index(name, StaticName) != -1 {
+		return NewAttribute(StaticName, r.currentConfig.static)
 	}
 	return nilAttribute(name)
 }

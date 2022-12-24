@@ -13,14 +13,16 @@ type RetryController interface {
 }
 
 type RetryConfig struct {
-	wait  time.Duration
-	codes []int
+	enabled bool
+	wait    time.Duration
+	codes   []int
 }
 
-func NewRetryConfig(validCodes []int, wait time.Duration) *RetryConfig {
+func NewRetryConfig(validCodes []int, wait time.Duration, enabled bool) *RetryConfig {
 	c := new(RetryConfig)
 	c.wait = wait
 	c.codes = validCodes
+	c.enabled = enabled
 	return c
 }
 
@@ -43,10 +45,11 @@ func newRetry(name string, table *table, config *RetryConfig) *retry {
 	t.name = name
 	t.table = table
 	t.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+	t.enabled = false
 	if config != nil {
 		t.current = *config
+		t.enabled = config.enabled
 	}
-	t.enabled = true
 	return t
 }
 

@@ -6,26 +6,30 @@ import (
 )
 
 func Example_newRetry() {
-	t := newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, time.Duration(time.Millisecond*500)))
+	t := newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, time.Millisecond*500, true))
 	fmt.Printf("test: newRetry() -> [enabled:%v] [name:%v] [config:%v]\n", t.enabled, t.name, t.current)
 
-	t = newRetry("test-route2", newTable(true), NewRetryConfig([]int{503, 504}, time.Millisecond*2000))
+	t = newRetry("test-route2", newTable(true), NewRetryConfig([]int{503, 504}, time.Millisecond*2000, true))
 	fmt.Printf("test: newRetry() -> [enabled:%v] [name:%v] [config:%v]\n", t.enabled, t.name, t.current)
 
 	t2 := cloneRetry(t)
 	t2.enabled = false
 	fmt.Printf("test: cloneRetry() -> [prev-enabled:%v] [prev-name:%v] [curr-enabled:%v] [curr-name:%v]\n", t.enabled, t.name, t2.enabled, t2.name)
 
+	t = newRetry("test-route3", newTable(true), NewRetryConfig([]int{503, 504}, time.Millisecond*2000, false))
+	fmt.Printf("test: newRetry() -> [enabled:%v] [name:%v] [config:%v]\n", t.enabled, t.name, t.current)
+
 	//Output:
-	//test: newRetry() -> [enabled:true] [name:test-route] [config:{500000000 [504]}]
-	//test: newRetry() -> [enabled:true] [name:test-route2] [config:{2000000000 [503 504]}]
+	//test: newRetry() -> [enabled:true] [name:test-route] [config:{true 500000000 [504]}]
+	//test: newRetry() -> [enabled:true] [name:test-route2] [config:{true 2000000000 [503 504]}]
 	//test: cloneRetry() -> [prev-enabled:true] [prev-name:test-route2] [curr-enabled:false] [curr-name:test-route2]
+	//test: newRetry() -> [enabled:false] [name:test-route3] [config:{false 2000000000 [503 504]}]
 
 }
 
 func Example_Retry_Status() {
 	name := "test-route"
-	config := NewRetryConfig([]int{504}, time.Millisecond*2000)
+	config := NewRetryConfig([]int{504}, time.Millisecond*2000, true)
 	t := newTable(true)
 	err := t.Add(name, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
@@ -54,7 +58,7 @@ func Example_Retry_Status() {
 
 func Example_Retry_IsRetryable() {
 	name := "test-route"
-	config := NewRetryConfig([]int{503, 504}, time.Millisecond)
+	config := NewRetryConfig([]int{503, 504}, time.Millisecond, true)
 	t := newTable(true)
 	err := t.Add(name, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
