@@ -51,3 +51,65 @@ func Example_Retry_Status() {
 	//test: Enable() -> [prev-enabled:false] [curr-enabled:true]
 
 }
+
+func Example_Retry_IsRetryable() {
+	name := "test-route"
+	config := NewRetryConfig([]int{503, 504}, time.Millisecond)
+	t := newTable(true)
+	err := t.Add(name, config)
+	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
+
+	act := t.LookupByName(name)
+	enabled, ok := act.Retry().IsRetryable(200)
+	fmt.Printf("test: IsRetryable(200) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(500)
+	fmt.Printf("test: IsRetryable(500) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(502)
+	fmt.Printf("test: IsRetryable(502) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(503)
+	fmt.Printf("test: IsRetryable(503) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(504)
+	fmt.Printf("test: IsRetryable(504) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(505)
+	fmt.Printf("test: IsRetryable(505) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	act.Retry().Disable()
+	act = t.LookupByName(name)
+	enabled, ok = act.Retry().IsRetryable(200)
+	fmt.Printf("test: IsRetryable(200) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(500)
+	fmt.Printf("test: IsRetryable(500) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(502)
+	fmt.Printf("test: IsRetryable(502) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(503)
+	fmt.Printf("test: IsRetryable(503) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(504)
+	fmt.Printf("test: IsRetryable(504) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	enabled, ok = act.Retry().IsRetryable(505)
+	fmt.Printf("test: IsRetryable(505) -> [enabled:%v] [ok:%v]\n", enabled, ok)
+
+	//Output:
+	//test: Add() -> [<nil>] [count:1]
+	//test: IsRetryable(200) -> [enabled:true] [ok:false]
+	//test: IsRetryable(500) -> [enabled:true] [ok:false]
+	//test: IsRetryable(502) -> [enabled:true] [ok:false]
+	//test: IsRetryable(503) -> [enabled:true] [ok:true]
+	//test: IsRetryable(504) -> [enabled:true] [ok:true]
+	//test: IsRetryable(505) -> [enabled:true] [ok:false]
+	//test: IsRetryable(200) -> [enabled:false] [ok:false]
+	//test: IsRetryable(500) -> [enabled:false] [ok:false]
+	//test: IsRetryable(502) -> [enabled:false] [ok:false]
+	//test: IsRetryable(503) -> [enabled:false] [ok:false]
+	//test: IsRetryable(504) -> [enabled:false] [ok:false]
+	//test: IsRetryable(505) -> [enabled:false] [ok:false]
+}
