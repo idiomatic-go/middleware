@@ -70,7 +70,7 @@ func (r *retry) Enable() {
 	if r.IsEnabled() {
 		return
 	}
-	r.table.enableRetry(r.name, false)
+	r.table.enableRetry(r.name, true)
 }
 
 func (r *retry) Reset() {}

@@ -45,10 +45,10 @@ func (t *table) enableTimeout(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		//tc := cloneTimeout(act.timeout)
-		//tc.enabled = enabled
-		//t.update(name, cloneActuator[*timeout](act, tc))
-		act.timeout.enabled = enabled
+		c := cloneTimeout(act.timeout)
+		c.enabled = enabled
+		t.update(name, cloneActuator[*timeout](act, c))
+		//act.timeout.enabled = enabled
 		//t.actuators[name] = act
 	}
 }
@@ -60,10 +60,9 @@ func (t *table) setTimeout(name string, to time.Duration) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		tc := cloneTimeout(act.timeout)
-		tc.currentConfig.timeout = to
-		//tc.enabled = enable
-		t.update(name, cloneActuator[*timeout](act, tc))
+		c := cloneTimeout(act.timeout)
+		c.currentConfig.timeout = to
+		t.update(name, cloneActuator[*timeout](act, c))
 	}
 }
 
@@ -74,10 +73,9 @@ func (t *table) enableRateLimiter(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		//lc := cloneRateLimiter(act.rateLimiter)
-		//lc.enabled = enabled
-		//t.update(name, cloneActuator[*rateLimiter](act, lc))
-		act.rateLimiter.enabled = enabled
+		c := cloneRateLimiter(act.rateLimiter)
+		c.enabled = enabled
+		t.update(name, cloneActuator[*rateLimiter](act, c))
 	}
 }
 
@@ -88,9 +86,11 @@ func (t *table) setLimit(name string, limit rate.Limit) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		lc := cloneRateLimiter(act.rateLimiter)
-		lc.currentConfig.limit = limit
-		t.update(name, cloneActuator[*rateLimiter](act, lc))
+		c := cloneRateLimiter(act.rateLimiter)
+		c.currentConfig.limit = limit
+		// Not cloning the limiter as an old reference will not cause stale data when logging
+		c.rateLimiter.SetLimit(limit)
+		t.update(name, cloneActuator[*rateLimiter](act, c))
 	}
 }
 
@@ -101,9 +101,11 @@ func (t *table) setBurst(name string, burst int) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		lc := cloneRateLimiter(act.rateLimiter)
-		lc.currentConfig.burst = burst
-		t.update(name, cloneActuator[*rateLimiter](act, lc))
+		c := cloneRateLimiter(act.rateLimiter)
+		c.currentConfig.burst = burst
+		// Not cloning the limiter as an old reference will not cause stale data when logging
+		c.rateLimiter.SetBurst(burst)
+		t.update(name, cloneActuator[*rateLimiter](act, c))
 	}
 }
 
@@ -114,30 +116,13 @@ func (t *table) setRateLimiter(name string, config RateLimiterConfig) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		lc := cloneRateLimiter(act.rateLimiter)
-		lc.currentConfig.limit = config.limit
-		lc.currentConfig.burst = config.burst
-		t.update(name, cloneActuator[*rateLimiter](act, lc))
+		c := cloneRateLimiter(act.rateLimiter)
+		c.currentConfig.limit = config.limit
+		c.currentConfig.burst = config.burst
+		c.rateLimiter = rate.NewLimiter(c.currentConfig.limit, c.currentConfig.burst)
+		t.update(name, cloneActuator[*rateLimiter](act, c))
 	}
 }
-
-/*
-func (t *table) enableCircuitBreaker(name string, enabled bool) {
-	if name == "" {
-		return
-	}
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	if act, ok := t.actuators[name]; ok {
-		//c := cloneCircuitBreaker(act.circuitBreaker)
-		//c.enabled = enabled
-		//t.update(name, cloneActuator[*circuitBreaker](act, c))
-		act.circuitBreaker.enabled = enabled
-	}
-}
-
-
-*/
 
 func (t *table) enableRetry(name string, enabled bool) {
 	if name == "" {
@@ -146,9 +131,9 @@ func (t *table) enableRetry(name string, enabled bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
-		//c := cloneRetry(act.retry)
-		//c.enabled = enabled
-		//t.update(name, cloneActuator[*retry](act, c))
-		act.retry.enabled = enabled
+		c := cloneRetry(act.retry)
+		c.enabled = enabled
+		t.update(name, cloneActuator[*retry](act, c))
+		//act.retry.enabled = enabled
 	}
 }

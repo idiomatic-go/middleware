@@ -26,6 +26,7 @@ type Actuator interface {
 	Logger() LoggingController
 	Timeout() TimeoutController
 	RateLimiter() RateLimiterController
+	Retry() RetryController
 	Failover() FailoverController
 	Actuate(events string) error
 }
@@ -39,7 +40,7 @@ type actuator struct {
 	retry       *retry
 }
 
-func cloneActuator[T *timeout | *rateLimiter](curr *actuator, controller T) *actuator {
+func cloneActuator[T *timeout | *rateLimiter | *retry](curr *actuator, controller T) *actuator {
 	newAct := new(actuator)
 	*newAct = *curr
 	switch i := any(controller).(type) {
@@ -66,12 +67,10 @@ func newActuator(name string, t *table, config ...any) *actuator {
 			act.timeout = newTimeout(name, t, c)
 		case *RateLimiterConfig:
 			act.rateLimiter = newRateLimiter(name, t, c)
-		//case *CircuitBreakerConfig:
-		//	act.circuitBreaker = newCircuitBreaker(name, t, c)
 		case *FailoverConfig:
 			act.failover = newFailover(name, t, c)
-			//case *RetryConfig:
-			//		act.retry = newRetry(name, t, c)
+		case *RetryConfig:
+			act.retry = newRetry(name, t, c)
 		}
 	}
 	return act
@@ -87,6 +86,9 @@ func (a *actuator) validate(egress bool) error {
 	} else {
 		if a.failover != nil {
 			return errors.New("invalid configuration: FailoverController is not valid for ingress traffic")
+		}
+		if a.rateLimiter != nil && !a.rateLimiter.IsStatic() {
+			return errors.New("invalid configuration: RateLimiterController must be static for ingress traffic")
 		}
 	}
 	return nil
@@ -108,17 +110,10 @@ func (a *actuator) RateLimiter() RateLimiterController {
 	return a.rateLimiter
 }
 
-/*
-func (a *actuator) CircuitBreaker() CircuitBreakerController {
-	return a.rateLimiter
-}
-
 func (a *actuator) Retry() RetryController {
 	return a.retry
 }
 
-
-*/
 func (a *actuator) Failover() FailoverController {
 	return a.failover
 }

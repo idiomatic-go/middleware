@@ -52,21 +52,17 @@ func Example_Timeout_Status() {
 	name := "test-route"
 	config := NewTimeoutConfig(time.Millisecond * 2000)
 	t := newTable(true)
-
-	//fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
-	ok := t.Add(name, config)
-	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
+	err := t.Add(name, config)
+	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	_, d := act.Timeout().Duration()
-	fmt.Printf("test: Duration() -> [%v]\n", d)
 	fmt.Printf("test: IsEnabled() -> [%v]\n", act.Timeout().IsEnabled())
 	prevEnabled := act.Timeout().IsEnabled()
 
 	act.Timeout().Disable()
 	act1 := t.LookupByName(name)
 	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, act1.Timeout().IsEnabled())
-	prevEnabled = act.Timeout().IsEnabled()
+	prevEnabled = act1.Timeout().IsEnabled()
 
 	act1.Timeout().Enable()
 	act = t.LookupByName(name)
@@ -75,7 +71,6 @@ func Example_Timeout_Status() {
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
-	//test: Duration() -> [2s]
 	//test: IsEnabled() -> [true]
 	//test: Disable() -> [prev-enabled:true] [curr-enabled:false]
 	//test: Enable() -> [prev-enabled:false] [curr-enabled:true]
