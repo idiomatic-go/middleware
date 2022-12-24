@@ -99,22 +99,37 @@ func (a *actuator) Name() string {
 }
 
 func (a *actuator) Logger() LoggingController {
+	if a.logger == nil {
+		return nil
+	}
 	return a.logger
 }
 
 func (a *actuator) Timeout() TimeoutController {
+	if a.timeout == nil {
+		return nil
+	}
 	return a.timeout
 }
 
 func (a *actuator) RateLimiter() RateLimiterController {
+	if a.rateLimiter == nil {
+		return nil
+	}
 	return a.rateLimiter
 }
 
 func (a *actuator) Retry() RetryController {
+	if a.retry == nil {
+		return nil
+	}
 	return a.retry
 }
 
 func (a *actuator) Failover() FailoverController {
+	if a.failover == nil {
+		return nil
+	}
 	return a.failover
 }
 
