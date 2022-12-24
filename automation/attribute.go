@@ -25,9 +25,9 @@ func NewAttribute(name string, value any) Attribute {
 	return &attribute{name: name, value: value}
 }
 
-func NewAttributeWithValue(attr Attribute, value any) Attribute {
-	return &attribute{name: attr.Name(), value: value}
-}
+//func NewAttributeWithValue(attr Attribute, value any) Attribute {
+//	return &attribute{name: attr.Name(), value: value}
+//}
 
 func nilAttribute(name string) Attribute {
 	return NewAttribute(name, nil)

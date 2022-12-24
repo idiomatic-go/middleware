@@ -101,5 +101,5 @@ func Example_RateLimiter_Mutate_Static() {
 	//test: State() -> [limit:10] [burst:100] [statusCode:503] [static:true]
 	//test: SetLimit(5000) -> [limit:10] [burst:100] [statusCode:503] [static:true]
 	//test: SetBurst(1) -> [limit:10] [burst:100] [statusCode:503] [static:true]
-	
+
 }
