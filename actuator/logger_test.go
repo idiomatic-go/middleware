@@ -1,4 +1,4 @@
-package automation
+package actuator
 
 import (
 	"fmt"
@@ -12,10 +12,10 @@ func Example_newLogger() {
 	l := newLogger(nil)
 	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [pingTraffic:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.IsPingTraffic(""), l.config.accessInvoke != nil)
 
-	l = newLogger(NewLoggerConfig(false, false, nil, nil))
+	l = newLogger(NewLoggerConfig(false, false, false, nil, nil))
 	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [pingTraffic:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.IsPingTraffic(""), l.config.accessInvoke != nil)
 
-	l = newLogger(NewLoggerConfig(false, false, nil, []string{"route-name"}))
+	l = newLogger(NewLoggerConfig(false, false, false, nil, []string{"route-name"}))
 	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [pingTraffic:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.IsPingTraffic("route-name"), l.config.accessInvoke != nil)
 
 	l.Disable()
@@ -37,7 +37,7 @@ func Example_defaultLogger() {
 	l := defaultLogger
 	fmt.Printf("test: defaultLogger -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [pingTraffic:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.IsPingTraffic(""), l.config.accessInvoke != nil)
 
-	SetDefaultLogger(NewLoggerConfig(false, false, nil, []string{"route-name"}))
+	SetDefaultLogger(NewLoggerConfig(false, false, false, nil, []string{"route-name"}))
 	l = defaultLogger
 	fmt.Printf("test: defaultLogger -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [pingTraffic:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.IsPingTraffic(""), l.config.accessInvoke != nil)
 
@@ -56,7 +56,7 @@ func _Example_LogAccess() {
 	defaultLogger.LogAccess(nil, "ingress", start, time.Since(start), nil, nil, "flags")
 	time.Sleep(time.Second * 1)
 	start = time.Now()
-	l := newLogger(NewLoggerConfig(true, true, fn, nil))
+	l := newLogger(NewLoggerConfig(true, true, true, fn, nil))
 	l.LogAccess(nil, "egress", start, time.Since(start), nil, nil, "new-flags")
 
 	//Output:

@@ -1,4 +1,4 @@
-package automation
+package actuator
 
 import (
 	"log"
@@ -9,7 +9,7 @@ import (
 
 type LoggingAccess func(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string)
 
-var defaultLogger = newLogger(NewLoggerConfig(true, true, defaultAccess, nil))
+var defaultLogger = newLogger(NewLoggerConfig(true, true, true, defaultAccess, nil))
 
 func SetDefaultLogger(lc *LoggerConfig) {
 	if lc != nil {
@@ -24,6 +24,7 @@ var defaultAccess LoggingAccess = func(act Actuator, traffic string, start time.
 type LoggingController interface {
 	Controller
 	IsPingTraffic(name string) bool
+	IsExtract() bool
 	WriteIngress() bool
 	WriteEgress() bool
 	LogAccess(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string)
@@ -32,12 +33,13 @@ type LoggingController interface {
 type LoggerConfig struct {
 	writeIngress bool
 	writeEgress  bool
+	extract      bool
 	accessInvoke LoggingAccess
 	exclude      []string
 }
 
-func NewLoggerConfig(writeIngress, writeEgress bool, accessInvoke LoggingAccess, exclude []string) *LoggerConfig {
-	return &LoggerConfig{writeIngress: writeIngress, writeEgress: writeEgress, accessInvoke: accessInvoke, exclude: exclude}
+func NewLoggerConfig(writeIngress, writeEgress bool, extract bool, accessInvoke LoggingAccess, exclude []string) *LoggerConfig {
+	return &LoggerConfig{writeIngress: writeIngress, writeEgress: writeEgress, extract: extract, accessInvoke: accessInvoke, exclude: exclude}
 }
 
 type logger struct {
@@ -48,7 +50,7 @@ type logger struct {
 
 func newLogger(config *LoggerConfig) *logger {
 	if config == nil {
-		config = NewLoggerConfig(true, true, defaultAccess, nil)
+		config = NewLoggerConfig(true, true, false, defaultAccess, nil)
 	}
 	if config.accessInvoke == nil {
 		config.accessInvoke = defaultAccess
@@ -93,6 +95,10 @@ func (l *logger) IsPingTraffic(name string) bool {
 		}
 	}
 	return false
+}
+
+func (l *logger) IsExtract() bool {
+	return l.config.extract
 }
 
 func (l *logger) WriteIngress() bool {

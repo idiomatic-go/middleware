@@ -1,6 +1,9 @@
-package automation
+package actuator
 
-import "errors"
+import (
+	"errors"
+	"net/http"
+)
 
 const (
 	HostActuatorName    = "host"
@@ -8,8 +11,7 @@ const (
 	NilValue            = -1
 )
 
-// https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
-// https://github.com/keikoproj/inverse-exp-backoff
+type Matcher func(req *http.Request) (routeName string)
 
 type Controller interface {
 	IsEnabled() bool
@@ -30,6 +32,27 @@ type Actuator interface {
 	Failover() FailoverController
 	Actuate(events string) error
 }
+
+type Configuration interface {
+	SetMatcher(fn Matcher)
+	SetDefaultActuator(name string, config ...any) error
+	SetHostActuator(config ...any) error
+	Add(name string, config ...any) error
+}
+
+type Actuators interface {
+	Host() Actuator
+	Lookup(req *http.Request) Actuator
+	LookupByName(name string) Actuator
+}
+
+type ActuatorTable interface {
+	Configuration
+	Actuators
+}
+
+var Ingress = NewIngressTable()
+var Egress = NewEgressTable()
 
 type actuator struct {
 	name        string

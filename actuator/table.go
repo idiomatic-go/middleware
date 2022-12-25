@@ -1,4 +1,4 @@
-package automation
+package actuator
 
 import (
 	"errors"
@@ -15,12 +15,12 @@ type table struct {
 	actuators  map[string]*actuator
 }
 
-func NewEgressTable() Automation {
+func NewEgressTable() ActuatorTable {
 	this := newTable(true)
 	return this
 }
 
-func NewIngressTable() Automation {
+func NewIngressTable() ActuatorTable {
 	this := newTable(false)
 	return this
 }

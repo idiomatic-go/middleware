@@ -1,4 +1,4 @@
-package automation
+package actuator
 
 import (
 	"errors"
@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"time"
 )
+
+// https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+// https://github.com/keikoproj/inverse-exp-backoff
 
 type RetryController interface {
 	Controller

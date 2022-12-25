@@ -1,4 +1,4 @@
-package automation
+package actuator
 
 import "strings"
 
