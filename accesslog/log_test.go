@@ -2,6 +2,7 @@ package accesslog
 
 import (
 	"fmt"
+	"github.com/idiomatic-go/middleware/actuator"
 	"github.com/idiomatic-go/middleware/route"
 	"net/http"
 	"time"
@@ -12,12 +13,12 @@ func Example_WriteEgress_Error() {
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
-	r1, _ := route.NewRouteWithLogging("egress-route", true)
-	r2, _ := route.NewRouteWithLogging("egress-route", false)
+	a1 := actuator.NewActuatorWithLogger("egress-route", actuator.NewLoggerConfig(true, true, false, nil))
+	a2 := actuator.NewActuatorWithLogger("egress-route", actuator.NewLoggerConfig(true, false, false, nil))
 
 	WriteEgress(start, time.Since(start), nil, nil, nil, "")
-	WriteEgress(start, time.Since(start), r1, nil, nil, "")
-	WriteEgress(start, time.Since(start), r2, nil, nil, "")
+	WriteEgress(start, time.Since(start), a1, nil, nil, "")
+	WriteEgress(start, time.Since(start), a2, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"error": "egress route is nil"}]
@@ -30,11 +31,11 @@ func Example_WriteIngress_Error() {
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
-	r1, _ := route.NewRouteWithLogging("ingress-route", true)
-	r2, _ := route.NewRouteWithLogging("ingress-route", false)
+	a1 := actuator.NewActuatorWithLogger("ingress-route", actuator.NewLoggerConfig(true, true, false, nil))
+	a2 := actuator.NewActuatorWithLogger("ingress-route", actuator.NewLoggerConfig(false, true, false, nil))
 	WriteIngress(start, time.Since(start), nil, nil, 0, 0, "")
-	WriteIngress(start, time.Since(start), r1, nil, 0, 0, "")
-	WriteIngress(start, time.Since(start), r2, nil, 0, 0, "")
+	WriteIngress(start, time.Since(start), a1, nil, 0, 0, "")
+	WriteIngress(start, time.Since(start), a2, nil, 0, 0, "")
 
 	//Output:
 	//test: WriteIngress() -> [{"error": "ingress route is nil"}]

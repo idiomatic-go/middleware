@@ -15,14 +15,13 @@ type table struct {
 	actuators  map[string]*actuator
 }
 
-func NewEgressTable() ActuatorTable {
-	this := newTable(true)
-	return this
+func NewEgressTable() Table {
+	return newTable(true)
+
 }
 
-func NewIngressTable() ActuatorTable {
-	this := newTable(false)
-	return this
+func NewIngressTable() Table {
+	return newTable(false)
 }
 
 func newTable(egress bool) *table {

@@ -46,13 +46,21 @@ type Actuators interface {
 	LookupByName(name string) Actuator
 }
 
-type ActuatorTable interface {
+type Table interface {
 	Configuration
 	Actuators
 }
 
 var Ingress = NewIngressTable()
 var Egress = NewEgressTable()
+
+func NewActuator(name string) Actuator {
+	return &actuator{name: name}
+}
+
+func NewActuatorWithLogger(name string, config *LoggerConfig) Actuator {
+	return &actuator{name: name, logger: newLogger(config)}
+}
 
 type actuator struct {
 	name        string

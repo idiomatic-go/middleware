@@ -1,8 +1,7 @@
 package accesslog
 
 import (
-	"github.com/idiomatic-go/middleware/route"
-	"golang.org/x/time/rate"
+	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,7 +31,7 @@ type Logd struct {
 	Start    time.Time
 	Duration time.Duration
 	Origin   *Origin
-	Route    route.Route
+	Act      actuator.Actuator
 
 	// Request
 	Url      string
@@ -49,13 +48,13 @@ type Logd struct {
 	ResponseFlags string
 }
 
-func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, route route.Route, req *http.Request, resp *http.Response, respFlags string) *Logd {
+func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, act actuator.Actuator, req *http.Request, resp *http.Response, respFlags string) *Logd {
 	l := new(Logd)
 	l.Traffic = traffic
 	l.Start = start
 	l.Duration = duration
 	l.Origin = origin
-	l.Route = route
+	l.Act = act
 	l.AddRequest(req)
 	l.AddResponse(resp)
 	l.ResponseFlags = respFlags
@@ -71,7 +70,7 @@ func (l *Logd) IsEgress() bool {
 }
 
 func (l *Logd) IsPing() bool {
-	return l.IsIngress() && (l.Route != nil && l.Route.IsPingTraffic())
+	return l.IsIngress() && l.Act != nil && isPingTraffic(l.Act.Name())
 }
 
 func (l *Logd) AddResponse(resp *http.Response) {
@@ -170,25 +169,27 @@ func (l *Logd) Value(entry Entry) string {
 
 	// Timeout
 	case RouteNameOperator:
-		if l.Route != nil {
-			return l.Route.Name()
+		if l.Act != nil {
+			return l.Act.Name()
 		}
-	case RouteTimeoutOperator:
-		if l.Route != nil {
-			return strconv.Itoa(l.Route.Timeout())
+	case TimeoutDurationOperator:
+		if l.Act != nil && l.Act.Timeout() != nil && l.Act.Timeout().IsEnabled() {
+			return l.Act.Timeout().Attribute(actuator.TimeoutName).String()
 		}
-	case RouteLimitOperator:
-		if l.Route != nil {
-			if l.Route.Limit() == rate.Inf {
-				return "INF"
-			}
-			return strconv.Itoa(int(l.Route.Limit()))
+	case RateLimitOperator:
+		if l.Act != nil && l.Act.RateLimiter() != nil && l.Act.RateLimiter().IsEnabled() {
+			return l.Act.Timeout().Attribute(actuator.RateLimitName).String()
 		}
-	case RouteBurstOperator:
-		if l.Route != nil {
-			return strconv.Itoa(l.Route.Burst())
+	case RateBurstOperator:
+		if l.Act != nil && l.Act.RateLimiter() != nil && l.Act.RateLimiter().IsEnabled() {
+			return l.Act.Timeout().Attribute(actuator.RateBurstName).String()
+		}
+	case FailoverOperator:
+		if l.Act != nil && l.Act.Failover() != nil && l.Act.Failover().IsEnabled() {
+			return "true"
 		}
 	}
+
 	return ""
 }
 

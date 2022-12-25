@@ -2,7 +2,7 @@ package accesslog
 
 import (
 	"fmt"
-	"github.com/idiomatic-go/middleware/route"
+	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
 	"strings"
 	"time"
@@ -13,14 +13,14 @@ const (
 	errorEmptyFmt    = "{\"error\": \"%v log entries are empty\"}"
 )
 
-func WriteEgress(start time.Time, duration time.Duration, route route.Route, req *http.Request, resp *http.Response, responseFlags string) {
-	if route == nil {
+func WriteEgress(start time.Time, duration time.Duration, act actuator.Actuator, req *http.Request, resp *http.Response, responseFlags string) {
+	if act == nil {
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
 		return
 	}
-	data := NewLogd(EgressTraffic, start, duration, getOrigin(), route, req, resp, responseFlags)
+	data := NewLogd(EgressTraffic, start, duration, getOrigin(), act, req, resp, responseFlags)
 	callExtract(data)
-	if !route.IsLogging() {
+	if !act.Logger().WriteEgress() {
 		return
 	}
 	if len(egressEntries) == 0 {
@@ -31,16 +31,16 @@ func WriteEgress(start time.Time, duration time.Duration, route route.Route, req
 	egressWrite(s)
 }
 
-func WriteIngress(start time.Time, duration time.Duration, route route.Route, req *http.Request, code int, bytesSent int, responseFlags string) {
-	if route == nil {
+func WriteIngress(start time.Time, duration time.Duration, act actuator.Actuator, req *http.Request, code int, bytesSent int, responseFlags string) {
+	if act == nil {
 		ingressWrite(fmt.Sprintf(errorNilRouteFmt, IngressTraffic))
 		return
 	}
-	data := NewLogd(IngressTraffic, start, duration, getOrigin(), route, req, nil, responseFlags)
+	data := NewLogd(IngressTraffic, start, duration, getOrigin(), act, req, nil, responseFlags)
 	data.StatusCode = code
 	data.BytesSent = bytesSent
 	callExtract(data)
-	if !route.IsLogging() {
+	if !act.Logger().WriteIngress() {
 		return
 	}
 	if len(ingressEntries) == 0 {

@@ -47,10 +47,11 @@ var directory = directoryT{
 	OriginInstanceIdOperator: &Entry{OriginInstanceIdOperator, "instance_id", "", true},
 
 	// Route
-	RouteNameOperator:    &Entry{RouteNameOperator, "route_name", "", true},
-	RouteTimeoutOperator: &Entry{RouteTimeoutOperator, "timeout", "", false},
-	RouteLimitOperator:   &Entry{RouteLimitOperator, "limit", "", true},
-	RouteBurstOperator:   &Entry{RouteBurstOperator, "burst", "", false},
+	RouteNameOperator:       &Entry{RouteNameOperator, "route_name", "", true},
+	TimeoutDurationOperator: &Entry{TimeoutDurationOperator, "timeout", "", true},
+	RateLimitOperator:       &Entry{RateLimitOperator, "limit", "", true},
+	RateBurstOperator:       &Entry{RateBurstOperator, "burst", "", true},
+	FailoverOperator:        &Entry{FailoverOperator, "failover", "", false},
 
 	// Response
 	ResponseStatusCodeOperator:    &Entry{ResponseStatusCodeOperator, "status_code", "", true},

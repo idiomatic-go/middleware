@@ -26,11 +26,14 @@ const (
 	OriginServiceOperator    = "%SERVICE%"     // origin service
 	OriginInstanceIdOperator = "%INSTANCE_ID%" // origin instance id
 
-	RouteNameOperator    = "%ROUTE_NAME%"
-	RouteTokensOperator  = "%ROUTE_RATE_TOKENS%"
-	RouteLimitOperator   = "%ROUTE_RATE_LIMIT%"
-	RouteBurstOperator   = "%ROUTE_RATE_BURST%"
-	RouteTimeoutOperator = "%ROUTE_TIMEOUT%"
+	RouteNameOperator = "%ROUTE_NAME%"
+
+	RateLimitOperator = "%RATE_LIMIT%"
+	RateBurstOperator = "%RATE_BURST%"
+
+	TimeoutDurationOperator = "%TIMEOUT_DURATION%"
+
+	FailoverOperator = "%FAILOVER%"
 
 	// Response
 	ResponseStatusCodeOperator    = "%STATUS_CODE%"    // HTTP status code

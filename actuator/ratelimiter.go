@@ -10,7 +10,7 @@ import (
 
 const (
 	RateLimitName  = "rateLimit"
-	BurstName      = "burst"
+	RateBurstName  = "burst"
 	StatusCodeName = "statusCode"
 	StaticName     = "static"
 	InfValue       = "INF"
@@ -126,7 +126,7 @@ func (r *rateLimiter) Configure(attr Attribute) error {
 		if val, ok := attr.Value().(rate.Limit); ok {
 			r.SetLimit(val)
 		}
-	case BurstName:
+	case RateBurstName:
 		if val, ok := attr.Value().(int); ok {
 			r.SetBurst(val)
 		}
@@ -140,8 +140,8 @@ func (r *rateLimiter) Attribute(name string) Attribute {
 	if strings.Index(name, RateLimitName) != -1 {
 		return NewAttribute(RateLimitName, r.currentConfig.limit)
 	}
-	if strings.Index(name, BurstName) != -1 {
-		return NewAttribute(BurstName, r.currentConfig.burst)
+	if strings.Index(name, RateBurstName) != -1 {
+		return NewAttribute(RateBurstName, r.currentConfig.burst)
 	}
 	if strings.Index(name, StatusCodeName) != -1 {
 		return NewAttribute(StatusCodeName, r.currentConfig.statusCode)

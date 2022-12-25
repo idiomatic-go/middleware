@@ -9,7 +9,7 @@ import (
 
 type LoggingAccess func(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string)
 
-var defaultLogger = newLogger(NewLoggerConfig(true, true, true, defaultAccess, nil))
+var defaultLogger = newLogger(NewLoggerConfig(true, true, true, defaultAccess))
 
 func SetDefaultLogger(lc *LoggerConfig) {
 	if lc != nil {
@@ -23,7 +23,6 @@ var defaultAccess LoggingAccess = func(act Actuator, traffic string, start time.
 
 type LoggingController interface {
 	Controller
-	IsPingTraffic(name string) bool
 	IsExtract() bool
 	WriteIngress() bool
 	WriteEgress() bool
@@ -35,11 +34,10 @@ type LoggerConfig struct {
 	writeEgress  bool
 	extract      bool
 	accessInvoke LoggingAccess
-	exclude      []string
 }
 
-func NewLoggerConfig(writeIngress, writeEgress bool, extract bool, accessInvoke LoggingAccess, exclude []string) *LoggerConfig {
-	return &LoggerConfig{writeIngress: writeIngress, writeEgress: writeEgress, extract: extract, accessInvoke: accessInvoke, exclude: exclude}
+func NewLoggerConfig(writeIngress, writeEgress bool, extract bool, accessInvoke LoggingAccess) *LoggerConfig {
+	return &LoggerConfig{writeIngress: writeIngress, writeEgress: writeEgress, extract: extract, accessInvoke: accessInvoke}
 }
 
 type logger struct {
@@ -50,7 +48,7 @@ type logger struct {
 
 func newLogger(config *LoggerConfig) *logger {
 	if config == nil {
-		config = NewLoggerConfig(true, true, false, defaultAccess, nil)
+		config = NewLoggerConfig(true, true, false, defaultAccess)
 	}
 	if config.accessInvoke == nil {
 		config.accessInvoke = defaultAccess
@@ -86,15 +84,6 @@ func (l *logger) Adjust(any) {
 
 func (l *logger) Attribute(name string) Attribute {
 	return nilAttribute(name)
-}
-
-func (l *logger) IsPingTraffic(name string) bool {
-	for _, n := range l.config.exclude {
-		if n == name {
-			return true
-		}
-	}
-	return false
 }
 
 func (l *logger) IsExtract() bool {
