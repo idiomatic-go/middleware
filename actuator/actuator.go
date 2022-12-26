@@ -118,9 +118,6 @@ func (a *actuator) validate(egress bool) error {
 		if a.failover != nil {
 			return errors.New("invalid configuration: FailoverController is not valid for ingress traffic")
 		}
-		if a.rateLimiter != nil && !a.rateLimiter.IsStatic() {
-			return errors.New("invalid configuration: RateLimiterController must be static for ingress traffic")
-		}
 	}
 	return nil
 }

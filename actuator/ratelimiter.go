@@ -12,7 +12,6 @@ const (
 	RateLimitName  = "rateLimit"
 	RateBurstName  = "burst"
 	StatusCodeName = "statusCode"
-	StaticName     = "static"
 	InfValue       = "INF"
 	DefaultBurst   = 1
 )
@@ -21,7 +20,6 @@ type RateLimiterController interface {
 	Controller
 	Allow() (bool, bool)
 	StatusCode() (bool, int)
-	IsStatic() bool
 	SetLimit(limit rate.Limit)
 	SetBurst(burst int)
 	SetRateLimiter(limit rate.Limit, burst int)
@@ -31,10 +29,9 @@ type RateLimiterConfig struct {
 	limit      rate.Limit
 	burst      int
 	statusCode int
-	static     bool
 }
 
-func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int, static bool) *RateLimiterConfig {
+func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int) *RateLimiterConfig {
 	validateLimiter(&limit, &burst)
 	c := new(RateLimiterConfig)
 	c.limit = limit
@@ -43,7 +40,6 @@ func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int, static bo
 		statusCode = http.StatusTooManyRequests
 	}
 	c.statusCode = statusCode
-	c.static = static
 	return c
 }
 
@@ -85,10 +81,6 @@ func validateLimiter(max *rate.Limit, burst *int) {
 	}
 }
 
-func (r *rateLimiter) IsStatic() bool {
-	return r.defaultConfig.static
-}
-
 func (r *rateLimiter) IsEnabled() bool { return r.enabled }
 
 func (r *rateLimiter) Disable() {
@@ -106,9 +98,6 @@ func (r *rateLimiter) Enable() {
 }
 
 func (r *rateLimiter) Reset() {
-	if r.IsStatic() {
-		return
-	}
 	r.table.setRateLimiter(r.name, r.defaultConfig)
 }
 
@@ -146,9 +135,6 @@ func (r *rateLimiter) Attribute(name string) Attribute {
 	if strings.Index(name, StatusCodeName) != -1 {
 		return NewAttribute(StatusCodeName, r.currentConfig.statusCode)
 	}
-	if strings.Index(name, StaticName) != -1 {
-		return NewAttribute(StaticName, r.currentConfig.static)
-	}
 	return nilAttribute(name)
 }
 
@@ -167,9 +153,6 @@ func (r *rateLimiter) StatusCode() (bool, int) {
 }
 
 func (r *rateLimiter) SetLimit(limit rate.Limit) {
-	if r.IsStatic() {
-		return
-	}
 	if r.currentConfig.limit == limit {
 		return
 	}
@@ -177,9 +160,6 @@ func (r *rateLimiter) SetLimit(limit rate.Limit) {
 }
 
 func (r *rateLimiter) SetBurst(burst int) {
-	if r.IsStatic() {
-		return
-	}
 	if r.currentConfig.burst == burst {
 		return
 	}
@@ -187,9 +167,6 @@ func (r *rateLimiter) SetBurst(burst int) {
 }
 
 func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {
-	if r.IsStatic() {
-		return
-	}
 	validateLimiter(&limit, &burst)
 	if r.currentConfig.limit == limit && r.currentConfig.burst == burst {
 		return

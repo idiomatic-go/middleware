@@ -8,7 +8,7 @@ import (
 func ExampleActuator_newActuator() {
 	t := newTable(true)
 
-	a := newActuator("test", t, NewTimeoutConfig(time.Millisecond*1500), NewRateLimiterConfig(100, 10, 503, false))
+	a := newActuator("test", t, NewTimeoutConfig(time.Millisecond*1500), NewRateLimiterConfig(100, 10, 503))
 
 	log := a.Logger() != nil
 	to := a.Timeout() != nil
