@@ -2,21 +2,17 @@ package actuator
 
 import (
 	"fmt"
-	"net/http"
-	"time"
 )
-
-// TODO: test if can work with a nil range argument - works on a nil slice
 
 func Example_newLogger() {
 	l := newLogger(nil)
-	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.config.accessInvoke != nil)
+	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [ingressInvoke:%v] [egressInvoke:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil, l.config.egressInvoke != nil)
 
-	l = newLogger(NewLoggerConfig(false, false, false, nil))
-	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.config.accessInvoke != nil)
+	l = newLogger(NewLoggerConfig(nil, nil))
+	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [ingressInvoke:%v] [egressInvoke:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil, l.config.egressInvoke != nil)
 
-	l = newLogger(NewLoggerConfig(false, false, false, nil))
-	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.config.accessInvoke != nil)
+	//l = newLogger(NewLoggerConfig(nil))
+	//fmt.Printf("test: newLogger(nil) -> [enabled:%v] [accessFn:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil)
 
 	l.Disable()
 	fmt.Printf("test: Disable() -> [enabled:%v]\n", l.IsEnabled())
@@ -25,9 +21,8 @@ func Example_newLogger() {
 	fmt.Printf("test: Enabled() -> [enabled:%v]\n", l.IsEnabled())
 
 	//Output:
-	//test: newLogger(nil) -> [enabled:true] [writeEgress:true] [writeIngress:true] [accessFn:true]
-	//test: newLogger(nil) -> [enabled:true] [writeEgress:false] [writeIngress:false] [accessFn:true]
-	//test: newLogger(nil) -> [enabled:true] [writeEgress:false] [writeIngress:false] [accessFn:true]
+	//test: newLogger(nil) -> [enabled:true] [ingressInvoke:true] [egressInvoke:true]
+	//test: newLogger(nil) -> [enabled:true] [ingressInvoke:true] [egressInvoke:true]
 	//test: Disable() -> [enabled:false]
 	//test: Enabled() -> [enabled:true]
 
@@ -35,18 +30,19 @@ func Example_newLogger() {
 
 func Example_defaultLogger() {
 	l := defaultLogger
-	fmt.Printf("test: defaultLogger -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.config.accessInvoke != nil)
+	fmt.Printf("test: defaultLogger -> [enabled:%v] [ingressInvoke:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil)
 
-	SetDefaultLogger(NewLoggerConfig(false, false, false, nil))
+	SetDefaultLogger(NewLoggerConfig(nil, nil))
 	l = defaultLogger
-	fmt.Printf("test: defaultLogger -> [enabled:%v] [writeEgress:%v] [writeIngress:%v] [accessFn:%v]\n", l.IsEnabled(), l.WriteEgress(), l.WriteIngress(), l.config.accessInvoke != nil)
+	fmt.Printf("test: defaultLogger -> [enabled:%v] [ingressInvoke:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil)
 
 	//Output:
-	//test: defaultLogger -> [enabled:true] [writeEgress:true] [writeIngress:true] [accessFn:true]
-	//test: defaultLogger -> [enabled:true] [writeEgress:false] [writeIngress:false] [accessFn:true]
+	//test: defaultLogger -> [enabled:true] [ingressInvoke:true]
+	//test: defaultLogger -> [enabled:true] [ingressInvoke:true]
 
 }
 
+/*
 func _Example_LogAccess() {
 	start := time.Now()
 	fn := func(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
@@ -56,10 +52,13 @@ func _Example_LogAccess() {
 	defaultLogger.LogAccess(nil, "ingress", start, time.Since(start), nil, nil, "flags")
 	time.Sleep(time.Second * 1)
 	start = time.Now()
-	l := newLogger(NewLoggerConfig(true, true, true, fn))
+	l := newLogger(NewLoggerConfig(fn))
 	l.LogAccess(nil, "egress", start, time.Since(start), nil, nil, "new-flags")
 
 	//Output:
 	//{"traffic":"egress","start_time":"2022-12-19 07:53:31.9875524 -0600 CST m=+0.006632001","duration_ms":0s,"request":"<nil>","response":"<nil>","responseFlags":"flags"}
 
 }
+
+
+*/
