@@ -12,12 +12,10 @@ func Example_WriteEgress_Error() {
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
-	a1 := ActuatorState{Name: "egress-route", WriteIngress: true, WriteEgress: true}
-	a2 := ActuatorState{Name: "egress-route", WriteIngress: true, WriteEgress: false}
+	a1 := ActuatorState{Name: "egress-route"}
 
 	WriteEgress(start, time.Since(start), ActuatorState{}, nil, nil, "")
 	WriteEgress(start, time.Since(start), a1, nil, nil, "")
-	WriteEgress(start, time.Since(start), a2, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"error": "egress route name is empty"}]
@@ -30,12 +28,10 @@ func Example_WriteIngress_Error() {
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
-	a1 := ActuatorState{Name: "ingress-route", WriteIngress: true, WriteEgress: true}
-	a2 := ActuatorState{Name: "ingress-route", WriteIngress: false, WriteEgress: true}
+	a1 := ActuatorState{Name: "ingress-route"}
 
 	WriteIngress(start, time.Since(start), ActuatorState{}, nil, nil, "")
 	WriteIngress(start, time.Since(start), a1, nil, nil, "")
-	WriteIngress(start, time.Since(start), a2, nil, nil, "")
 
 	//Output:
 	//test: WriteIngress() -> [{"error": "ingress route name is empty"}]
@@ -56,7 +52,7 @@ func Example_WriteIngress_Ping() {
 		return
 	}
 	var start1 time.Time
-	WriteIngress(start1, time.Since(start), ActuatorState{Name: name, WriteIngress: true}, nil, nil, "")
+	WriteIngress(start1, time.Since(start), ActuatorState{Name: name}, nil, nil, "")
 
 	//Output:
 	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ping","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"ingress-ping-route"}]
@@ -151,8 +147,8 @@ func Example_WriteEgress_Request() {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route", WriteEgress: true}, nil, nil, "")
-	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route", WriteEgress: true}, req, nil, "")
+	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route"}, nil, nil, "")
+	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route"}, req, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"protocol":null,"method":null,"url":null,"path":null,"host":null,"customer":null}]
@@ -170,8 +166,8 @@ func Example_WriteEgress_Response() {
 		return
 	}
 	var start time.Time
-	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route", WriteEgress: true}, nil, nil, "UT")
-	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route", WriteEgress: true}, nil, resp, "UT")
+	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route"}, nil, nil, "UT")
+	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route"}, nil, resp, "UT")
 
 	//Output:
 	//test: WriteEgress() -> [{"status_code":"0","bytes_received":"0","response_flags":"UT"}]

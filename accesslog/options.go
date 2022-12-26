@@ -12,6 +12,8 @@ type Extract func(l *Logd)
 type Write func(s string)
 
 type options struct {
+	writeIngress bool
+	writeEgress  bool
 	extractFn    Extract
 	ingressWrite Write
 	egressWrite  Write
@@ -22,6 +24,8 @@ type options struct {
 var opt options
 
 func init() {
+	opt.writeIngress = true
+	opt.writeEgress = true
 	SetIngressWrite(nil)
 	SetEgressWrite(nil)
 }
@@ -40,6 +44,10 @@ func callExtract(l *Logd) {
 	}
 }
 
+func SetIngressWriteStatus(enabled bool) {
+	opt.writeIngress = enabled
+}
+
 func SetIngressWrite(fn Write) {
 	if fn != nil {
 		opt.ingressWrite = fn
@@ -48,6 +56,10 @@ func SetIngressWrite(fn Write) {
 			log.Println(s)
 		}
 	}
+}
+
+func SetEgressWriteStatus(enabled bool) {
+	opt.writeEgress = enabled
 }
 
 func SetEgressWrite(fn Write) {

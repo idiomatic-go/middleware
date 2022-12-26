@@ -19,7 +19,7 @@ func WriteEgress(start time.Time, duration time.Duration, act ActuatorState, req
 	}
 	data := NewLogd(EgressTraffic, start, duration, getOrigin(), act, req, resp, responseFlags)
 	callExtract(data)
-	if !act.WriteEgress {
+	if !opt.writeEgress {
 		return
 	}
 	if len(egressEntries) == 0 {
@@ -39,7 +39,7 @@ func WriteIngress(start time.Time, duration time.Duration, act ActuatorState, re
 	//data.StatusCode = code
 	//data.BytesSent = bytesSent
 	callExtract(data)
-	if !act.WriteIngress {
+	if !opt.writeIngress {
 		return
 	}
 	if len(ingressEntries) == 0 {
