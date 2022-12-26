@@ -2,7 +2,6 @@ package accesslog
 
 import (
 	"fmt"
-	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
 )
 
@@ -20,14 +19,14 @@ func Example_Value_Origin() {
 	//test: Value("region") -> [region]
 }
 
-func Example_Value_Route() {
+func Example_Value_Actuator() {
 	name := "route-name"
 	op := RouteNameOperator
 
-	data := Logd{Act: nil}
+	data := Logd{}
 	fmt.Printf("test: Value(%v) -> [%v]\n", name, data.Value(NewEntry(op, "", "", true)))
 
-	data = Logd{Act: actuator.NewActuator(name)}
+	data = Logd{Act: ActuatorState{Name: name}}
 	fmt.Printf("test: Value(\"route-name\") -> [%v]\n", data.Value(NewEntry(op, "", "", true)))
 
 	//Output:

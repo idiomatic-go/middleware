@@ -1,7 +1,6 @@
 package accesslog
 
 import (
-	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
 	"strconv"
 	"strings"
@@ -31,7 +30,7 @@ type Logd struct {
 	Start    time.Time
 	Duration time.Duration
 	Origin   *Origin
-	Act      actuator.Actuator
+	Act      ActuatorState
 
 	// Request
 	Url      string
@@ -48,7 +47,7 @@ type Logd struct {
 	ResponseFlags string
 }
 
-func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, act actuator.Actuator, req *http.Request, resp *http.Response, respFlags string) *Logd {
+func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, act ActuatorState, req *http.Request, resp *http.Response, respFlags string) *Logd {
 	l := new(Logd)
 	l.Traffic = traffic
 	l.Start = start
@@ -70,7 +69,7 @@ func (l *Logd) IsEgress() bool {
 }
 
 func (l *Logd) IsPing() bool {
-	return l.IsIngress() && l.Act != nil && isPingTraffic(l.Act.Name())
+	return l.IsIngress() && isPingTraffic(l.Act.Name)
 }
 
 func (l *Logd) AddResponse(resp *http.Response) {
@@ -167,26 +166,24 @@ func (l *Logd) Value(entry Entry) string {
 	case ResponseStatusCodeOperator:
 		return strconv.Itoa(l.StatusCode)
 
-	// Timeout
+	// Actuator State
 	case RouteNameOperator:
-		if l.Act != nil {
-			return l.Act.Name()
-		}
+		return l.Act.Name
 	case TimeoutDurationOperator:
-		if l.Act != nil && l.Act.Timeout() != nil && l.Act.Timeout().IsEnabled() {
-			return l.Act.Timeout().Attribute(actuator.TimeoutName).String()
+		if l.Act.Timeout.Enabled {
+			return l.Act.Timeout.Value(0)
 		}
 	case RateLimitOperator:
-		if l.Act != nil && l.Act.RateLimiter() != nil && l.Act.RateLimiter().IsEnabled() {
-			return l.Act.Timeout().Attribute(actuator.RateLimitName).String()
+		if l.Act.RateLimiter.Enabled {
+			return l.Act.RateLimiter.Value(0)
 		}
 	case RateBurstOperator:
-		if l.Act != nil && l.Act.RateLimiter() != nil && l.Act.RateLimiter().IsEnabled() {
-			return l.Act.Timeout().Attribute(actuator.RateBurstName).String()
+		if l.Act.RateLimiter.Enabled {
+			return l.Act.RateLimiter.Value(1)
 		}
 	case FailoverOperator:
-		if l.Act != nil && l.Act.Failover() != nil && l.Act.Failover().IsEnabled() {
-			return "true"
+		if l.Act.Failover.Enabled {
+			return l.Act.Failover.Value(0)
 		}
 	}
 
