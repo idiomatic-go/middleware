@@ -49,7 +49,7 @@ var directory = directoryT{
 	// Route
 	RouteNameOperator:       &Entry{RouteNameOperator, "route_name", "", true},
 	TimeoutDurationOperator: &Entry{TimeoutDurationOperator, "timeout_ms", "", false},
-	RateLimitOperator:       &Entry{RateLimitOperator, "rate_limit", "", false},
+	RateLimitOperator:       &Entry{RateLimitOperator, "rate_limit_s", "", false},
 	RateBurstOperator:       &Entry{RateBurstOperator, "rate_burst", "", false},
 	FailoverOperator:        &Entry{FailoverOperator, "failover", "", false},
 

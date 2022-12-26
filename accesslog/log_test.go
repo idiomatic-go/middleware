@@ -2,6 +2,8 @@ package accesslog
 
 import (
 	"fmt"
+	"golang.org/x/time/rate"
+	"net/http"
 	"time"
 )
 
@@ -51,44 +53,76 @@ func Example_WriteEgress_Origin_Timeout() {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	r1 := ActuatorState{Name: "egress-route", WriteEgress: true, Timeout: ControllerState{Enabled: true, Tags: []string{"duration:500"}}}
+	//r1 := ActuatorState{Name: "egress-route", WriteEgress: true, Timeout: ControllerState{Enabled: true, Tags: []string{"duration:500"}}}
 	var start1 time.Time
-	WriteEgress(start1, time.Since(start), r1, nil, nil, "")
+	WriteEgress(start1, time.Since(start), NewActuatorStateWithTimeout("egress-route", 5000), nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","timeout":1000,"limit":"500","burst":100,"static":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","timeout_ms":5000,"static":"value"}]
 
 }
 
-/*
-func Example_WriteEgress_Origin_RateLimiter() {
+func Example_WriteEgress_Origin_RateLimiter_500() {
 	SetTestEgressWrite()
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
 		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
-		{Operator: RouteNameOperator}, {Operator: TimeoutDurationOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static", Name: "value"}})
+		{Operator: RouteNameOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static2", Name: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	r1 := ActuatorState{Name:"egress-route",WriteEgress: true,Timeout:ControllerState{Enabled: true,Tags: []string{"duration:500"}}}
 	var start1 time.Time
-	WriteEgress(start1, time.Since(start), r1, nil, nil, "")
+	WriteEgress(start1, time.Since(start), NewActuatorStateWithRateLimiter("egress-route", 500, 10), nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","timeout":1000,"limit":"500","burst":100,"static":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","rate_limit_s":500,"rate_burst":10,"static2":"value"}]
 
 }
 
+func Example_WriteEgress_Origin_RateLimiter_Inf() {
+	SetTestEgressWrite()
+	start := time.Now()
+	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
+	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
+		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
+		{Operator: RouteNameOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static2", Name: "value"}})
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+	var start1 time.Time
+	WriteEgress(start1, time.Since(start), NewActuatorStateWithRateLimiter("egress-route", rate.Inf, 10), nil, nil, "")
 
+	//Output:
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","rate_limit_s":-1,"rate_burst":10,"static2":"value"}]
+
+}
+
+func Example_WriteEgress_Origin_Failover() {
+	SetTestEgressWrite()
+	start := time.Now()
+	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
+	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
+		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
+		{Operator: RouteNameOperator}, {Operator: FailoverOperator}, {Operator: "static2", Name: "value"}})
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+	var start1 time.Time
+	WriteEgress(start1, time.Since(start), NewActuatorStateWithFailover("egress-route", true), nil, nil, "")
+
+	//Output:
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","failover":true,"static2":"value"}]
+
+}
 
 func Example_WriteEgress_Request() {
 	SetTestEgressWrite()
 	req, _ := http.NewRequest("", "www.google.com/search/documents", nil)
 	req.Header.Add("customer", "Ted's Bait & Tackle")
-
-	r1, _ := route.NewRouteWithConfig("egress-route", 1000, 500, 100, true, false)
 
 	var start time.Time
 	err := CreateEgressEntries([]Reference{{Operator: RequestProtocolOperator}, {Operator: RequestMethodOperator}, {Operator: RequestUrlOperator},
@@ -97,8 +131,8 @@ func Example_WriteEgress_Request() {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	WriteEgress(start, time.Since(start), r1, nil, nil, "")
-	WriteEgress(start, time.Since(start), r1, req, nil, "")
+	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route", WriteEgress: true}, nil, nil, "")
+	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route", WriteEgress: true}, req, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"protocol":null,"method":null,"url":null,"path":null,"host":null,"customer":null}]
@@ -109,7 +143,6 @@ func Example_WriteEgress_Request() {
 func Example_WriteEgress_Response() {
 	SetTestEgressWrite()
 	resp := &http.Response{StatusCode: 404, ContentLength: 1234}
-	r1, _ := route.NewRouteWithConfig("egress-route", 1000, 500, 100, true, false)
 
 	err := CreateEgressEntries([]Reference{{Operator: ResponseStatusCodeOperator}, {Operator: ResponseBytesReceivedOperator}, {Operator: ResponseFlagsOperator}})
 	if err != nil {
@@ -117,14 +150,11 @@ func Example_WriteEgress_Response() {
 		return
 	}
 	var start time.Time
-	WriteEgress(start, time.Since(start), r1, nil, nil, "UT")
-	WriteEgress(start, time.Since(start), r1, nil, resp, "UT")
+	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route", WriteEgress: true}, nil, nil, "UT")
+	WriteEgress(start, time.Since(start), ActuatorState{Name: "egress-route", WriteEgress: true}, nil, resp, "UT")
 
 	//Output:
 	//test: WriteEgress() -> [{"status_code":"0","bytes_received":"0","response_flags":"UT"}]
 	//test: WriteEgress() -> [{"status_code":"404","bytes_received":"1234","response_flags":"UT"}]
 
 }
-
-
-*/
