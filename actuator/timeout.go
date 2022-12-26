@@ -12,7 +12,7 @@ const (
 
 type TimeoutController interface {
 	Controller
-	Duration() (bool, time.Duration)
+	Duration() time.Duration
 	SetTimeout(timeout time.Duration)
 }
 
@@ -89,14 +89,14 @@ func (t *timeout) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
-func (t *timeout) Duration() (bool, time.Duration) {
+func (t *timeout) Duration() time.Duration {
 	if !t.IsEnabled() {
-		return false, 0
+		return 0
 	}
 	if t.currentConfig.timeout <= 0 {
-		return true, 0
+		return 0
 	}
-	return true, t.currentConfig.timeout
+	return t.currentConfig.timeout
 }
 
 func (t *timeout) SetTimeout(timeout time.Duration) {

@@ -27,7 +27,7 @@ func Example_Timeout_Attribute() {
 	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
 	fmt.Printf("test: IsEnabled() -> [%v]\n", t.IsEnabled())
 
-	_, d := t.Duration()
+	d := t.Duration()
 	fmt.Printf("test: Duration() -> [%v]\n", d)
 
 	t = newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
@@ -42,7 +42,7 @@ func Example_Timeout_Attribute() {
 	//test: IsEnabled() -> [true]
 	//test: Duration() -> [2s]
 	//test: Attribute("") -> [name:] [value:<nil>] [string:nil]
-	//test: Attribute("Timeout") -> [name:timeout] [value:2s] [string:2s]
+	//test: Attribute("Timeout") -> [name:timeout] [value:2s] [string:2000]
 
 }
 
@@ -84,19 +84,19 @@ func Example_Timeout_SetTimeout() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
 
 	act := t.LookupByName(name)
-	_, d := act.Timeout().Duration()
+	d := act.Timeout().Duration()
 	fmt.Printf("test: Duration() -> [%v]\n", d)
-	_, prevDuration := act.Timeout().Duration()
+	prevDuration := act.Timeout().Duration()
 
 	act.Timeout().SetTimeout(time.Second * 2)
 	act1 := t.LookupByName(name)
-	_, d = act1.Timeout().Duration()
+	d = act1.Timeout().Duration()
 	fmt.Printf("test: SetTimeout(2s) -> [prev-duration:%v] [curr-duration:%v]\n", prevDuration, d)
-	_, prevDuration = act1.Timeout().Duration()
+	prevDuration = act1.Timeout().Duration()
 
 	act1.Timeout().Reset()
 	act = t.LookupByName(name)
-	_, d = act.Timeout().Duration()
+	d = act.Timeout().Duration()
 	fmt.Printf("test: Reset() -> [prev-duration:%v] [curr-duration:%v]\n", prevDuration, d)
 
 	a := act.Timeout().Attribute(TimeoutName)
@@ -107,6 +107,6 @@ func Example_Timeout_SetTimeout() {
 	//test: Duration() -> [1.5s]
 	//test: SetTimeout(2s) -> [prev-duration:1.5s] [curr-duration:2s]
 	//test: Reset() -> [prev-duration:2s] [curr-duration:1.5s]
-	//test: Attribute(TimeoutName) -> [name:timeout] [string:1.5s]
+	//test: Attribute(TimeoutName) -> [name:timeout] [string:1500]
 
 }

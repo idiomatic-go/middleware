@@ -9,6 +9,10 @@ const (
 	HostActuatorName    = "host"
 	DefaultActuatorName = "*"
 	NilValue            = -1
+	EgressTraffic       = "egress"
+	IngressTraffic      = "ingress"
+	RateLimitFlag       = "RL"
+	UpstreamTimeoutFlag = "UT"
 )
 
 type Matcher func(req *http.Request) (routeName string)

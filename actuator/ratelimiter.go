@@ -18,8 +18,8 @@ const (
 
 type RateLimiterController interface {
 	Controller
-	Allow() (bool, bool)
-	StatusCode() (bool, int)
+	Allow() bool
+	StatusCode() int
 	SetLimit(limit rate.Limit)
 	SetBurst(burst int)
 	SetRateLimiter(limit rate.Limit, burst int)
@@ -138,18 +138,18 @@ func (r *rateLimiter) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
-func (r *rateLimiter) Allow() (bool, bool) {
+func (r *rateLimiter) Allow() bool {
 	if !r.IsEnabled() {
-		return false, true
+		return true
 	}
 	if r.currentConfig.limit == rate.Inf {
-		return true, true
+		return true
 	}
-	return true, r.rateLimiter.Allow()
+	return r.rateLimiter.Allow()
 }
 
-func (r *rateLimiter) StatusCode() (bool, int) {
-	return r.enabled, r.currentConfig.statusCode
+func (r *rateLimiter) StatusCode() int {
+	return r.currentConfig.statusCode
 }
 
 func (r *rateLimiter) SetLimit(limit rate.Limit) {

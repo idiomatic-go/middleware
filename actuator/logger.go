@@ -7,14 +7,9 @@ import (
 	"time"
 )
 
-const (
-	EgressTraffic  = "egress"
-	IngressTraffic = "ingress"
-)
+type LogAccess func(traffic string, start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string)
 
-type LogAccess func(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string)
-
-var defaultLogger = newLogger(NewLoggerConfig(defaultAccess, defaultAccess))
+var defaultLogger = newLogger(NewLoggerConfig(defaultAccess))
 
 func SetDefaultLogger(lc *LoggerConfig) {
 	if lc != nil {
@@ -22,23 +17,22 @@ func SetDefaultLogger(lc *LoggerConfig) {
 	}
 }
 
-var defaultAccess LogAccess = func(act Actuator, traffic string, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
+var defaultAccess LogAccess = func(traffic string, start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string) {
 	log.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"responseFlags\":\"%v\"}\n", traffic, start, duration, req, resp, respFlags)
 }
 
 type LoggingController interface {
 	Controller
-	LogIngressAccess(act Actuator, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string)
-	LogEgressAccess(act Actuator, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string)
+	LogIngressAccess(start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string)
+	LogEgressAccess(start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string)
 }
 
 type LoggerConfig struct {
-	ingressInvoke LogAccess
-	egressInvoke  LogAccess
+	accessInvoke LogAccess
 }
 
-func NewLoggerConfig(ingressInvoke LogAccess, egressInvoke LogAccess) *LoggerConfig {
-	return &LoggerConfig{ingressInvoke: ingressInvoke, egressInvoke: egressInvoke}
+func NewLoggerConfig(accessInvoke LogAccess) *LoggerConfig {
+	return &LoggerConfig{accessInvoke: accessInvoke}
 }
 
 type logger struct {
@@ -49,13 +43,10 @@ type logger struct {
 
 func newLogger(config *LoggerConfig) *logger {
 	if config == nil {
-		config = NewLoggerConfig(defaultAccess, defaultAccess)
+		config = NewLoggerConfig(defaultAccess)
 	}
-	if config.ingressInvoke == nil {
-		config.ingressInvoke = defaultAccess
-	}
-	if config.egressInvoke == nil {
-		config.egressInvoke = defaultAccess
+	if config.accessInvoke == nil {
+		config.accessInvoke = defaultAccess
 	}
 	return &logger{enabled: true, config: *config}
 }
@@ -90,16 +81,16 @@ func (l *logger) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
-func (l *logger) LogIngressAccess(act Actuator, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
-	if !l.enabled || l.config.ingressInvoke == nil {
+func (l *logger) LogIngressAccess(start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string) {
+	if !l.enabled || l.config.accessInvoke == nil {
 		return
 	}
-	l.config.ingressInvoke(act, IngressTraffic, start, duration, req, resp, respFlags)
+	l.config.accessInvoke(IngressTraffic, start, duration, act, req, resp, respFlags)
 }
 
-func (l *logger) LogEgressAccess(act Actuator, start time.Time, duration time.Duration, req *http.Request, resp *http.Response, respFlags string) {
-	if !l.enabled || l.config.egressInvoke == nil {
+func (l *logger) LogEgressAccess(start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string) {
+	if !l.enabled || l.config.accessInvoke == nil {
 		return
 	}
-	l.config.egressInvoke(act, EgressTraffic, start, duration, req, resp, respFlags)
+	l.config.accessInvoke(EgressTraffic, start, duration, act, req, resp, respFlags)
 }

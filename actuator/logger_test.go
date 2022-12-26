@@ -6,10 +6,10 @@ import (
 
 func Example_newLogger() {
 	l := newLogger(nil)
-	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [ingressInvoke:%v] [egressInvoke:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil, l.config.egressInvoke != nil)
+	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [accessInvoke:%v]\n", l.IsEnabled(), l.config.accessInvoke != nil)
 
-	l = newLogger(NewLoggerConfig(nil, nil))
-	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [ingressInvoke:%v] [egressInvoke:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil, l.config.egressInvoke != nil)
+	l = newLogger(NewLoggerConfig(nil))
+	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [accessInvoke:%v]\n", l.IsEnabled(), l.config.accessInvoke != nil)
 
 	//l = newLogger(NewLoggerConfig(nil))
 	//fmt.Printf("test: newLogger(nil) -> [enabled:%v] [accessFn:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil)
@@ -21,8 +21,8 @@ func Example_newLogger() {
 	fmt.Printf("test: Enabled() -> [enabled:%v]\n", l.IsEnabled())
 
 	//Output:
-	//test: newLogger(nil) -> [enabled:true] [ingressInvoke:true] [egressInvoke:true]
-	//test: newLogger(nil) -> [enabled:true] [ingressInvoke:true] [egressInvoke:true]
+	//test: newLogger(nil) -> [enabled:true] [accessInvoke:true]
+	//test: newLogger(nil) -> [enabled:true] [accessInvoke:true]
 	//test: Disable() -> [enabled:false]
 	//test: Enabled() -> [enabled:true]
 
@@ -30,15 +30,15 @@ func Example_newLogger() {
 
 func Example_defaultLogger() {
 	l := defaultLogger
-	fmt.Printf("test: defaultLogger -> [enabled:%v] [ingressInvoke:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil)
+	fmt.Printf("test: defaultLogger -> [enabled:%v] [accessInvoke:%v]\n", l.IsEnabled(), l.config.accessInvoke != nil)
 
-	SetDefaultLogger(NewLoggerConfig(nil, nil))
+	SetDefaultLogger(NewLoggerConfig(nil))
 	l = defaultLogger
-	fmt.Printf("test: defaultLogger -> [enabled:%v] [ingressInvoke:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil)
+	fmt.Printf("test: defaultLogger -> [enabled:%v] [accessInvoke:%v]\n", l.IsEnabled(), l.config.accessInvoke != nil)
 
 	//Output:
-	//test: defaultLogger -> [enabled:true] [ingressInvoke:true]
-	//test: defaultLogger -> [enabled:true] [ingressInvoke:true]
+	//test: defaultLogger -> [enabled:true] [accessInvoke:true]
+	//test: defaultLogger -> [enabled:true] [accessInvoke:true]
 
 }
 

@@ -3,13 +3,10 @@ package egress
 import (
 	"context"
 	"errors"
-	"github.com/idiomatic-go/middleware/accesslog"
-	"github.com/idiomatic-go/middleware/route"
+	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
 	"time"
 )
-
-var Routes = route.NewTable()
 
 type wrapper struct {
 	rt http.RoundTripper
@@ -25,26 +22,24 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if w == nil || w.rt == nil {
 		return nil, errors.New("invalid egress round tripper configuration : http.RoundTripper is nil")
 	}
-	rt := Routes.Lookup(req)
-	if rt.Allow() {
-		if rt.IsTimeout() {
-			ctx, cancel := context.WithTimeout(req.Context(), rt.Duration())
+	act := actuator.Egress.Lookup(req)
+	if act.RateLimiter().IsEnabled() && act.RateLimiter().Allow() {
+		if act.Timeout().IsEnabled() {
+			ctx, cancel := context.WithTimeout(req.Context(), act.Timeout().Duration())
 			defer cancel()
 			req = req.Clone(ctx)
 		}
 		resp, err = w.rt.RoundTrip(req)
 		if err != nil && errors.As(err, &context.DeadlineExceeded) {
 			err = nil
-			flags = accesslog.UpstreamTimeoutFlag
+			flags = actuator.UpstreamTimeoutFlag
 			resp = &http.Response{Request: req, StatusCode: http.StatusGatewayTimeout}
 		}
 	} else {
-		flags = accesslog.RateLimitFlag
-		resp = &http.Response{Request: req, StatusCode: http.StatusServiceUnavailable}
+		flags = actuator.RateLimitFlag
+		resp = &http.Response{Request: req, StatusCode: act.RateLimiter().StatusCode()}
 	}
-	if rt.IsLogging() || accesslog.IsExtract() {
-		accesslog.WriteEgress(start, time.Since(start), rt, req, resp, flags)
-	}
+	act.Logger().LogEgressAccess(start, time.Since(start), act, req, resp, flags)
 	return resp, err
 }
 

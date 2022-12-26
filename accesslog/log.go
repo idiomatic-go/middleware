@@ -12,42 +12,34 @@ const (
 	errorEmptyFmt    = "{\"error\": \"%v log entries are empty\"}"
 )
 
-func WriteEgress(start time.Time, duration time.Duration, act ActuatorState, req *http.Request, resp *http.Response, responseFlags string) {
+func Log(traffic string, start time.Time, duration time.Duration, act ActuatorState, req *http.Request, resp *http.Response, responseFlags string) {
 	if act.Name == "" {
-		egressWrite(fmt.Sprintf(errorNilRouteFmt, EgressTraffic))
+		egressWrite(fmt.Sprintf(errorNilRouteFmt, traffic))
 		return
 	}
-	data := NewLogd(EgressTraffic, start, duration, getOrigin(), act, req, resp, responseFlags)
+	data := NewLogd(traffic, start, duration, getOrigin(), act, req, resp, responseFlags)
 	callExtract(data)
-	if !opt.writeEgress {
-		return
+	if traffic == IngressTraffic {
+		if !opt.writeIngress {
+			return
+		}
+		if len(ingressEntries) == 0 {
+			ingressWrite(fmt.Sprintf(errorEmptyFmt, traffic))
+			return
+		}
+		s := FormatJson(ingressEntries, data)
+		ingressWrite(s)
+	} else {
+		if !opt.writeEgress {
+			return
+		}
+		if len(egressEntries) == 0 {
+			egressWrite(fmt.Sprintf(errorEmptyFmt, traffic))
+			return
+		}
+		s := FormatJson(egressEntries, data)
+		egressWrite(s)
 	}
-	if len(egressEntries) == 0 {
-		egressWrite(fmt.Sprintf(errorEmptyFmt, EgressTraffic))
-		return
-	}
-	s := FormatJson(egressEntries, data)
-	egressWrite(s)
-}
-
-func WriteIngress(start time.Time, duration time.Duration, act ActuatorState, req *http.Request, resp *http.Response, responseFlags string) {
-	if act.Name == "" {
-		ingressWrite(fmt.Sprintf(errorNilRouteFmt, IngressTraffic))
-		return
-	}
-	data := NewLogd(IngressTraffic, start, duration, getOrigin(), act, req, resp, responseFlags)
-	//data.StatusCode = code
-	//data.BytesSent = bytesSent
-	callExtract(data)
-	if !opt.writeIngress {
-		return
-	}
-	if len(ingressEntries) == 0 {
-		ingressWrite(fmt.Sprintf(errorEmptyFmt, IngressTraffic))
-		return
-	}
-	s := FormatJson(ingressEntries, data)
-	ingressWrite(s)
 }
 
 func FormatJson(items []Entry, data *Logd) string {

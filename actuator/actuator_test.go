@@ -17,10 +17,10 @@ func ExampleActuator_newActuator() {
 	fail := a.Failover() != nil
 	fmt.Printf("test: newActuator() -> [logger:%v] [timeout:%v] [rateLimit:%v] [retry:%v] [failover:%v]\n", log, to, rate, retry, fail)
 
-	_, d := a.Timeout().Duration()
+	d := a.Timeout().Duration()
 	a1 := cloneActuator[*timeout](a, newTimeout("new-timeout", t, NewTimeoutConfig(time.Millisecond*500)))
 
-	_, d1 := a1.Timeout().Duration()
+	d1 := a1.Timeout().Duration()
 	fmt.Printf("test: cloneActuator() -> [prev-duration:%v] [curr-duration:%v]\n", d, d1)
 
 	//Output:
