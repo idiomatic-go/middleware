@@ -20,18 +20,23 @@ func Example_Value_Origin() {
 }
 
 func Example_Value_Actuator() {
-	name := "route-name"
+	name := "test-route"
 	op := RouteNameOperator
 
 	data := Logd{}
 	fmt.Printf("test: Value(\"%v\") -> [%v]\n", name, data.Value(NewEntry(op, "", "", true)))
 
 	data = Logd{Act: ActuatorState{Name: name}}
-	fmt.Printf("test: Value(\"%v\") -> [%v]\n", name, data.Value(NewEntry(op, "", "", true)))
+	fmt.Printf("test: Value(\"%v\") -> [route_name:%v]\n", name, data.Value(NewEntry(op, "", "", true)))
+
+	data = Logd{Act: NewActuatorStateWithTimeout(name, 500)}
+	//fmt.Printf("test: Value(\"%v\") -> [route_name:%v]\n", name, data.Value(NewEntry(op, "", "", true)))
+	fmt.Printf("test: Value(\"%v\") -> [timeout:%v]\n", name, data.Value(NewEntry(TimeoutDurationOperator, "", "", false)))
 
 	//Output:
-	//test: Value("route-name") -> []
-	//test: Value("route-name") -> [route-name]
+	//test: Value("test-route") -> []
+	//test: Value("test-route") -> [route_name:test-route]
+	//test: Value("test-route") -> [timeout:500]
 }
 
 func Example_Value_Request() {

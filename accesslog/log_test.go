@@ -33,13 +33,34 @@ func Example_WriteIngress_Error() {
 	a1 := ActuatorState{Name: "ingress-route", WriteIngress: true, WriteEgress: true}
 	a2 := ActuatorState{Name: "ingress-route", WriteIngress: false, WriteEgress: true}
 
-	WriteIngress(start, time.Since(start), ActuatorState{}, nil, 0, 0, "")
-	WriteIngress(start, time.Since(start), a1, nil, 0, 0, "")
-	WriteIngress(start, time.Since(start), a2, nil, 0, 0, "")
+	WriteIngress(start, time.Since(start), ActuatorState{}, nil, nil, "")
+	WriteIngress(start, time.Since(start), a1, nil, nil, "")
+	WriteIngress(start, time.Since(start), a2, nil, nil, "")
 
 	//Output:
 	//test: WriteIngress() -> [{"error": "ingress route name is empty"}]
 	//test: WriteIngress() -> [{"error": "ingress log entries are empty"}]
+}
+
+func Example_WriteIngress_Ping() {
+	name := "ingress-ping-route"
+	SetTestIngressWrite()
+	SetPingRoutes([]string{name})
+	start := time.Now()
+	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
+	err := CreateIngressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
+		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
+		{Operator: RouteNameOperator}})
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+	var start1 time.Time
+	WriteIngress(start1, time.Since(start), ActuatorState{Name: name, WriteIngress: true}, nil, nil, "")
+
+	//Output:
+	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ping","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"ingress-ping-route"}]
+
 }
 
 func Example_WriteEgress_Origin_Timeout() {
@@ -53,7 +74,6 @@ func Example_WriteEgress_Origin_Timeout() {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	//r1 := ActuatorState{Name: "egress-route", WriteEgress: true, Timeout: ControllerState{Enabled: true, Tags: []string{"duration:500"}}}
 	var start1 time.Time
 	WriteEgress(start1, time.Since(start), NewActuatorStateWithTimeout("egress-route", 5000), nil, nil, "")
 

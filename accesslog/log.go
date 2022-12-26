@@ -30,14 +30,14 @@ func WriteEgress(start time.Time, duration time.Duration, act ActuatorState, req
 	egressWrite(s)
 }
 
-func WriteIngress(start time.Time, duration time.Duration, act ActuatorState, req *http.Request, code int, bytesSent int, responseFlags string) {
+func WriteIngress(start time.Time, duration time.Duration, act ActuatorState, req *http.Request, resp *http.Response, responseFlags string) {
 	if act.Name == "" {
 		ingressWrite(fmt.Sprintf(errorNilRouteFmt, IngressTraffic))
 		return
 	}
-	data := NewLogd(IngressTraffic, start, duration, getOrigin(), act, req, nil, responseFlags)
-	data.StatusCode = code
-	data.BytesSent = bytesSent
+	data := NewLogd(IngressTraffic, start, duration, getOrigin(), act, req, resp, responseFlags)
+	//data.StatusCode = code
+	//data.BytesSent = bytesSent
 	callExtract(data)
 	if !act.WriteIngress {
 		return
