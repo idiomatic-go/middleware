@@ -13,6 +13,7 @@ type Attribute interface {
 	Value() any
 	SetValue(val any)
 	String() string
+	Tag() string
 	Validate() error
 }
 
@@ -62,12 +63,17 @@ func (a *attribute) String() string {
 		return fmt.Sprintf("%v", val)
 	}
 	if val, ok := a.Value().(time.Duration); ok {
-		return fmt.Sprintf("%v", val)
+		var i = int64(val / time.Millisecond)
+		return fmt.Sprintf("%v", i)
 	}
 	if val, ok := a.Value().(string); ok {
 		return val
 	}
 	return "nil"
+}
+
+func (a *attribute) Tag() string {
+	return a.Name() + ":" + a.String()
 }
 
 func (a *attribute) Validate() error {

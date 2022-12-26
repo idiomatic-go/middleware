@@ -12,7 +12,7 @@ const (
 	RateLimitName  = "rateLimit"
 	RateBurstName  = "burst"
 	StatusCodeName = "statusCode"
-	InfValue       = "INF"
+	InfValue       = "-1"
 	DefaultBurst   = 1
 )
 
