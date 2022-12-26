@@ -24,10 +24,10 @@ func Example_Value_Actuator() {
 	op := RouteNameOperator
 
 	data := Logd{}
-	fmt.Printf("test: Value(%v) -> [%v]\n", name, data.Value(NewEntry(op, "", "", true)))
+	fmt.Printf("test: Value(\"%v\") -> [%v]\n", name, data.Value(NewEntry(op, "", "", true)))
 
 	data = Logd{Act: ActuatorState{Name: name}}
-	fmt.Printf("test: Value(\"route-name\") -> [%v]\n", data.Value(NewEntry(op, "", "", true)))
+	fmt.Printf("test: Value(\"%v\") -> [%v]\n", name, data.Value(NewEntry(op, "", "", true)))
 
 	//Output:
 	//test: Value("route-name") -> []
