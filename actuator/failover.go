@@ -63,7 +63,7 @@ func failoverState(f *failover) []string {
 	if f != nil {
 		enabled = f.enabled
 	}
-	return []string{fmt.Sprintf("%v:%v", FailoverName, enabled)}
+	return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, enabled)}
 }
 
 func (f *failover) IsEnabled() bool { return f.enabled }

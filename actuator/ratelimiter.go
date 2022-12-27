@@ -1,9 +1,9 @@
 package actuator
 
 import (
+	"fmt"
 	"golang.org/x/time/rate"
 	"net/http"
-	"strings"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 )
 
 type RateLimiterController interface {
-	Attribute(name string) Attribute
+	//Attribute(name string) Attribute
 	Allow() bool
 	StatusCode() int
 	SetLimit(limit rate.Limit)
@@ -76,52 +76,6 @@ func validateLimiter(max *rate.Limit, burst *int) {
 }
 
 /*
-func (r *rateLimiter) IsEnabled() bool { return r.enabled }
-
-func (r *rateLimiter) Disable() {
-	if !r.IsEnabled() {
-		return
-	}
-	r.table.enableRateLimiter(r.name, false)
-}
-
-func (r *rateLimiter) Enable() {
-	if r.IsEnabled() {
-		return
-	}
-	r.table.enableRateLimiter(r.name, true)
-}
-
-func (r *rateLimiter) Reset() {
-	r.table.setRateLimiter(r.name, r.defaultConfig)
-}
-
-func (r *rateLimiter) Adjust(change any) {
-	return
-}
-
-func (r *rateLimiter) Configure(attr Attribute) error {
-	err := attr.Validate()
-	if err != nil {
-		return err
-	}
-	switch attr.Name() {
-	case RateLimitName:
-		if val, ok := attr.Value().(rate.Limit); ok {
-			r.SetLimit(val)
-		}
-	case RateBurstName:
-		if val, ok := attr.Value().(int); ok {
-			r.SetBurst(val)
-		}
-	default:
-		errors.New(fmt.Sprintf("invalid attribute name: name not found [%v]", attr.Name()))
-	}
-	return nil
-}
-
-
-*/
 func (r *rateLimiter) Attribute(name string) Attribute {
 	if strings.Index(name, RateLimitName) != -1 {
 		return NewAttribute(RateLimitName, r.config.limit)
@@ -133,6 +87,24 @@ func (r *rateLimiter) Attribute(name string) Attribute {
 		return NewAttribute(StatusCodeName, r.config.statusCode)
 	}
 	return nilAttribute(name)
+}
+
+
+*/
+
+func rateLimiterState(r *rateLimiter) []string {
+	var limit rate.Limit = -1
+	var burst = -1
+	var statusCode = -1
+	if r != nil {
+		limit = r.config.limit
+		burst = r.config.burst
+		statusCode = r.config.statusCode
+	}
+	return []string{fmt.Sprintf(StateAttributeFmt, RateLimitName, limit),
+		fmt.Sprintf(StateAttributeFmt, RateBurstName, burst),
+		fmt.Sprintf(StateAttributeFmt, StatusCodeName, statusCode),
+	}
 }
 
 func (r *rateLimiter) Allow() bool {

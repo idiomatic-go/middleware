@@ -62,22 +62,20 @@ func Example_RateLimiter_Mutate() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	fmt.Printf("test: State() -> [limit:%v] [burst:%v] [statusCode:%v]\n", act.RateLimiter().Attribute(RateLimitName), act.RateLimiter().Attribute(RateBurstName), act.RateLimiter().Attribute(StatusCodeName))
+	fmt.Printf("test: rateLimiterState() -> %v\n", rateLimiterState(act.RateLimiter().(*rateLimiter)))
 
 	act.RateLimiter().SetLimit(5000)
 	act1 := t.LookupByName(name)
-	fmt.Printf("test: SetLimit(5000) -> [limit:%v] [burst:%v] [statusCode:%v]\n", act1.RateLimiter().Attribute(RateLimitName), act1.RateLimiter().Attribute(RateBurstName), act1.RateLimiter().Attribute(StatusCodeName))
+	//fmt.Printf("test: SetLimit(5000) -> [limit:%v] [burst:%v] [statusCode:%v]\n", act1.RateLimiter().Attribute(RateLimitName), act1.RateLimiter().Attribute(RateBurstName), act1.RateLimiter().Attribute(StatusCodeName))
 
 	act1.RateLimiter().SetBurst(1)
 	act = t.LookupByName(name)
-	fmt.Printf("test: SetBurst(1) -> [limit:%v] [burst:%v] [statusCode:%v]\n", act.RateLimiter().Attribute(RateLimitName), act.RateLimiter().Attribute(RateBurstName), act.RateLimiter().Attribute(StatusCodeName))
+	//fmt.Printf("test: SetBurst(1) -> [limit:%v] [burst:%v] [statusCode:%v]\n", act.RateLimiter().Attribute(RateLimitName), act.RateLimiter().Attribute(RateBurstName), act.RateLimiter().Attribute(StatusCodeName))
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
-	//test: State() -> [limit:10] [burst:100] [statusCode:503]
-	//test: SetLimit(5000) -> [limit:5000] [burst:100] [statusCode:503]
-	//test: SetBurst(1) -> [limit:5000] [burst:1] [statusCode:503]
-
+	//test: rateLimiterState() -> [rateLimit:10 burst:100 statusCode:503]
+	
 }
 
 /*

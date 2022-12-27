@@ -11,8 +11,6 @@ const (
 )
 
 type TimeoutController interface {
-	//Attribute(name string) Attribute
-	//State() []string
 	Duration() time.Duration
 	SetTimeout(timeout time.Duration)
 }
@@ -68,7 +66,7 @@ func timeoutState(t *timeout) []string {
 	if t != nil {
 		val = int64(t.Duration() / time.Millisecond)
 	}
-	return []string{fmt.Sprintf("%v:%v", TimeoutName, val)}
+	return []string{fmt.Sprintf(StateAttributeFmt, TimeoutName, val)}
 }
 
 func (t *timeout) Duration() time.Duration {

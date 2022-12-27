@@ -16,6 +16,7 @@ const (
 	HostTimeoutFlag       = "HT"
 	NotEnabledFlag        = "NE"
 	InvalidStatusCodeFlag = "SC"
+	StateAttributeFmt     = "%v:%v"
 )
 
 type Matcher func(req *http.Request) (routeName string)
