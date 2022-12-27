@@ -11,11 +11,6 @@ import (
 // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
 // https://github.com/keikoproj/inverse-exp-backoff
 
-const (
-	NotEnabledFlag        = "NE"
-	InvalidStatusCodeFlag = "SC"
-)
-
 type RetryController interface {
 	IsEnabled() bool
 	Enable()

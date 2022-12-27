@@ -6,14 +6,16 @@ import (
 )
 
 const (
-	HostActuatorName    = "host"
-	DefaultActuatorName = "*"
-	NilValue            = -1
-	EgressTraffic       = "egress"
-	IngressTraffic      = "ingress"
-	RateLimitFlag       = "RL"
-	UpstreamTimeoutFlag = "UT"
-	HostTimeoutFlag     = "HT"
+	HostActuatorName      = "host"
+	DefaultActuatorName   = "*"
+	NilValue              = -1
+	EgressTraffic         = "egress"
+	IngressTraffic        = "ingress"
+	RateLimitFlag         = "RL"
+	UpstreamTimeoutFlag   = "UT"
+	HostTimeoutFlag       = "HT"
+	NotEnabledFlag        = "NE"
+	InvalidStatusCodeFlag = "SC"
 )
 
 type Matcher func(req *http.Request) (routeName string)
