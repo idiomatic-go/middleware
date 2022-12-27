@@ -163,7 +163,7 @@ func Example_Log_Response() {
 	SetTestEgressWrite()
 	resp := &http.Response{StatusCode: 404, ContentLength: 1234}
 
-	err := CreateEgressEntries([]Reference{{Operator: ResponseStatusCodeOperator}, {Operator: ResponseBytesReceivedOperator}, {Operator: ResponseFlagsOperator}})
+	err := CreateEgressEntries([]Reference{{Operator: ResponseStatusCodeOperator}, {Operator: ResponseBytesReceivedOperator}, {Operator: StatusFlagsOperator}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -173,7 +173,7 @@ func Example_Log_Response() {
 	Log(EgressTraffic, start, time.Since(start), ActuatorState{Name: "egress-route"}, nil, resp, "UT")
 
 	//Output:
-	//test: WriteEgress() -> [{"status_code":"0","bytes_received":"0","response_flags":"UT"}]
-	//test: WriteEgress() -> [{"status_code":"404","bytes_received":"1234","response_flags":"UT"}]
+	//test: WriteEgress() -> [{"status_code":"0","bytes_received":"0","status_flags":"UT"}]
+	//test: WriteEgress() -> [{"status_code":"404","bytes_received":"1234","status_flags":"UT"}]
 
 }

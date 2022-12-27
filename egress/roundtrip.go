@@ -14,7 +14,7 @@ type wrapper struct {
 
 func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	var start = time.Now()
-	var flags string
+	var statusFlags string
 	var resp *http.Response
 	var err error
 
@@ -32,14 +32,14 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		resp, err = w.rt.RoundTrip(req)
 		if err != nil && errors.As(err, &context.DeadlineExceeded) {
 			err = nil
-			flags = actuator.UpstreamTimeoutFlag
+			statusFlags = actuator.UpstreamTimeoutFlag
 			resp = &http.Response{Request: req, StatusCode: http.StatusGatewayTimeout}
 		}
 	} else {
-		flags = actuator.RateLimitFlag
+		statusFlags = actuator.RateLimitFlag
 		resp = &http.Response{Request: req, StatusCode: act.RateLimiter().StatusCode()}
 	}
-	act.Logger().LogEgressAccess(start, time.Since(start), act, req, resp, flags)
+	act.Logger().LogEgressAccess(start, time.Since(start), act, req, resp, statusFlags)
 	return resp, err
 }
 

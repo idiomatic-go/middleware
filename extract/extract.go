@@ -36,13 +36,13 @@ var (
 		{Operator: accesslog.RequestForwardedForOperator},
 
 		{Operator: accesslog.ResponseStatusCodeOperator},
-		{Operator: accesslog.ResponseFlagsOperator},
+		{Operator: accesslog.StatusFlagsOperator},
 		{Operator: accesslog.ResponseBytesReceivedOperator},
 		{Operator: accesslog.ResponseBytesSentOperator},
 
-		{Operator: accesslog.RouteTimeoutOperator},
-		{Operator: accesslog.RouteLimitOperator},
-		{Operator: accesslog.RouteBurstOperator},
+		{Operator: accesslog.TimeoutDurationOperator},
+		{Operator: accesslog.RateLimitOperator},
+		{Operator: accesslog.RateBurstOperator},
 	}
 )
 

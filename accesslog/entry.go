@@ -57,7 +57,7 @@ var directory = directoryT{
 	ResponseStatusCodeOperator:    &Entry{ResponseStatusCodeOperator, "status_code", "", true},
 	ResponseBytesReceivedOperator: &Entry{ResponseBytesReceivedOperator, "bytes_received", "", true},
 	ResponseBytesSentOperator:     &Entry{ResponseBytesSentOperator, "bytes_sent", "", true},
-	ResponseFlagsOperator:         &Entry{ResponseFlagsOperator, "response_flags", "", true},
+	StatusFlagsOperator:           &Entry{StatusFlagsOperator, "status_flags", "", true},
 	//UpstreamHostOperator:  &Entry{UpstreamHostOperator, "upstream_host", "", true},
 
 	// Request

@@ -39,7 +39,7 @@ const (
 	ResponseStatusCodeOperator    = "%STATUS_CODE%"    // HTTP status code
 	ResponseBytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
 	ResponseBytesSentOperator     = "%BYTES_SENT%"     // bytes sent
-	ResponseFlagsOperator         = "%RESPONSE_FLAGS%" // response flags
+	StatusFlagsOperator           = "%STATUS_FLAGS%"   // status flags
 	//UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
 
 	// Request

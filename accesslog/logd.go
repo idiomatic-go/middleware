@@ -8,11 +8,9 @@ import (
 )
 
 const (
-	EgressTraffic       = "egress"
-	IngressTraffic      = "ingress"
-	PingTraffic         = "ping"
-	RateLimitFlag       = "RL"
-	UpstreamTimeoutFlag = "UT"
+	EgressTraffic  = "egress"
+	IngressTraffic = "ingress"
+	PingTraffic    = "ping"
 )
 
 // Origin - attributes that uniquely identify a service instance
@@ -44,10 +42,10 @@ type Logd struct {
 	StatusCode    int
 	BytesSent     int   // ingress response
 	BytesReceived int64 // egress response content length
-	ResponseFlags string
+	StatusFlags   string
 }
 
-func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, act ActuatorState, req *http.Request, resp *http.Response, respFlags string) *Logd {
+func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, act ActuatorState, req *http.Request, resp *http.Response, statusFlags string) *Logd {
 	l := new(Logd)
 	l.Traffic = traffic
 	l.Start = start
@@ -56,7 +54,7 @@ func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Or
 	l.Act = act
 	l.AddRequest(req)
 	l.AddResponse(resp)
-	l.ResponseFlags = respFlags
+	l.StatusFlags = statusFlags
 	return l
 }
 
@@ -157,8 +155,8 @@ func (l *Logd) Value(entry Entry) string {
 		return l.Header.Get(FordwardedForHeaderName)
 
 		// Response
-	case ResponseFlagsOperator:
-		return l.ResponseFlags
+	case StatusFlagsOperator:
+		return l.StatusFlags
 	case ResponseBytesReceivedOperator:
 		return strconv.Itoa(int(l.BytesReceived))
 	case ResponseBytesSentOperator:
