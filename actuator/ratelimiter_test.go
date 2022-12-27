@@ -7,10 +7,10 @@ import (
 
 func Example_newRateLimiter() {
 	t := newRateLimiter("test-route", newTable(true), NewRateLimiterConfig(1, 100, 503))
-	fmt.Printf("test: newRateLimiter() -> [name:%v] [config:%v]\n", t.name, t.currentConfig)
+	fmt.Printf("test: newRateLimiter() -> [name:%v] [config:%v]\n", t.name, t.config)
 
 	t = newRateLimiter("test-route2", newTable(true), NewRateLimiterConfig(rate.Inf, DefaultBurst, 429))
-	fmt.Printf("test: newRateLimiter() -> [name:%v] [config:%v]\n", t.name, t.currentConfig)
+	fmt.Printf("test: newRateLimiter() -> [name:%v] [config:%v]\n", t.name, t.config)
 
 	//t2 := cloneRateLimiter(t)
 	//t2.enabled = false

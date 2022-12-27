@@ -7,18 +7,18 @@ import (
 
 func Example_newTimeout() {
 	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(NilValue))
-	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v] [default:%v]\n", t.name, t.currentConfig.timeout, t.defaultConfig.timeout)
+	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v]\n", t.name, t.config.timeout)
 
 	t = newTimeout("test-route2", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
-	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v] [default:%v]\n", t.name, t.currentConfig.timeout, t.defaultConfig.timeout)
+	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v]\n", t.name, t.config.timeout)
 
 	//t2 := cloneTimeout(t)
 	//t2.enabled = false
 	//fmt.Printf("test: cloneTimeout() -> [prev-enabled:%v] [prev-name:%v] [curr-enabled:%v] [curr-name:%v]\n", t.enabled, t.name, t2.enabled, t2.name)
 
 	//Output:
-	//test: newTimeout() -> [name:test-route] [current:-1ns] [default:-1ns]
-	//test: newTimeout() -> [name:test-route2] [current:2s] [default:2s]
+	//test: newTimeout() -> [name:test-route] [current:-1ns]
+	//test: newTimeout() -> [name:test-route2] [current:2s]
 
 }
 

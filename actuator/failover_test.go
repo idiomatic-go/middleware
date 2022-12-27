@@ -28,7 +28,6 @@ func Example_newFailover() {
 
 }
 
-/*
 func Example_Failover_Status() {
 	prevEnabled := false
 	name := "failover-test"
@@ -62,16 +61,14 @@ func Example_Failover_Status() {
 
 	//Output:
 	//test: Add() -> [error:<nil>] [count:1]
-	//test: IsEnabled() -> [true]
-	//test: Disable() -> [prev-enabled:true] [curr-enabled:false]
+	//test: IsEnabled() -> [false]
+	//test: Disable() -> [prev-enabled:false] [curr-enabled:false]
 	//test: Enable() -> [prev-enabled:false] [curr-enabled:true]
 	//test: Enable() -> [prev-enabled:true] [curr-enabled:true]
 	//test: Disable() -> [prev-enabled:true] [curr-enabled:false]
 
 }
 
-
-*/
 func Example_Failover_Invoke() {
 	name := "failover-test"
 	t := newTable(true)
