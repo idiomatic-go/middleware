@@ -1,6 +1,13 @@
 package actuator
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
+
+const (
+	FailoverName = "failover"
+)
 
 type FailoverInvoke func(name string, failover bool)
 
@@ -49,6 +56,14 @@ func (f *failover) validate() error {
 		return errors.New("invalid configuration: FailoverController FailureInvoke function cannot be nil")
 	}
 	return nil
+}
+
+func failoverState(f *failover) []string {
+	enabled := false
+	if f != nil {
+		enabled = f.enabled
+	}
+	return []string{fmt.Sprintf("%v:%v", FailoverName, enabled)}
 }
 
 func (f *failover) IsEnabled() bool { return f.enabled }

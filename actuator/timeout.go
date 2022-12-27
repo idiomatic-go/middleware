@@ -2,7 +2,7 @@ package actuator
 
 import (
 	"errors"
-	"strings"
+	"fmt"
 	"time"
 )
 
@@ -11,7 +11,8 @@ const (
 )
 
 type TimeoutController interface {
-	Attribute(name string) Attribute
+	//Attribute(name string) Attribute
+	//State() []string
 	Duration() time.Duration
 	SetTimeout(timeout time.Duration)
 }
@@ -54,35 +55,20 @@ func (t *timeout) validate() error {
 }
 
 /*
-func (t *timeout) IsEnabled() bool { return t.enabled }
-
-func (t *timeout) Disable() {
-	if !t.IsEnabled() {
-		return
-	}
-	t.table.enableTimeout(t.name, false)
-}
-
-func (t *timeout) Enable() {
-	if t.IsEnabled() || t.config.timeout <= 0 {
-		return
-	}
-	t.table.enableTimeout(t.name, true)
-}
-
-func (t *timeout) Reset() {
-	t.SetTimeout(t.defaultConfig.timeout)
-}
-func (t *timeout) Adjust(any)                {}
-func (t *timeout) Configure(Attribute) error { return nil }
-
-
-*/
 func (t *timeout) Attribute(name string) Attribute {
 	if strings.Index(name, TimeoutName) != -1 {
 		return NewAttribute(TimeoutName, t.config.timeout)
 	}
 	return nilAttribute(name)
+}
+*/
+
+func timeoutState(t *timeout) []string {
+	var val int64 = -1
+	if t != nil {
+		val = int64(t.Duration() / time.Millisecond)
+	}
+	return []string{fmt.Sprintf("%v:%v", TimeoutName, val)}
 }
 
 func (t *timeout) Duration() time.Duration {

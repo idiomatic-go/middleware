@@ -8,23 +8,23 @@ func Example_newFailover() {
 	name := "failover-test"
 
 	f := newFailover(name, nil, nil)
-	//fmt.Printf("test: newFailover(nil) -> [enabled:%v]\n", f.enabled)
-	fmt.Printf("test: newFailover(nil) -> [validate:%v]\n", f.validate())
+	fmt.Printf("test: newFailover(nil) -> [enabled:%v] [validate:%v]\n", f.enabled, f.validate())
 
 	f = newFailover(name, nil, NewFailoverConfig(testFn))
-	//fmt.Printf("test: newFailover(testFn) -> [enabled:%v]\n", f.enabled)
-	fmt.Printf("test: newFailover(testFn) -> [validate:%v]\n", f.validate())
+	fmt.Printf("test: newFailover(testFn) -> [enabled:%v] [validate:%v]\n", f.enabled, f.validate())
 
-	//f2 := cloneFailover(f)
-	//fmt.Printf("test: cloneFailover(f1) -> [f2-enabled:%v]\n", f2.enabled)
+	f2 := cloneFailover(f)
+	f2.enabled = true
+	fmt.Printf("test: cloneFailover(f1) -> [f2-enabled:%v] [f2-validate:%v]\n", f2.enabled, f2.validate())
 
 	//f.enabled = false
 	//fmt.Printf("test: Attribute(f1) -> [enabled:%v]\n", f.enabled)
 	//fmt.Printf("test: Attribute(f2) -> [enabled:%v]\n", f2.enabled)
 
 	//Output:
-	//test: newFailover(nil) -> [validate:invalid configuration: FailoverController FailureInvoke function cannot be nil]
-	//test: newFailover(testFn) -> [validate:<nil>]
+	//test: newFailover(nil) -> [enabled:false] [validate:invalid configuration: FailoverController FailureInvoke function cannot be nil]
+	//test: newFailover(testFn) -> [enabled:false] [validate:<nil>]
+	//test: cloneFailover(f1) -> [f2-enabled:true] [f2-validate:<nil>]
 
 }
 

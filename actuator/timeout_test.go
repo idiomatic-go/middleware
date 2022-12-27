@@ -12,70 +12,38 @@ func Example_newTimeout() {
 	t = newTimeout("test-route2", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
 	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v]\n", t.name, t.config.timeout)
 
-	//t2 := cloneTimeout(t)
-	//t2.enabled = false
-	//fmt.Printf("test: cloneTimeout() -> [prev-enabled:%v] [prev-name:%v] [curr-enabled:%v] [curr-name:%v]\n", t.enabled, t.name, t2.enabled, t2.name)
+	t2 := cloneTimeout(t)
+	t2.config.timeout = time.Millisecond * 1000
+	fmt.Printf("test: cloneTimeout() -> [prev-config:%v] [prev-name:%v] [curr-config:%v] [curr-name:%v]\n", t.config, t.name, t2.config, t2.name)
 
 	//Output:
 	//test: newTimeout() -> [name:test-route] [current:-1ns]
 	//test: newTimeout() -> [name:test-route2] [current:2s]
+	//test: cloneTimeout() -> [prev-config:{2000000000}] [prev-name:test-route2] [curr-config:{1000000000}] [curr-name:test-route2]
 
 }
 
-func Example_Timeout_Attribute() {
+func Example_Timeout_State() {
 	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
-	//fmt.Printf("test: IsEnabled() -> [%v]\n", t.IsEnabled())
 
 	d := t.Duration()
 	fmt.Printf("test: Duration() -> [%v]\n", d)
 
 	t = newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
 
-	a := t.Attribute("")
-	fmt.Printf("test: Attribute(\"\") -> [name:%v] [value:%v] [string:%v]\n", a.Name(), a.Value(), a)
+	st := timeoutState(nil)
+	fmt.Printf("test: state(nil) -> %v\n", st)
 
-	a = t.Attribute(TimeoutName)
-	fmt.Printf("test: Attribute(\"Timeout\") -> [name:%v] [value:%v] [string:%v]\n", a.Name(), a.Value(), a)
+	st = timeoutState(t)
+	fmt.Printf("test: state(t) -> %v\n", st)
 
 	//Output:
 	//test: Duration() -> [2s]
-	//test: Attribute("") -> [name:] [value:<nil>] [string:nil]
-	//test: Attribute("Timeout") -> [name:timeout] [value:2s] [string:2000]
+	//test: state(nil) -> [timeout:-1]
+	//test: state(t) -> [timeout:2000]
 
 }
 
-/*
-func Example_Timeout_Status() {
-	name := "test-route"
-	config := NewTimeoutConfig(time.Millisecond * 2000)
-	t := newTable(true)
-	err := t.Add(name, config)
-	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
-
-	act := t.LookupByName(name)
-	fmt.Printf("test: IsEnabled() -> [%v]\n", act.Timeout().IsEnabled())
-	prevEnabled := act.Timeout().IsEnabled()
-
-	act.Timeout().Disable()
-	act1 := t.LookupByName(name)
-	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, act1.Timeout().IsEnabled())
-	prevEnabled = act1.Timeout().IsEnabled()
-
-	act1.Timeout().Enable()
-	act = t.LookupByName(name)
-	fmt.Printf("test: Enable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, act.Timeout().IsEnabled())
-	prevEnabled = act.Timeout().IsEnabled()
-
-	//Output:
-	//test: Add() -> [<nil>] [count:1]
-	//test: IsEnabled() -> [true]
-	//test: Disable() -> [prev-enabled:true] [curr-enabled:false]
-	//test: Enable() -> [prev-enabled:false] [curr-enabled:true]
-
-}
-
-
-*/
 func Example_Timeout_SetTimeout() {
 	name := "test-route"
 	config := NewTimeoutConfig(time.Millisecond * 1500)
@@ -95,18 +63,13 @@ func Example_Timeout_SetTimeout() {
 	fmt.Printf("test: SetTimeout(2s) -> [prev-duration:%v] [curr-duration:%v]\n", prevDuration, d)
 	prevDuration = act1.Timeout().Duration()
 
-	//act1.Timeout().Reset()
-	//act = t.LookupByName(name)
-	//d = act.Timeout().Duration()
-	//fmt.Printf("test: Reset() -> [prev-duration:%v] [curr-duration:%v]\n", prevDuration, d)
-
-	a := act.Timeout().Attribute(TimeoutName)
-	fmt.Printf("test: Attribute(TimeoutName) -> [name:%v] [string:%v]\n", a.Name(), a.String())
+	st := timeoutState(act1.Timeout().(*timeout))
+	fmt.Printf("test: state(t) -> %v\n", st)
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
 	//test: Duration() -> [1.5s]
 	//test: SetTimeout(2s) -> [prev-duration:1.5s] [curr-duration:2s]
-	//test: Attribute(TimeoutName) -> [name:timeout] [string:1500]
+	//test: state(t) -> [timeout:2000]
 
 }
