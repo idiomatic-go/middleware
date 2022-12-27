@@ -1,8 +1,6 @@
 package actuator
 
 import (
-	"errors"
-	"fmt"
 	"golang.org/x/time/rate"
 	"net/http"
 	"strings"
@@ -17,7 +15,7 @@ const (
 )
 
 type RateLimiterController interface {
-	Controller
+	Attribute(name string) Attribute
 	Allow() bool
 	StatusCode() int
 	SetLimit(limit rate.Limit)
@@ -44,12 +42,10 @@ func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int) *RateLimi
 }
 
 type rateLimiter struct {
-	name          string
-	table         *table
-	enabled       bool
-	defaultConfig RateLimiterConfig
-	currentConfig RateLimiterConfig
-	rateLimiter   *rate.Limiter
+	name        string
+	table       *table
+	config      RateLimiterConfig
+	rateLimiter *rate.Limiter
 }
 
 func cloneRateLimiter(curr *rateLimiter) *rateLimiter {
@@ -62,13 +58,11 @@ func newRateLimiter(name string, table *table, config *RateLimiterConfig) *rateL
 	t := new(rateLimiter)
 	t.name = name
 	t.table = table
-	t.enabled = true
-	t.currentConfig = RateLimiterConfig{limit: rate.Inf, burst: DefaultBurst}
+	t.config = RateLimiterConfig{limit: rate.Inf, burst: DefaultBurst}
 	if config != nil {
-		t.currentConfig = *config
+		t.config = *config
 	}
-	t.defaultConfig = t.currentConfig
-	t.rateLimiter = rate.NewLimiter(t.currentConfig.limit, t.currentConfig.burst)
+	t.rateLimiter = rate.NewLimiter(t.config.limit, t.config.burst)
 	return t
 }
 
@@ -81,6 +75,7 @@ func validateLimiter(max *rate.Limit, burst *int) {
 	}
 }
 
+/*
 func (r *rateLimiter) IsEnabled() bool { return r.enabled }
 
 func (r *rateLimiter) Disable() {
@@ -125,42 +120,41 @@ func (r *rateLimiter) Configure(attr Attribute) error {
 	return nil
 }
 
+
+*/
 func (r *rateLimiter) Attribute(name string) Attribute {
 	if strings.Index(name, RateLimitName) != -1 {
-		return NewAttribute(RateLimitName, r.currentConfig.limit)
+		return NewAttribute(RateLimitName, r.config.limit)
 	}
 	if strings.Index(name, RateBurstName) != -1 {
-		return NewAttribute(RateBurstName, r.currentConfig.burst)
+		return NewAttribute(RateBurstName, r.config.burst)
 	}
 	if strings.Index(name, StatusCodeName) != -1 {
-		return NewAttribute(StatusCodeName, r.currentConfig.statusCode)
+		return NewAttribute(StatusCodeName, r.config.statusCode)
 	}
 	return nilAttribute(name)
 }
 
 func (r *rateLimiter) Allow() bool {
-	if !r.IsEnabled() {
-		return true
-	}
-	if r.currentConfig.limit == rate.Inf {
+	if r.config.limit == rate.Inf {
 		return true
 	}
 	return r.rateLimiter.Allow()
 }
 
 func (r *rateLimiter) StatusCode() int {
-	return r.currentConfig.statusCode
+	return r.config.statusCode
 }
 
 func (r *rateLimiter) SetLimit(limit rate.Limit) {
-	if r.currentConfig.limit == limit {
+	if r.config.limit == limit {
 		return
 	}
 	r.table.setLimit(r.name, limit)
 }
 
 func (r *rateLimiter) SetBurst(burst int) {
-	if r.currentConfig.burst == burst {
+	if r.config.burst == burst {
 		return
 	}
 	r.table.setBurst(r.name, burst)
@@ -168,7 +162,7 @@ func (r *rateLimiter) SetBurst(burst int) {
 
 func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {
 	validateLimiter(&limit, &burst)
-	if r.currentConfig.limit == limit && r.currentConfig.burst == burst {
+	if r.config.limit == limit && r.config.burst == burst {
 		return
 	}
 	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: limit, burst: burst})

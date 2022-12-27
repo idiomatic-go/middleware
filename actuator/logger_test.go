@@ -6,39 +6,31 @@ import (
 
 func Example_newLogger() {
 	l := newLogger(nil)
-	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [accessInvoke:%v]\n", l.IsEnabled(), l.config.accessInvoke != nil)
+	fmt.Printf("test: newLogger(nil) -> [accessInvoke:%v]\n", l.config.accessInvoke != nil)
 
 	l = newLogger(NewLoggerConfig(nil))
-	fmt.Printf("test: newLogger(nil) -> [enabled:%v] [accessInvoke:%v]\n", l.IsEnabled(), l.config.accessInvoke != nil)
+	fmt.Printf("test: newLogger(nil) -> [accessInvoke:%v]\n", l.config.accessInvoke != nil)
 
 	//l = newLogger(NewLoggerConfig(nil))
 	//fmt.Printf("test: newLogger(nil) -> [enabled:%v] [accessFn:%v]\n", l.IsEnabled(), l.config.ingressInvoke != nil)
 
-	l.Disable()
-	fmt.Printf("test: Disable() -> [enabled:%v]\n", l.IsEnabled())
-
-	l.Enable()
-	fmt.Printf("test: Enabled() -> [enabled:%v]\n", l.IsEnabled())
-
 	//Output:
-	//test: newLogger(nil) -> [enabled:true] [accessInvoke:true]
-	//test: newLogger(nil) -> [enabled:true] [accessInvoke:true]
-	//test: Disable() -> [enabled:false]
-	//test: Enabled() -> [enabled:true]
+	//test: newLogger(nil) -> [accessInvoke:true]
+	//test: newLogger(nil) -> [accessInvoke:true]
 
 }
 
 func Example_defaultLogger() {
 	l := defaultLogger
-	fmt.Printf("test: defaultLogger -> [enabled:%v] [accessInvoke:%v]\n", l.IsEnabled(), l.config.accessInvoke != nil)
+	fmt.Printf("test: defaultLogger -> [accessInvoke:%v]\n", l.config.accessInvoke != nil)
 
 	SetDefaultLogger(NewLoggerConfig(nil))
 	l = defaultLogger
-	fmt.Printf("test: defaultLogger -> [enabled:%v] [accessInvoke:%v]\n", l.IsEnabled(), l.config.accessInvoke != nil)
+	fmt.Printf("test: defaultLogger -> [accessInvoke:%v]\n", l.config.accessInvoke != nil)
 
 	//Output:
-	//test: defaultLogger -> [enabled:true] [accessInvoke:true]
-	//test: defaultLogger -> [enabled:true] [accessInvoke:true]
+	//test: defaultLogger -> [accessInvoke:true]
+	//test: defaultLogger -> [accessInvoke:true]
 
 }
 

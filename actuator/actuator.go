@@ -13,19 +13,10 @@ const (
 	IngressTraffic      = "ingress"
 	RateLimitFlag       = "RL"
 	UpstreamTimeoutFlag = "UT"
+	HostTimeoutFlag     = "HT"
 )
 
 type Matcher func(req *http.Request) (routeName string)
-
-type Controller interface {
-	IsEnabled() bool
-	Disable()
-	Enable()
-	Reset()
-	Adjust(change any)
-	Configure(attr Attribute) error
-	Attribute(name string) Attribute
-}
 
 type Actuator interface {
 	Name() string
@@ -75,7 +66,7 @@ type actuator struct {
 	retry       *retry
 }
 
-func cloneActuator[T *timeout | *rateLimiter | *retry](curr *actuator, controller T) *actuator {
+func cloneActuator[T *timeout | *rateLimiter | *retry | *failover](curr *actuator, controller T) *actuator {
 	newAct := new(actuator)
 	*newAct = *curr
 	switch i := any(controller).(type) {

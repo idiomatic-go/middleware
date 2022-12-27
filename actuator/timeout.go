@@ -11,7 +11,7 @@ const (
 )
 
 type TimeoutController interface {
-	Controller
+	Attribute(name string) Attribute
 	Duration() time.Duration
 	SetTimeout(timeout time.Duration)
 }
@@ -25,11 +25,9 @@ func NewTimeoutConfig(timeout time.Duration) *TimeoutConfig {
 }
 
 type timeout struct {
-	table         *table
-	name          string
-	enabled       bool
-	defaultConfig TimeoutConfig
-	currentConfig TimeoutConfig
+	table  *table
+	name   string
+	config TimeoutConfig
 }
 
 func cloneTimeout(curr *timeout) *timeout {
@@ -39,27 +37,23 @@ func cloneTimeout(curr *timeout) *timeout {
 }
 
 func newTimeout(name string, table *table, config *TimeoutConfig) *timeout {
-	//if config == nil {
-	//	config = NewTimeoutConfig(NilValue)
-	//}
 	t := new(timeout)
 	t.table = table
 	t.name = name
 	if config != nil {
-		t.currentConfig = *config
-		t.defaultConfig = *config
+		t.config = *config
 	}
-	t.enabled = true
 	return t
 }
 
 func (t *timeout) validate() error {
-	if t.currentConfig.timeout <= 0 {
+	if t.config.timeout <= 0 {
 		return errors.New("invalid configuration: TimeoutController duration cannot be <= 0")
 	}
 	return nil
 }
 
+/*
 func (t *timeout) IsEnabled() bool { return t.enabled }
 
 func (t *timeout) Disable() {
@@ -70,7 +64,7 @@ func (t *timeout) Disable() {
 }
 
 func (t *timeout) Enable() {
-	if t.IsEnabled() || t.currentConfig.timeout <= 0 {
+	if t.IsEnabled() || t.config.timeout <= 0 {
 		return
 	}
 	t.table.enableTimeout(t.name, true)
@@ -82,25 +76,24 @@ func (t *timeout) Reset() {
 func (t *timeout) Adjust(any)                {}
 func (t *timeout) Configure(Attribute) error { return nil }
 
+
+*/
 func (t *timeout) Attribute(name string) Attribute {
 	if strings.Index(name, TimeoutName) != -1 {
-		return NewAttribute(TimeoutName, t.currentConfig.timeout)
+		return NewAttribute(TimeoutName, t.config.timeout)
 	}
 	return nilAttribute(name)
 }
 
 func (t *timeout) Duration() time.Duration {
-	if !t.IsEnabled() {
+	if t.config.timeout <= 0 {
 		return 0
 	}
-	if t.currentConfig.timeout <= 0 {
-		return 0
-	}
-	return t.currentConfig.timeout
+	return t.config.timeout
 }
 
 func (t *timeout) SetTimeout(timeout time.Duration) {
-	if t.currentConfig.timeout == timeout || timeout <= 0 {
+	if t.config.timeout == timeout || timeout <= 0 {
 		return
 	}
 	t.table.setTimeout(t.name, timeout)

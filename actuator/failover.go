@@ -5,12 +5,15 @@ import "errors"
 type FailoverInvoke func(name string, failover bool)
 
 type FailoverController interface {
-	Controller
+	IsEnabled() bool
+	Enable()
+	Disable()
 	Invoke(failover bool)
 }
 
 type FailoverConfig struct {
-	invoke FailoverInvoke
+	enabled bool
+	invoke  FailoverInvoke
 }
 
 func NewFailoverConfig(invoke FailoverInvoke) *FailoverConfig {
@@ -37,7 +40,7 @@ func newFailover(name string, table *table, config *FailoverConfig) *failover {
 	if config != nil {
 		t.invoke = config.invoke
 	}
-	t.enabled = true
+	t.enabled = false
 	return t
 }
 
@@ -64,13 +67,8 @@ func (f *failover) Enable() {
 	f.table.enableFailover(f.name, true)
 }
 
-func (f *failover) Reset()                     {}
-func (f *failover) Configure(Attribute) error  { return nil }
-func (f *failover) Adjust(any)                 {}
-func (f *failover) Attribute(string) Attribute { return nilAttribute("") }
-
 func (f *failover) Invoke(failover bool) {
-	if !f.IsEnabled() || f.invoke == nil {
+	if f.invoke == nil {
 		return
 	}
 	f.invoke(f.name, failover)

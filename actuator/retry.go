@@ -11,28 +11,24 @@ import (
 // https://github.com/keikoproj/inverse-exp-backoff
 
 type RetryController interface {
-	Controller
-	IsRetryable(statusCode int) (bool, bool)
+	IsRetryable(statusCode int) bool
 }
 
 type RetryConfig struct {
-	enabled bool
-	wait    time.Duration
-	codes   []int
+	wait  time.Duration
+	codes []int
 }
 
-func NewRetryConfig(validCodes []int, wait time.Duration, enabled bool) *RetryConfig {
+func NewRetryConfig(validCodes []int, wait time.Duration) *RetryConfig {
 	c := new(RetryConfig)
 	c.wait = wait
 	c.codes = validCodes
-	c.enabled = enabled
 	return c
 }
 
 type retry struct {
 	name    string
 	table   *table
-	enabled bool
 	rand    *rand.Rand
 	current RetryConfig
 }
@@ -48,10 +44,8 @@ func newRetry(name string, table *table, config *RetryConfig) *retry {
 	t.name = name
 	t.table = table
 	t.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
-	t.enabled = false
 	if config != nil {
 		t.current = *config
-		t.enabled = config.enabled
 	}
 	return t
 }
@@ -63,6 +57,7 @@ func (r *retry) validate() error {
 	return nil
 }
 
+/*
 func (r *retry) IsEnabled() bool { return r.enabled }
 
 func (r *retry) Disable() {
@@ -89,23 +84,22 @@ func (r *retry) Configure(attr Attribute) error {
 	return nil
 }
 
+
+*/
 func (r *retry) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
-func (r *retry) IsRetryable(statusCode int) (bool, bool) {
-	if !r.IsEnabled() {
-		return false, false
-	}
+func (r *retry) IsRetryable(statusCode int) bool {
 	if statusCode < http.StatusInternalServerError {
-		return true, false
+		return false
 	}
 	for _, code := range r.current.codes {
 		if code == statusCode {
 			jitter := time.Duration(r.rand.Int31n(1000))
 			time.Sleep(r.current.wait + jitter)
-			return true, true
+			return true
 		}
 	}
-	return true, false
+	return false
 }

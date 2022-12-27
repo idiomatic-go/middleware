@@ -8,11 +8,11 @@ func Example_newFailover() {
 	name := "failover-test"
 
 	f := newFailover(name, nil, nil)
-	fmt.Printf("test: newFailover(nil) -> [enabled:%v]\n", f.enabled)
+	//fmt.Printf("test: newFailover(nil) -> [enabled:%v]\n", f.enabled)
 	fmt.Printf("test: newFailover(nil) -> [validate:%v]\n", f.validate())
 
 	f = newFailover(name, nil, NewFailoverConfig(testFn))
-	fmt.Printf("test: newFailover(testFn) -> [enabled:%v]\n", f.enabled)
+	//fmt.Printf("test: newFailover(testFn) -> [enabled:%v]\n", f.enabled)
 	fmt.Printf("test: newFailover(testFn) -> [validate:%v]\n", f.validate())
 
 	//f2 := cloneFailover(f)
@@ -23,13 +23,12 @@ func Example_newFailover() {
 	//fmt.Printf("test: Attribute(f2) -> [enabled:%v]\n", f2.enabled)
 
 	//Output:
-	//test: newFailover(nil) -> [enabled:true]
-	//test: newFailover(nil) -> [validate:invalid configuration: failover controller FailureInvoke function cannot be nil]
-	//test: newFailover(testFn) -> [enabled:true]
+	//test: newFailover(nil) -> [validate:invalid configuration: FailoverController FailureInvoke function cannot be nil]
 	//test: newFailover(testFn) -> [validate:<nil>]
 
 }
 
+/*
 func Example_Failover_Status() {
 	prevEnabled := false
 	name := "failover-test"
@@ -71,6 +70,8 @@ func Example_Failover_Status() {
 
 }
 
+
+*/
 func Example_Failover_Invoke() {
 	name := "failover-test"
 	t := newTable(true)

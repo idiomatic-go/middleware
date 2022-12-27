@@ -3,7 +3,6 @@ package actuator
 import (
 	"log"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -22,7 +21,6 @@ var defaultAccess LogAccess = func(traffic string, start time.Time, duration tim
 }
 
 type LoggingController interface {
-	Controller
 	LogIngressAccess(start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string)
 	LogEgressAccess(start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string)
 }
@@ -36,9 +34,7 @@ func NewLoggerConfig(accessInvoke LogAccess) *LoggerConfig {
 }
 
 type logger struct {
-	enabled bool
-	mu      sync.RWMutex
-	config  LoggerConfig
+	config LoggerConfig
 }
 
 func newLogger(config *LoggerConfig) *logger {
@@ -48,9 +44,10 @@ func newLogger(config *LoggerConfig) *logger {
 	if config.accessInvoke == nil {
 		config.accessInvoke = defaultAccess
 	}
-	return &logger{enabled: true, config: *config}
+	return &logger{config: *config}
 }
 
+/*
 func (l *logger) IsEnabled() bool {
 	return l.enabled
 }
@@ -77,19 +74,21 @@ func (l *logger) Configure(Attribute) error {
 func (l *logger) Adjust(any) {
 }
 
+
+*/
 func (l *logger) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
 func (l *logger) LogIngressAccess(start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string) {
-	if !l.enabled || l.config.accessInvoke == nil {
+	if l.config.accessInvoke == nil {
 		return
 	}
 	l.config.accessInvoke(IngressTraffic, start, duration, act, req, resp, respFlags)
 }
 
 func (l *logger) LogEgressAccess(start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, respFlags string) {
-	if !l.enabled || l.config.accessInvoke == nil {
+	if l.config.accessInvoke == nil {
 		return
 	}
 	l.config.accessInvoke(EgressTraffic, start, duration, act, req, resp, respFlags)

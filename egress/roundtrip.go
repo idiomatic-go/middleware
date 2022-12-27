@@ -23,8 +23,8 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, errors.New("invalid egress round tripper configuration : http.RoundTripper is nil")
 	}
 	act := actuator.Egress.Lookup(req)
-	if act.RateLimiter().IsEnabled() && act.RateLimiter().Allow() {
-		if act.Timeout().IsEnabled() {
+	if act.RateLimiter() != nil && act.RateLimiter().Allow() {
+		if act.Timeout() != nil {
 			ctx, cancel := context.WithTimeout(req.Context(), act.Timeout().Duration())
 			defer cancel()
 			req = req.Clone(ctx)
