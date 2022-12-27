@@ -49,13 +49,13 @@ type Table interface {
 var Ingress = NewIngressTable()
 var Egress = NewEgressTable()
 
-func NewActuator(name string) Actuator {
-	return &actuator{name: name}
+func NewActuator(name string, config ...any) Actuator {
+	return newActuator(name, newTable(true), config...)
 }
 
-func NewActuatorWithLogger(name string, config *LoggerConfig) Actuator {
-	return &actuator{name: name, logger: newLogger(config)}
-}
+//func NewActuatorWithLogger(name string, config *LoggerConfig) Actuator {
+//	return &actuator{name: name, logger: newLogger(config)}
+//}
 
 type actuator struct {
 	name        string

@@ -150,14 +150,14 @@ func (r *rateLimiter) SetLimit(limit rate.Limit) {
 	if r.config.limit == limit {
 		return
 	}
-	r.table.setLimit(r.name, limit)
+	r.table.setRateLimit(r.name, limit)
 }
 
 func (r *rateLimiter) SetBurst(burst int) {
 	if r.config.burst == burst {
 		return
 	}
-	r.table.setBurst(r.name, burst)
+	r.table.setRateBurst(r.name, burst)
 }
 
 func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {

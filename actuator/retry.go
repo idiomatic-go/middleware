@@ -2,6 +2,7 @@ package actuator
 
 import (
 	"errors"
+	"golang.org/x/time/rate"
 	"math/rand"
 	"net/http"
 	"time"
@@ -10,27 +11,42 @@ import (
 // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
 // https://github.com/keikoproj/inverse-exp-backoff
 
+const (
+	NotEnabledFlag        = "NE"
+	InvalidStatusCodeFlag = "SC"
+)
+
 type RetryController interface {
-	IsRetryable(statusCode int) bool
+	IsEnabled() bool
+	Enable()
+	Disable()
+	SetRateLimiter(limit rate.Limit, burst int)
+	IsRetryable(statusCode int) (ok bool, status string)
 }
 
 type RetryConfig struct {
-	wait  time.Duration
+	limit rate.Limit
+	burst int
+	//wait  time.Duration
 	codes []int
 }
 
-func NewRetryConfig(validCodes []int, wait time.Duration) *RetryConfig {
+func NewRetryConfig(validCodes []int, limit rate.Limit, burst int) *RetryConfig {
 	c := new(RetryConfig)
-	c.wait = wait
+	//c.wait = wait
+	c.limit = limit
+	c.burst = burst
 	c.codes = validCodes
 	return c
 }
 
 type retry struct {
-	name    string
-	table   *table
-	rand    *rand.Rand
-	current RetryConfig
+	name        string
+	table       *table
+	enabled     bool
+	rand        *rand.Rand
+	config      RetryConfig
+	rateLimiter *rate.Limiter
 }
 
 func cloneRetry(curr *retry) *retry {
@@ -43,21 +59,25 @@ func newRetry(name string, table *table, config *RetryConfig) *retry {
 	t := new(retry)
 	t.name = name
 	t.table = table
+	t.enabled = false
 	t.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	if config != nil {
-		t.current = *config
+		t.config = *config
 	}
+	t.rateLimiter = rate.NewLimiter(t.config.limit, t.config.burst)
 	return t
 }
 
 func (r *retry) validate() error {
-	if len(r.current.codes) == 0 {
+	if len(r.config.codes) == 0 {
 		return errors.New("invalid configuration: retry controller status codes are empty")
+	}
+	if r.config.limit <= 0 || r.config.limit == rate.Inf {
+		return errors.New("invalid configuration: retry controller limit is <= 0 or == rate.Inf")
 	}
 	return nil
 }
 
-/*
 func (r *retry) IsEnabled() bool { return r.enabled }
 
 func (r *retry) Disable() {
@@ -74,32 +94,33 @@ func (r *retry) Enable() {
 	r.table.enableRetry(r.name, true)
 }
 
-func (r *retry) Reset() {}
-
-func (r *retry) Adjust(change any) {
-	return
+func (r *retry) SetRateLimiter(limit rate.Limit, burst int) {
+	if r.config.limit == limit {
+		return
+	}
+	r.table.setRetryRateLimit(r.name, limit, burst)
 }
 
-func (r *retry) Configure(attr Attribute) error {
-	return nil
-}
-
-
-*/
 func (r *retry) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
-func (r *retry) IsRetryable(statusCode int) bool {
-	if statusCode < http.StatusInternalServerError {
-		return false
+func (r *retry) IsRetryable(statusCode int) (ok bool, status string) {
+	if !r.IsEnabled() {
+		return false, NotEnabledFlag
 	}
-	for _, code := range r.current.codes {
+	if statusCode < http.StatusInternalServerError {
+		return false, InvalidStatusCodeFlag
+	}
+	if !r.rateLimiter.Allow() {
+		return false, RateLimitFlag
+	}
+	for _, code := range r.config.codes {
 		if code == statusCode {
-			jitter := time.Duration(r.rand.Int31n(1000))
-			time.Sleep(r.current.wait + jitter)
-			return true
+			//jitter := time.Duration(r.rand.Int31n(1000))
+			//time.Sleep(r.current.wait + jitter)
+			return true, ""
 		}
 	}
-	return false
+	return false, InvalidStatusCodeFlag
 }

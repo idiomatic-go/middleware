@@ -83,7 +83,7 @@ func (t *table) enableRateLimiter(name string, enabled bool) {
 
 
 */
-func (t *table) setLimit(name string, limit rate.Limit) {
+func (t *table) setRateLimit(name string, limit rate.Limit) {
 	if name == "" {
 		return
 	}
@@ -98,7 +98,7 @@ func (t *table) setLimit(name string, limit rate.Limit) {
 	}
 }
 
-func (t *table) setBurst(name string, burst int) {
+func (t *table) setRateBurst(name string, burst int) {
 	if name == "" {
 		return
 	}
@@ -128,7 +128,6 @@ func (t *table) setRateLimiter(name string, config RateLimiterConfig) {
 	}
 }
 
-/*
 func (t *table) enableRetry(name string, enabled bool) {
 	if name == "" {
 		return
@@ -139,9 +138,20 @@ func (t *table) enableRetry(name string, enabled bool) {
 		c := cloneRetry(act.retry)
 		c.enabled = enabled
 		t.update(name, cloneActuator[*retry](act, c))
-		//act.retry.enabled = enabled
 	}
 }
 
-
-*/
+func (t *table) setRetryRateLimit(name string, limit rate.Limit, burst int) {
+	if name == "" {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if act, ok := t.actuators[name]; ok {
+		c := cloneRetry(act.retry)
+		c.config.limit = limit
+		// Not cloning the limiter as an old reference will not cause stale data when logging
+		c.rateLimiter = rate.NewLimiter(limit, burst)
+		t.update(name, cloneActuator[*retry](act, c))
+	}
+}
