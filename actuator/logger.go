@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type LogAccess func(traffic string, start time.Time, duration time.Duration, timeout []string, rateLimiter []string, failover []string, retried any, req *http.Request, resp *http.Response, statusFlags string)
+type LogAccess func(traffic string, start time.Time, duration time.Duration, timeout []string, rateLimiter []string, failover []string, retry []string, req *http.Request, resp *http.Response, statusFlags string)
 
 var defaultLogger = newLogger(NewLoggerConfig(defaultAccess))
 
@@ -16,12 +16,12 @@ func SetDefaultLogger(lc *LoggerConfig) {
 	}
 }
 
-var defaultAccess LogAccess = func(traffic string, start time.Time, duration time.Duration, timeout []string, rateLimiter []string, failover []string, retried any, req *http.Request, resp *http.Response, statusFlags string) {
+var defaultAccess LogAccess = func(traffic string, start time.Time, duration time.Duration, timeout []string, rateLimiter []string, failover []string, retry []string, req *http.Request, resp *http.Response, statusFlags string) {
 	log.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"statusFlags\":\"%v\"}\n", traffic, start, duration, req, resp, statusFlags)
 }
 
 type LoggingController interface {
-	LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, statusFlags string)
+	LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retried bool, req *http.Request, resp *http.Response, statusFlags string)
 }
 
 type LoggerConfig struct {
@@ -46,9 +46,14 @@ func newLogger(config *LoggerConfig) *logger {
 	return &logger{config: *config}
 }
 
-func (l *logger) LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, req *http.Request, resp *http.Response, statusFlags string) {
+func (l *logger) LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retried bool, req *http.Request, resp *http.Response, statusFlags string) {
 	if l.config.accessInvoke == nil {
 		return
 	}
-	l.config.accessInvoke(traffic, start, duration, nil, nil, nil, nil, req, resp, statusFlags)
+	l.config.accessInvoke(traffic, start, duration,
+		timeoutAttributes(act.Timeout()),
+		rateLimiterAttributes(act.RateLimiter()),
+		failoverAttributes(act.Failover()),
+		retryAttributes(act.Retry(), retried),
+		req, resp, statusFlags)
 }

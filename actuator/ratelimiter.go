@@ -15,7 +15,6 @@ const (
 )
 
 type RateLimiterController interface {
-	//Attribute(name string) Attribute
 	Allow() bool
 	StatusCode() int
 	SetLimit(limit rate.Limit)
@@ -92,14 +91,14 @@ func (r *rateLimiter) Attribute(name string) Attribute {
 
 */
 
-func rateLimiterState(r *rateLimiter) []string {
+func rateLimiterAttributes(r RateLimiterController) []string {
 	var limit rate.Limit = -1
 	var burst = -1
 	var statusCode = -1
 	if r != nil {
-		limit = r.config.limit
-		burst = r.config.burst
-		statusCode = r.config.statusCode
+		limit = r.(*rateLimiter).config.limit
+		burst = r.(*rateLimiter).config.burst
+		statusCode = r.(*rateLimiter).config.statusCode
 	}
 	return []string{fmt.Sprintf(StateAttributeFmt, RateLimitName, limit),
 		fmt.Sprintf(StateAttributeFmt, RateBurstName, burst),

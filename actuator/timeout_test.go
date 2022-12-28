@@ -31,16 +31,16 @@ func Example_Timeout_State() {
 
 	t = newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000))
 
-	st := timeoutState(nil)
-	fmt.Printf("test: state(nil) -> %v\n", st)
+	st := timeoutAttributes(nil)
+	fmt.Printf("test: timeoutAttributes(nil) -> %v\n", st)
 
-	st = timeoutState(t)
-	fmt.Printf("test: state(t) -> %v\n", st)
+	st = timeoutAttributes(t)
+	fmt.Printf("test: timeoutAttributes(t) -> %v\n", st)
 
 	//Output:
 	//test: Duration() -> [2s]
-	//test: state(nil) -> [timeout:-1]
-	//test: state(t) -> [timeout:2000]
+	//test: timeoutAttributes(nil) -> [timeout:-1]
+	//test: timeoutAttributes(t) -> [timeout:2000]
 
 }
 
@@ -63,13 +63,13 @@ func Example_Timeout_SetTimeout() {
 	fmt.Printf("test: SetTimeout(2s) -> [prev-duration:%v] [curr-duration:%v]\n", prevDuration, d)
 	prevDuration = act1.Timeout().Duration()
 
-	st := timeoutState(act1.Timeout().(*timeout))
-	fmt.Printf("test: state(t) -> %v\n", st)
+	st := timeoutAttributes(act1.Timeout().(*timeout))
+	fmt.Printf("test: timeoutAttributes(t) -> %v\n", st)
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
 	//test: Duration() -> [1.5s]
 	//test: SetTimeout(2s) -> [prev-duration:1.5s] [curr-duration:2s]
-	//test: state(t) -> [timeout:2000]
+	//test: timeoutAttributes(t) -> [timeout:2000]
 
 }

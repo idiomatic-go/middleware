@@ -74,13 +74,13 @@ func (r *retry) validate() error {
 	return nil
 }
 
-func retryAttributes(r *retry, retried bool) []string {
+func retryAttributes(r RetryController, retried bool) []string {
 	if r == nil {
 		return []string{fmt.Sprintf(StateAttributeFmt, RetryName, "null")}
 	} else {
 		return []string{fmt.Sprintf(StateAttributeFmt, RetryName, retried),
-			fmt.Sprintf(StateAttributeFmt, RetryRateLimitName, r.config.limit),
-			fmt.Sprintf(StateAttributeFmt, RetryRateBurstName, r.config.burst),
+			fmt.Sprintf(StateAttributeFmt, RetryRateLimitName, r.(*retry).config.limit),
+			fmt.Sprintf(StateAttributeFmt, RetryRateBurstName, r.(*retry).config.burst),
 		}
 	}
 }

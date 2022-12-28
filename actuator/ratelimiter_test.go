@@ -20,7 +20,7 @@ func Example_newRateLimiter() {
 	//test: newRateLimiter() -> [name:test-route] [config:{1 100 503}]
 	//test: newRateLimiter() -> [name:test-route2] [config:{1.7976931348623157e+308 1 429}]
 	//test: cloneRateLimiter() -> [prev-limit:1.7976931348623157e+308] [prev-name:test-route2] [curr-limit:123] [curr-name:test-route2]
-	
+
 }
 
 /*
@@ -63,7 +63,7 @@ func Example_RateLimiter_Mutate() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	fmt.Printf("test: rateLimiterState() -> %v\n", rateLimiterState(act.RateLimiter().(*rateLimiter)))
+	fmt.Printf("test: rateLimiterAttributes() -> %v\n", rateLimiterAttributes(act.RateLimiter().(*rateLimiter)))
 
 	act.RateLimiter().SetLimit(5000)
 	act1 := t.LookupByName(name)
@@ -75,7 +75,7 @@ func Example_RateLimiter_Mutate() {
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
-	//test: rateLimiterState() -> [rateLimit:10 burst:100 statusCode:503]
+	//test: rateLimiterAttributes() -> [rateLimit:10 burst:100 statusCode:503]
 
 }
 

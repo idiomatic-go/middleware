@@ -54,11 +54,11 @@ func (f *failover) validate() error {
 	return nil
 }
 
-func failoverAttributes(f *failover) []string {
+func failoverAttributes(f FailoverController) []string {
 	if f == nil {
 		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, "null")}
 	} else {
-		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, f.enabled)}
+		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, f.IsEnabled())}
 	}
 }
 

@@ -61,7 +61,7 @@ func (t *timeout) Attribute(name string) Attribute {
 }
 */
 
-func timeoutState(t *timeout) []string {
+func timeoutAttributes(t TimeoutController) []string {
 	var val int64 = -1
 	if t != nil {
 		val = int64(t.Duration() / time.Millisecond)
