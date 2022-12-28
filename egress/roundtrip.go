@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -15,8 +16,6 @@ type wrapper struct {
 func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	var start = time.Now()
 	var statusFlags string
-	var resp *http.Response
-	var err error
 	var retry = false
 
 	// No panic
@@ -24,38 +23,39 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, errors.New("invalid egress round tripper configuration : http.RoundTripper is nil")
 	}
 	act := actuator.Egress.Lookup(req)
+
 	if rlc, ok := act.RateLimiter(); ok && !rlc.Allow() {
-		resp = &http.Response{Request: req, StatusCode: rlc.StatusCode()}
-		act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, false, req, resp, actuator.RateLimitFlag)
+		resp := &http.Response{Request: req, StatusCode: rlc.StatusCode()}
+		act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, "null", req, resp, actuator.RateLimitFlag)
 		return resp, nil
 	}
-	resp, err = w.exchange(act, req)
-	if rc, ok := act.Retry(); ok && err == nil {
+	tc, _ := act.Timeout()
+	resp, err := w.exchange(tc, req)
+	if err != nil {
+		return resp, err
+	}
+	if rc, ok := act.Retry(); ok {
 		retry, statusFlags = rc.IsRetryable(resp.StatusCode)
 		if retry {
-			act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, false, req, resp, statusFlags)
+			act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, strconv.FormatBool(retry), req, resp, "")
 			start = time.Now()
-			resp, err = w.exchange(act, req)
+			resp, err = w.exchange(tc, req)
 		}
 	}
-	if w.deadlineExceeded(err) {
-		err = nil
-		statusFlags = actuator.UpstreamTimeoutFlag
-		resp = &http.Response{Request: req, StatusCode: http.StatusGatewayTimeout}
-	}
-	act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, retry, req, resp, statusFlags)
+	act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, strconv.FormatBool(retry), req, resp, statusFlags)
 	return resp, err
 }
 
-func (w *wrapper) exchange(act actuator.Actuator, req *http.Request) (resp *http.Response, err error) {
-	if tc, ok := act.Timeout(); ok {
-		ctx, cancel := context.WithTimeout(req.Context(), tc.Duration())
-		defer cancel()
-		req = req.Clone(ctx)
+func (w *wrapper) exchange(tc actuator.TimeoutController, req *http.Request) (resp *http.Response, err error) {
+	if tc == nil {
+		return w.rt.RoundTrip(req)
 	}
+	ctx, cancel := context.WithTimeout(req.Context(), tc.Duration())
+	defer cancel()
+	req = req.Clone(ctx)
 	resp, err = w.rt.RoundTrip(req)
 	if w.deadlineExceeded(err) {
-		resp = &http.Response{Request: req, StatusCode: http.StatusGatewayTimeout}
+		resp = &http.Response{Request: req, StatusCode: tc.StatusCode()}
 		err = nil
 	}
 	return

@@ -2,6 +2,7 @@ package actuator
 
 import (
 	"fmt"
+	"strconv"
 )
 
 func Example_newRetry() {
@@ -16,9 +17,9 @@ func Example_newRetry() {
 	fmt.Printf("test: cloneRetry() -> [prev-enabled:%v] [curr-enabled:%v]\n", t.enabled, t2.enabled)
 
 	//t = newRetry("test-route3", newTable(true), NewRetryConfig([]int{503, 504}, time.Millisecond*2000, false))
-	fmt.Printf("test: retryAttributes(nil) -> %v\n", retryAttributes(nil, false))
-	fmt.Printf("test: retryAttributes(t,false) -> %v\n", retryAttributes(t, false))
-	fmt.Printf("test: retryAttributes(t,true) -> %v\n", retryAttributes(t, true))
+	fmt.Printf("test: retryAttributes(nil) -> %v\n", retryAttributes(nil, strconv.FormatBool(false)))
+	fmt.Printf("test: retryAttributes(t,false) -> %v\n", retryAttributes(t, strconv.FormatBool(false)))
+	fmt.Printf("test: retryAttributes(t,true) -> %v\n", retryAttributes(t, strconv.FormatBool(true)))
 
 	//Output:
 	//test: newRetry() -> [name:test-route] [config:{5 10 [504]}]

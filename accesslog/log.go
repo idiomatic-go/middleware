@@ -12,12 +12,12 @@ const (
 	errorEmptyFmt    = "{\"error\": \"%v log entries are empty\"}"
 )
 
-func Log(traffic string, start time.Time, duration time.Duration, act ActuatorState, req *http.Request, resp *http.Response, statusFlags string) {
+func Log(traffic string, start time.Time, duration time.Duration, routeName string, timeout []string, rateLimiter []string, failover []string, retry []string, req *http.Request, resp *http.Response, statusFlags string) {
 	if act.Name == "" {
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, traffic))
 		return
 	}
-	data := NewLogd(traffic, start, duration, getOrigin(), act, req, resp, statusFlags)
+	data := NewLogd(traffic, start, duration, getOrigin(),timeout []string, rateLimiter []string, failover []string, retry []string, act, req, resp, statusFlags)
 	callExtract(data)
 	if traffic == IngressTraffic {
 		if !opt.writeIngress {

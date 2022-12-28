@@ -74,14 +74,13 @@ func (r *retry) validate() error {
 	return nil
 }
 
-func retryAttributes(r RetryController, retried bool) []string {
+func retryAttributes(r RetryController, retried string) []string {
 	if r == nil {
-		return []string{fmt.Sprintf(StateAttributeFmt, RetryName, "null")}
-	} else {
-		return []string{fmt.Sprintf(StateAttributeFmt, RetryName, retried),
-			fmt.Sprintf(StateAttributeFmt, RetryRateLimitName, r.(*retry).config.limit),
-			fmt.Sprintf(StateAttributeFmt, RetryRateBurstName, r.(*retry).config.burst),
-		}
+		return []string{fmt.Sprintf(StateAttributeFmt, RetryName, retried)}
+	}
+	return []string{fmt.Sprintf(StateAttributeFmt, RetryName, retried),
+		fmt.Sprintf(StateAttributeFmt, RetryRateLimitName, r.(*retry).config.limit),
+		fmt.Sprintf(StateAttributeFmt, RetryRateBurstName, r.(*retry).config.burst),
 	}
 }
 
@@ -112,7 +111,7 @@ func (r *retry) Attribute(name string) Attribute {
 	return nilAttribute(name)
 }
 
-func (r *retry) IsRetryable(statusCode int) (ok bool, status string) {
+func (r *retry) IsRetryable(statusCode int) (bool, string) {
 	if !r.IsEnabled() {
 		return false, NotEnabledFlag
 	}
@@ -126,7 +125,7 @@ func (r *retry) IsRetryable(statusCode int) (ok bool, status string) {
 		if code == statusCode {
 			//jitter := time.Duration(r.rand.Int31n(1000))
 			//time.Sleep(r.current.wait + jitter)
-			return true, status
+			return true, ""
 		}
 	}
 	return false, InvalidStatusCodeFlag
