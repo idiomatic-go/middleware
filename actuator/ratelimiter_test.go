@@ -63,13 +63,13 @@ func Example_RateLimiter_Mutate() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	fmt.Printf("test: rateLimiterAttributes() -> %v\n", rateLimiterAttributes(act.RateLimiter().(*rateLimiter)))
+	fmt.Printf("test: rateLimiterAttributes() -> %v\n", rateLimiterAttributes(act.t().rateLimiter))
 
-	act.RateLimiter().SetLimit(5000)
+	act.t().rateLimiter.SetLimit(5000)
 	act1 := t.LookupByName(name)
 	//fmt.Printf("test: SetLimit(5000) -> [limit:%v] [burst:%v] [statusCode:%v]\n", act1.RateLimiter().Attribute(RateLimitName), act1.RateLimiter().Attribute(RateBurstName), act1.RateLimiter().Attribute(StatusCodeName))
 
-	act1.RateLimiter().SetBurst(1)
+	act1.t().rateLimiter.SetBurst(1)
 	act = t.LookupByName(name)
 	//fmt.Printf("test: SetBurst(1) -> [limit:%v] [burst:%v] [statusCode:%v]\n", act.RateLimiter().Attribute(RateLimitName), act.RateLimiter().Attribute(RateBurstName), act.RateLimiter().Attribute(StatusCodeName))
 

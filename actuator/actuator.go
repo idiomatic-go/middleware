@@ -15,12 +15,14 @@ const (
 	UpstreamTimeoutFlag   = "UT"
 	HostTimeoutFlag       = "HT"
 	NotEnabledFlag        = "NE"
+	InvalidResponseFlag   = "IR"
 	InvalidStatusCodeFlag = "SC"
 	StateAttributeFmt     = "%v:%v"
 	FailoverName          = "failover"
 	RetryName             = "retry"
 	RetryRateLimitName    = "retryRateLimit"
 	RetryRateBurstName    = "retryBurst"
+	StatusCodeName        = "statusCode"
 )
 
 type Matcher func(req *http.Request) (routeName string)
@@ -28,11 +30,12 @@ type Matcher func(req *http.Request) (routeName string)
 type Actuator interface {
 	Name() string
 	Logger() LoggingController
-	Timeout() TimeoutController
-	RateLimiter() RateLimiterController
-	Retry() RetryController
-	Failover() FailoverController
+	Timeout() (TimeoutController, bool)
+	RateLimiter() (RateLimiterController, bool)
+	Retry() (RetryController, bool)
+	Failover() (FailoverController, bool)
 	Actuate(events string) error
+	t() *actuator
 }
 
 type Configuration interface {
@@ -129,40 +132,42 @@ func (a *actuator) Name() string {
 }
 
 func (a *actuator) Logger() LoggingController {
-	if a.logger == nil {
-		return nil
-	}
+
 	return a.logger
 }
 
-func (a *actuator) Timeout() TimeoutController {
+func (a *actuator) Timeout() (TimeoutController, bool) {
 	if a.timeout == nil {
-		return nil
+		return nil, false
 	}
-	return a.timeout
+	return a.timeout, true
 }
 
-func (a *actuator) RateLimiter() RateLimiterController {
+func (a *actuator) RateLimiter() (RateLimiterController, bool) {
 	if a.rateLimiter == nil {
-		return nil
+		return nil, false
 	}
-	return a.rateLimiter
+	return a.rateLimiter, true
 }
 
-func (a *actuator) Retry() RetryController {
+func (a *actuator) Retry() (RetryController, bool) {
 	if a.retry == nil {
-		return nil
+		return nil, false
 	}
-	return a.retry
+	return a.retry, true
 }
 
-func (a *actuator) Failover() FailoverController {
+func (a *actuator) Failover() (FailoverController, bool) {
 	if a.failover == nil {
-		return nil
+		return nil, false
 	}
-	return a.failover
+	return a.failover, true
 }
 
 func (a *actuator) Actuate(events string) error {
 	return nil
+}
+
+func (a *actuator) t() *actuator {
+	return a
 }

@@ -3,6 +3,7 @@ package actuator
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 )
 
@@ -13,14 +14,20 @@ const (
 type TimeoutController interface {
 	Duration() time.Duration
 	SetTimeout(timeout time.Duration)
+	IsStatusCode(statusCode int) bool
+	StatusCode() int
 }
 
 type TimeoutConfig struct {
-	timeout time.Duration
+	statusCode int
+	timeout    time.Duration
 }
 
-func NewTimeoutConfig(timeout time.Duration) *TimeoutConfig {
-	return &TimeoutConfig{timeout: timeout}
+func NewTimeoutConfig(timeout time.Duration, statusCode int) *TimeoutConfig {
+	if statusCode <= 0 {
+		statusCode = http.StatusGatewayTimeout
+	}
+	return &TimeoutConfig{timeout: timeout, statusCode: statusCode}
 }
 
 type timeout struct {
@@ -52,21 +59,15 @@ func (t *timeout) validate() error {
 	return nil
 }
 
-/*
-func (t *timeout) Attribute(name string) Attribute {
-	if strings.Index(name, TimeoutName) != -1 {
-		return NewAttribute(TimeoutName, t.config.timeout)
-	}
-	return nilAttribute(name)
-}
-*/
-
 func timeoutAttributes(t TimeoutController) []string {
 	var val int64 = -1
+	var statusCode = -1
 	if t != nil {
 		val = int64(t.Duration() / time.Millisecond)
+		statusCode = t.StatusCode()
 	}
-	return []string{fmt.Sprintf(StateAttributeFmt, TimeoutName, val)}
+	return []string{fmt.Sprintf(StateAttributeFmt, TimeoutName, val),
+		fmt.Sprintf(StateAttributeFmt, StatusCodeName, statusCode)}
 }
 
 func (t *timeout) Duration() time.Duration {
@@ -81,4 +82,12 @@ func (t *timeout) SetTimeout(timeout time.Duration) {
 		return
 	}
 	t.table.setTimeout(t.name, timeout)
+}
+
+func (t *timeout) StatusCode() int {
+	return t.config.statusCode
+}
+
+func (t *timeout) IsStatusCode(statusCode int) bool {
+	return t.config.statusCode == statusCode
 }

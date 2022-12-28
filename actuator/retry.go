@@ -126,7 +126,7 @@ func (r *retry) IsRetryable(statusCode int) (ok bool, status string) {
 		if code == statusCode {
 			//jitter := time.Duration(r.rand.Int31n(1000))
 			//time.Sleep(r.current.wait + jitter)
-			return true, ""
+			return true, status
 		}
 	}
 	return false, InvalidStatusCodeFlag

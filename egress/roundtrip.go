@@ -17,30 +17,52 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	var statusFlags string
 	var resp *http.Response
 	var err error
+	var retry = false
 
 	// No panic
 	if w == nil || w.rt == nil {
 		return nil, errors.New("invalid egress round tripper configuration : http.RoundTripper is nil")
 	}
 	act := actuator.Egress.Lookup(req)
-	if act.RateLimiter() != nil && act.RateLimiter().Allow() {
-		if act.Timeout() != nil {
-			ctx, cancel := context.WithTimeout(req.Context(), act.Timeout().Duration())
-			defer cancel()
-			req = req.Clone(ctx)
-		}
-		resp, err = w.rt.RoundTrip(req)
-		if err != nil && errors.As(err, &context.DeadlineExceeded) {
-			err = nil
-			statusFlags = actuator.UpstreamTimeoutFlag
-			resp = &http.Response{Request: req, StatusCode: http.StatusGatewayTimeout}
-		}
-	} else {
-		statusFlags = actuator.RateLimitFlag
-		resp = &http.Response{Request: req, StatusCode: act.RateLimiter().StatusCode()}
+	if rlc, ok := act.RateLimiter(); ok && !rlc.Allow() {
+		resp = &http.Response{Request: req, StatusCode: rlc.StatusCode()}
+		act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, false, req, resp, actuator.RateLimitFlag)
+		return resp, nil
 	}
-	act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, req, resp, statusFlags)
+	resp, err = w.exchange(act, req)
+	if rc, ok := act.Retry(); ok && err == nil {
+		retry, statusFlags = rc.IsRetryable(resp.StatusCode)
+		if retry {
+			act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, false, req, resp, statusFlags)
+			start = time.Now()
+			resp, err = w.exchange(act, req)
+		}
+	}
+	if w.deadlineExceeded(err) {
+		err = nil
+		statusFlags = actuator.UpstreamTimeoutFlag
+		resp = &http.Response{Request: req, StatusCode: http.StatusGatewayTimeout}
+	}
+	act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, retry, req, resp, statusFlags)
 	return resp, err
+}
+
+func (w *wrapper) exchange(act actuator.Actuator, req *http.Request) (resp *http.Response, err error) {
+	if tc, ok := act.Timeout(); ok {
+		ctx, cancel := context.WithTimeout(req.Context(), tc.Duration())
+		defer cancel()
+		req = req.Clone(ctx)
+	}
+	resp, err = w.rt.RoundTrip(req)
+	if w.deadlineExceeded(err) {
+		resp = &http.Response{Request: req, StatusCode: http.StatusGatewayTimeout}
+		err = nil
+	}
+	return
+}
+
+func (w *wrapper) deadlineExceeded(err error) bool {
+	return err != nil && errors.As(err, &context.DeadlineExceeded)
 }
 
 func EnableDefaultHttpClient() {

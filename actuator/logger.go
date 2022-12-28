@@ -21,7 +21,7 @@ var defaultAccess LogAccess = func(traffic string, start time.Time, duration tim
 }
 
 type LoggingController interface {
-	LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retried bool, req *http.Request, resp *http.Response, statusFlags string)
+	LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retry bool, req *http.Request, resp *http.Response, statusFlags string)
 }
 
 type LoggerConfig struct {
@@ -46,14 +46,34 @@ func newLogger(config *LoggerConfig) *logger {
 	return &logger{config: *config}
 }
 
-func (l *logger) LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retried bool, req *http.Request, resp *http.Response, statusFlags string) {
+func (l *logger) LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retry bool, req *http.Request, resp *http.Response, statusFlags string) {
 	if l.config.accessInvoke == nil {
 		return
 	}
 	l.config.accessInvoke(traffic, start, duration,
-		timeoutAttributes(act.Timeout()),
-		rateLimiterAttributes(act.RateLimiter()),
-		failoverAttributes(act.Failover()),
-		retryAttributes(act.Retry(), retried),
+		timeoutAttributes(timeoutController(act)),
+		rateLimiterAttributes(rateLimiterController(act)),
+		failoverAttributes(failoverController(act)),
+		retryAttributes(retryController(act), retry),
 		req, resp, statusFlags)
+}
+
+func timeoutController(act Actuator) TimeoutController {
+	c, _ := act.Timeout()
+	return c
+}
+
+func rateLimiterController(act Actuator) RateLimiterController {
+	c, _ := act.RateLimiter()
+	return c
+}
+
+func failoverController(act Actuator) FailoverController {
+	c, _ := act.Failover()
+	return c
+}
+
+func retryController(act Actuator) RetryController {
+	c, _ := act.Retry()
+	return c
 }

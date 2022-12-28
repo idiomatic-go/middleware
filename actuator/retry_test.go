@@ -38,18 +38,18 @@ func Example_Retry_Status() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	fmt.Printf("test: IsEnabled() -> [%v]\n", act.Retry().IsEnabled())
-	prevEnabled := act.Retry().IsEnabled()
+	fmt.Printf("test: IsEnabled() -> [%v]\n", act.t().retry.IsEnabled())
+	prevEnabled := act.t().retry.IsEnabled()
 
-	act.Retry().Enable()
+	act.t().retry.Enable()
 	act1 := t.LookupByName(name)
-	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, act1.Retry().IsEnabled())
-	prevEnabled = act1.Retry().IsEnabled()
+	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, act1.t().retry.IsEnabled())
+	prevEnabled = act1.t().retry.IsEnabled()
 
-	act1.Retry().Enable()
+	act1.t().retry.Enable()
 	act = t.LookupByName(name)
-	fmt.Printf("test: Enable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, act.Retry().IsEnabled())
-	prevEnabled = act.Retry().IsEnabled()
+	fmt.Printf("test: Enable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, act.t().retry.IsEnabled())
+	prevEnabled = act.t().retry.IsEnabled()
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
@@ -69,13 +69,13 @@ func Example_Retry_IsRetryable_Disabled() {
 	act := t.LookupByName(name)
 	//act.Retry().Enable()
 	//act = t.LookupByName(name)
-	ok, status := act.Retry().IsRetryable(200)
+	ok, status := act.t().retry.IsRetryable(200)
 	fmt.Printf("test: IsRetryable(200) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(503)
+	ok, status = act.t().retry.IsRetryable(503)
 	fmt.Printf("test: IsRetryable(503) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(504)
+	ok, status = act.t().retry.IsRetryable(504)
 	fmt.Printf("test: IsRetryable(504) -> [ok:%v] [status:%v]\n", ok, status)
 
 	//Output:
@@ -94,24 +94,24 @@ func Example_Retry_IsRetryable_StatusCode() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	act.Retry().Enable()
+	act.t().retry.Enable()
 	act = t.LookupByName(name)
-	ok, status := act.Retry().IsRetryable(200)
+	ok, status := act.t().retry.IsRetryable(200)
 	fmt.Printf("test: IsRetryable(200) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(500)
+	ok, status = act.t().retry.IsRetryable(500)
 	fmt.Printf("test: IsRetryable(500) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(502)
+	ok, status = act.t().retry.IsRetryable(502)
 	fmt.Printf("test: IsRetryable(502) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(503)
+	ok, status = act.t().retry.IsRetryable(503)
 	fmt.Printf("test: IsRetryable(503) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(504)
+	ok, status = act.t().retry.IsRetryable(504)
 	fmt.Printf("test: IsRetryable(504) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(505)
+	ok, status = act.t().retry.IsRetryable(505)
 	fmt.Printf("test: IsRetryable(505) -> [ok:%v] [status:%v]\n", ok, status)
 
 	//Output:
@@ -133,20 +133,20 @@ func Example_Retry_IsRetryable_RateLimit() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	act.Retry().Enable()
+	act.t().retry.Enable()
 	act = t.LookupByName(name)
-	ok, status := act.Retry().IsRetryable(503)
+	ok, status := act.t().retry.IsRetryable(503)
 	fmt.Printf("test: IsRetryable(503) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(504)
+	ok, status = act.t().retry.IsRetryable(504)
 	fmt.Printf("test: IsRetryable(504) -> [ok:%v] [status:%v]\n", ok, status)
 
-	act.Retry().SetRateLimiter(100, 10)
+	act.t().retry.SetRateLimiter(100, 10)
 	act = t.LookupByName(name)
-	ok, status = act.Retry().IsRetryable(503)
+	ok, status = act.t().retry.IsRetryable(503)
 	fmt.Printf("test: IsRetryable(503) -> [ok:%v] [status:%v]\n", ok, status)
 
-	ok, status = act.Retry().IsRetryable(504)
+	ok, status = act.t().retry.IsRetryable(504)
 	fmt.Printf("test: IsRetryable(504) -> [ok:%v] [status:%v]\n", ok, status)
 
 	//Output:

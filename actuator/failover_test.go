@@ -41,27 +41,27 @@ func Example_Failover_Status() {
 	fmt.Printf("test: Add() -> [error:%v] [count:%v]\n", err, t.count())
 
 	f := t.LookupByName(name)
-	fmt.Printf("test: IsEnabled() -> [%v]\n", f.Failover().IsEnabled())
-	prevEnabled = f.Failover().IsEnabled()
+	fmt.Printf("test: IsEnabled() -> [%v]\n", f.t().failover.IsEnabled())
+	prevEnabled = f.t().failover.IsEnabled()
 
-	f.Failover().Disable()
+	f.t().failover.Disable()
 	f2 := t.LookupByName(name)
-	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f2.Failover().IsEnabled())
-	prevEnabled = f2.Failover().IsEnabled()
+	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f2.t().failover.IsEnabled())
+	prevEnabled = f2.t().failover.IsEnabled()
 
-	f2.Failover().Enable()
+	f2.t().failover.Enable()
 	f = t.LookupByName(name)
-	fmt.Printf("test: Enable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f.Failover().IsEnabled())
-	prevEnabled = f.Failover().IsEnabled()
+	fmt.Printf("test: Enable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f.t().failover.IsEnabled())
+	prevEnabled = f.t().failover.IsEnabled()
 
-	f.Failover().Enable()
+	f.t().failover.Enable()
 	f2 = t.LookupByName(name)
-	fmt.Printf("test: Enable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f2.Failover().IsEnabled())
-	prevEnabled = f2.Failover().IsEnabled()
+	fmt.Printf("test: Enable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f2.t().failover.IsEnabled())
+	prevEnabled = f2.t().failover.IsEnabled()
 
-	f2.Failover().Disable()
+	f2.t().failover.Disable()
 	f = t.LookupByName(name)
-	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f.Failover().IsEnabled())
+	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f.t().failover.IsEnabled())
 
 	//Output:
 	//test: Add() -> [error:<nil>] [count:1]
@@ -80,10 +80,10 @@ func Example_Failover_Invoke() {
 	fmt.Printf("test: Add() -> [error:%v] [count:%v]\n", err, t.count())
 
 	f := t.LookupByName(name)
-	f.Failover().Invoke(true)
+	f.t().failover.Invoke(true)
 	fmt.Printf("test: Invoke(true) -> []\n")
 
-	f.Failover().Invoke(false)
+	f.t().failover.Invoke(false)
 	fmt.Printf("test: Invoke(false) -> []\n")
 
 	//Output:

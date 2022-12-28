@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	RateLimitName  = "rateLimit"
-	RateBurstName  = "burst"
-	StatusCodeName = "statusCode"
-	InfValue       = "-1"
-	DefaultBurst   = 1
+	RateLimitName = "rateLimit"
+	RateBurstName = "burst"
+
+	InfValue     = "-1"
+	DefaultBurst = 1
 )
 
 type RateLimiterController interface {
