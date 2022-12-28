@@ -5,10 +5,6 @@ import (
 	"fmt"
 )
 
-const (
-	FailoverName = "failover"
-)
-
 type FailoverInvoke func(name string, failover bool)
 
 type FailoverController interface {
@@ -58,12 +54,12 @@ func (f *failover) validate() error {
 	return nil
 }
 
-func failoverState(f *failover) []string {
-	enabled := false
-	if f != nil {
-		enabled = f.enabled
+func failoverAttributes(f *failover) []string {
+	if f == nil {
+		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, "null")}
+	} else {
+		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, f.enabled)}
 	}
-	return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, enabled)}
 }
 
 func (f *failover) IsEnabled() bool { return f.enabled }

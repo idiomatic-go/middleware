@@ -16,12 +16,17 @@ func Example_newRetry() {
 	fmt.Printf("test: cloneRetry() -> [prev-enabled:%v] [curr-enabled:%v]\n", t.enabled, t2.enabled)
 
 	//t = newRetry("test-route3", newTable(true), NewRetryConfig([]int{503, 504}, time.Millisecond*2000, false))
-	//fmt.Printf("test: newRetry() -> [enabled:%v] [name:%v] [config:%v]\n", t.enabled, t.name, t.config)
+	fmt.Printf("test: retryAttributes(nil) -> %v\n", retryAttributes(nil, false))
+	fmt.Printf("test: retryAttributes(t,false) -> %v\n", retryAttributes(t, false))
+	fmt.Printf("test: retryAttributes(t,true) -> %v\n", retryAttributes(t, true))
 
 	//Output:
 	//test: newRetry() -> [name:test-route] [config:{5 10 [504]}]
 	//test: newRetry() -> [name:test-route2] [config:{2 20 [503 504]}]
 	//test: cloneRetry() -> [prev-enabled:false] [curr-enabled:true]
+	//test: retryAttributes(nil) -> [retry:null]
+	//test: retryAttributes(t,false) -> [retry:false retryRateLimit:2 retryBurst:20]
+	//test: retryAttributes(t,true) -> [retry:true retryRateLimit:2 retryBurst:20]
 
 }
 

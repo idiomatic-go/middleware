@@ -39,7 +39,7 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		statusFlags = actuator.RateLimitFlag
 		resp = &http.Response{Request: req, StatusCode: act.RateLimiter().StatusCode()}
 	}
-	act.Logger().LogEgressAccess(start, time.Since(start), act, req, resp, statusFlags)
+	act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, req, resp, statusFlags)
 	return resp, err
 }
 

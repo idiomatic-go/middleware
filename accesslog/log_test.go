@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"golang.org/x/time/rate"
 	"net/http"
+	"reflect"
 	"time"
 )
 
@@ -176,4 +177,17 @@ func Example_Log_Response() {
 	//test: WriteEgress() -> [{"status_code":"0","bytes_received":"0","status_flags":"UT"}]
 	//test: WriteEgress() -> [{"status_code":"404","bytes_received":"1234","status_flags":"UT"}]
 
+}
+
+func Example_Log_State() {
+	t := time.Duration(time.Millisecond * 500)
+	i := reflect.TypeOf(t)
+	a := any(t)
+
+	fmt.Printf("test 1 -> %v\n", a)
+
+	fmt.Printf("test 2 -> %v\n", i)
+
+	//Output:
+	//fail
 }

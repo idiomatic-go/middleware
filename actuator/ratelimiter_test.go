@@ -12,14 +12,15 @@ func Example_newRateLimiter() {
 	t = newRateLimiter("test-route2", newTable(true), NewRateLimiterConfig(rate.Inf, DefaultBurst, 429))
 	fmt.Printf("test: newRateLimiter() -> [name:%v] [config:%v]\n", t.name, t.config)
 
-	//t2 := cloneRateLimiter(t)
-	//t2.enabled = false
-	//fmt.Printf("test: cloneRateLimiter() -> [prev-enabled:%v] [prev-name:%v] [curr-enabled:%v] [curr-name:%v]\n", t.enabled, t.name, t2.enabled, t2.name)
+	t2 := cloneRateLimiter(t)
+	t2.config.limit = 123
+	fmt.Printf("test: cloneRateLimiter() -> [prev-limit:%v] [prev-name:%v] [curr-limit:%v] [curr-name:%v]\n", t.config.limit, t.name, t2.config.limit, t2.name)
 
 	//Output:
 	//test: newRateLimiter() -> [name:test-route] [config:{1 100 503}]
 	//test: newRateLimiter() -> [name:test-route2] [config:{1.7976931348623157e+308 1 429}]
-
+	//test: cloneRateLimiter() -> [prev-limit:1.7976931348623157e+308] [prev-name:test-route2] [curr-limit:123] [curr-name:test-route2]
+	
 }
 
 /*
@@ -75,7 +76,7 @@ func Example_RateLimiter_Mutate() {
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
 	//test: rateLimiterState() -> [rateLimit:10 burst:100 statusCode:503]
-	
+
 }
 
 /*

@@ -2,6 +2,7 @@ package actuator
 
 import (
 	"errors"
+	"fmt"
 	"golang.org/x/time/rate"
 	"math/rand"
 	"net/http"
@@ -71,6 +72,17 @@ func (r *retry) validate() error {
 		return errors.New("invalid configuration: retry controller limit is <= 0 or == rate.Inf")
 	}
 	return nil
+}
+
+func retryAttributes(r *retry, retried bool) []string {
+	if r == nil {
+		return []string{fmt.Sprintf(StateAttributeFmt, RetryName, "null")}
+	} else {
+		return []string{fmt.Sprintf(StateAttributeFmt, RetryName, retried),
+			fmt.Sprintf(StateAttributeFmt, RetryRateLimitName, r.config.limit),
+			fmt.Sprintf(StateAttributeFmt, RetryRateBurstName, r.config.burst),
+		}
+	}
 }
 
 func (r *retry) IsEnabled() bool { return r.enabled }

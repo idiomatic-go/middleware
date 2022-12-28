@@ -18,15 +18,17 @@ func Example_newFailover() {
 	fmt.Printf("test: cloneFailover(f1) -> [f2-enabled:%v] [f2-validate:%v]\n", f2.enabled, f2.validate())
 
 	f.enabled = false
-	fmt.Printf("test: state(f1) -> %v\n", failoverState(f))
-	fmt.Printf("test: state(f2) -> %v\n", failoverState(f2))
+	fmt.Printf("test: failoverAttributes(nil) -> %v\n", failoverAttributes(nil))
+	fmt.Printf("test: failoverAttributes(f1) -> %v\n", failoverAttributes(f))
+	fmt.Printf("test: failoverAttributes(f2) -> %v\n", failoverAttributes(f2))
 
 	//Output:
 	//test: newFailover(nil) -> [enabled:false] [validate:invalid configuration: FailoverController FailureInvoke function cannot be nil]
 	//test: newFailover(testFn) -> [enabled:false] [validate:<nil>]
 	//test: cloneFailover(f1) -> [f2-enabled:true] [f2-validate:<nil>]
-	//test: state(f1) -> [failover:false]
-	//test: state(f2) -> [failover:true]
+	//test: failoverAttributes(nil) -> [failover:null]
+	//test: failoverAttributes(f1) -> [failover:false]
+	//test: failoverAttributes(f2) -> [failover:true]
 
 }
 
