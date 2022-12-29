@@ -9,6 +9,7 @@ const (
 	HostActuatorName      = "host"
 	DefaultActuatorName   = "*"
 	NilValue              = -1
+	RateLimitInfValue     = 99999
 	EgressTraffic         = "egress"
 	IngressTraffic        = "ingress"
 	RateLimitFlag         = "RL"

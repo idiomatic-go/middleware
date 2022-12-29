@@ -93,6 +93,9 @@ func rateLimiterPut(r RateLimiterController, m map[string]string) {
 
 	if r != nil {
 		limit = r.(*rateLimiter).config.limit
+		if limit == rate.Inf {
+			limit = RateLimitInfValue
+		}
 		burst = r.(*rateLimiter).config.burst
 	}
 	m[RateLimitName] = fmt.Sprintf("%v", limit)

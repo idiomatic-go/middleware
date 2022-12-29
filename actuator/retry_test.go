@@ -2,7 +2,7 @@ package actuator
 
 import (
 	"fmt"
-	"strconv"
+	"golang.org/x/time/rate"
 )
 
 func Example_newRetry() {
@@ -17,17 +17,24 @@ func Example_newRetry() {
 	fmt.Printf("test: cloneRetry() -> [prev-enabled:%v] [curr-enabled:%v]\n", t.enabled, t2.enabled)
 
 	//t = newRetry("test-route3", newTable(true), NewRetryConfig([]int{503, 504}, time.Millisecond*2000, false))
-	fmt.Printf("test: retryAttributes(nil) -> %v\n", retryAttributes(nil, strconv.FormatBool(false)))
-	fmt.Printf("test: retryAttributes(t,false) -> %v\n", retryAttributes(t, strconv.FormatBool(false)))
-	fmt.Printf("test: retryAttributes(t,true) -> %v\n", retryAttributes(t, strconv.FormatBool(true)))
+	m := make(map[string]string, 16)
+	retryPut(nil, false, m)
+	fmt.Printf("test: retryPut(nil,false,map) -> %v\n", m)
+	retryPut(t, false, m)
+	fmt.Printf("test: retryPut(t,false,map) -> %v\n", m)
+
+	m = make(map[string]string, 16)
+	t2 = newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, rate.Inf, 10))
+	retryPut(t2, false, m)
+	fmt.Printf("test: retryPut(t2,true,map) -> %v\n", m)
 
 	//Output:
 	//test: newRetry() -> [name:test-route] [config:{5 10 [504]}]
 	//test: newRetry() -> [name:test-route2] [config:{2 20 [503 504]}]
 	//test: cloneRetry() -> [prev-enabled:false] [curr-enabled:true]
-	//test: retryAttributes(nil) -> [retry:null]
-	//test: retryAttributes(t,false) -> [retry:false retryRateLimit:2 retryBurst:20]
-	//test: retryAttributes(t,true) -> [retry:true retryRateLimit:2 retryBurst:20]
+	//test: retryPut(nil,false,map) -> map[retry: retryBurst:-1 retryRateLimit:-1]
+	//test: retryPut(t,false,map) -> map[retry:false retryBurst:20 retryRateLimit:2
+	//test: retryPut(t2,true,map) -> map[retry:false retryBurst:10 retryRateLimit:99999]
 
 }
 
