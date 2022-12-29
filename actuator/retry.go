@@ -75,7 +75,7 @@ func (r *retry) validate() error {
 	return nil
 }
 
-func retryPut(r RetryController, retried bool, m map[string]string) {
+func retryState(m map[string]string, r RetryController, retried bool) {
 	var limit rate.Limit = -1
 	var burst = -1
 	var name = ""

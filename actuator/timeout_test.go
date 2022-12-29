@@ -31,16 +31,17 @@ func Example_Timeout_State() {
 
 	t = newTimeout("test-route", newTable(true), NewTimeoutConfig(time.Millisecond*2000, 0))
 
-	st := timeoutAttributes(nil)
-	fmt.Printf("test: timeoutAttributes(nil) -> %v\n", st)
-
-	st = timeoutAttributes(t)
-	fmt.Printf("test: timeoutAttributes(t) -> %v\n", st)
+	m := make(map[string]string, 16)
+	timeoutState(m, nil)
+	fmt.Printf("test: timeoutState(map,nil) -> %v\n", m)
+	m = make(map[string]string, 16)
+	timeoutState(m, t)
+	fmt.Printf("test: timeoutState(map,t) -> %v\n", m)
 
 	//Output:
 	//test: Duration() -> [2s]
-	//test: timeoutAttributes(nil) -> [timeout:-1 statusCode:-1]
-	//test: timeoutAttributes(t) -> [timeout:2000 statusCode:504]
+	//test: timeoutState(map,nil) -> map[timeout:-1]
+	//test: timeoutState(map,t) -> map[timeout:2000]
 
 }
 
@@ -63,13 +64,14 @@ func Example_Timeout_SetTimeout() {
 	fmt.Printf("test: SetTimeout(2s) -> [prev-duration:%v] [curr-duration:%v]\n", prevDuration, d)
 	prevDuration = act1.t().timeout.Duration()
 
-	st := timeoutAttributes(act1.t().timeout)
-	fmt.Printf("test: timeoutAttributes(t) -> %v\n", st)
+	m := make(map[string]string, 16)
+	timeoutState(m, act1.t().timeout)
+	fmt.Printf("test: timeoutState(map,t) -> %v\n", m)
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
 	//test: Duration() -> [1.5s]
 	//test: SetTimeout(2s) -> [prev-duration:1.5s] [curr-duration:2s]
-	//test: timeoutAttributes(t) -> [timeout:2000 statusCode:504]
-	
+	//test: timeoutState(map,t) -> map[timeout:2000]
+
 }

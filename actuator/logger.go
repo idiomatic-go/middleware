@@ -52,10 +52,10 @@ func (l *logger) LogAccess(traffic string, start time.Time, duration time.Durati
 	}
 	state := make(map[string]string, 12)
 	state[ActName] = act.Name()
-	timeoutPut(timeoutController(act), state)
-	rateLimiterPut(rateLimiterController(act), state)
-	failoverPut(failoverController(act), state)
-	retryPut(retryController(act), retry, state)
+	timeoutState(state, timeoutController(act))
+	rateLimiterState(state, rateLimiterController(act))
+	failoverState(state, failoverController(act))
+	retryState(state, retryController(act), retry)
 	l.config.accessInvoke(traffic, start, duration, state, req, resp, statusFlags)
 }
 

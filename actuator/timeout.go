@@ -2,7 +2,6 @@ package actuator
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -55,18 +54,7 @@ func (t *timeout) validate() error {
 	return nil
 }
 
-func timeoutAttributes(t TimeoutController) []string {
-	var val int64 = -1
-	var statusCode = -1
-	if t != nil {
-		val = int64(t.Duration() / time.Millisecond)
-		statusCode = t.StatusCode()
-	}
-	return []string{fmt.Sprintf(StateAttributeFmt, TimeoutName, val),
-		fmt.Sprintf(StateAttributeFmt, StatusCodeName, statusCode)}
-}
-
-func timeoutPut(t TimeoutController, m map[string]string) {
+func timeoutState(m map[string]string, t TimeoutController) {
 	var val int64 = -1
 	//var statusCode = -1
 	if t != nil {

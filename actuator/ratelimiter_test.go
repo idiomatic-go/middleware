@@ -63,19 +63,27 @@ func Example_RateLimiter_Mutate() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	fmt.Printf("test: rateLimiterAttributes() -> %v\n", rateLimiterAttributes(act.t().rateLimiter))
+	m := make(map[string]string, 16)
+	rateLimiterState(m, act.t().rateLimiter)
+	fmt.Printf("test: rateLimiterState(map,t) -> %v\n", m)
 
-	act.t().rateLimiter.SetLimit(5000)
+	act.t().rateLimiter.SetLimit(rate.Inf)
 	act1 := t.LookupByName(name)
-	//fmt.Printf("test: SetLimit(5000) -> [limit:%v] [burst:%v] [statusCode:%v]\n", act1.RateLimiter().Attribute(RateLimitName), act1.RateLimiter().Attribute(RateBurstName), act1.RateLimiter().Attribute(StatusCodeName))
+	m = make(map[string]string, 16)
+	rateLimiterState(m, act1.t().rateLimiter)
+	fmt.Printf("test: SetLimit(5000) -> %v\n", m)
 
 	act1.t().rateLimiter.SetBurst(1)
 	act = t.LookupByName(name)
-	//fmt.Printf("test: SetBurst(1) -> [limit:%v] [burst:%v] [statusCode:%v]\n", act.RateLimiter().Attribute(RateLimitName), act.RateLimiter().Attribute(RateBurstName), act.RateLimiter().Attribute(StatusCodeName))
+	m = make(map[string]string, 16)
+	rateLimiterState(m, act.t().rateLimiter)
+	fmt.Printf("test: SetBurst(1) -> %v\n", m)
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
-	//test: rateLimiterAttributes() -> [rateLimit:10 burst:100 statusCode:503]
+	//test: rateLimiterState(map,t) -> map[burst:100 rateLimit:10]
+	//test: SetLimit(5000) -> map[burst:100 rateLimit:99999]
+	//test: SetBurst(1) -> map[burst:1 rateLimit:99999]
 
 }
 

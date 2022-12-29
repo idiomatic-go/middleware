@@ -72,22 +72,7 @@ func validateLimiter(max *rate.Limit, burst *int) {
 	}
 }
 
-func rateLimiterAttributes(r RateLimiterController) []string {
-	var limit rate.Limit = -1
-	var burst = -1
-	var statusCode = -1
-	if r != nil {
-		limit = r.(*rateLimiter).config.limit
-		burst = r.(*rateLimiter).config.burst
-		statusCode = r.(*rateLimiter).config.statusCode
-	}
-	return []string{fmt.Sprintf(StateAttributeFmt, RateLimitName, limit),
-		fmt.Sprintf(StateAttributeFmt, RateBurstName, burst),
-		fmt.Sprintf(StateAttributeFmt, StatusCodeName, statusCode),
-	}
-}
-
-func rateLimiterPut(r RateLimiterController, m map[string]string) {
+func rateLimiterState(m map[string]string, r RateLimiterController) {
 	var limit rate.Limit = -1
 	var burst = -1
 

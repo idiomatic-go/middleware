@@ -18,17 +18,23 @@ func Example_newFailover() {
 	fmt.Printf("test: cloneFailover(f1) -> [f2-enabled:%v] [f2-validate:%v]\n", f2.enabled, f2.validate())
 
 	f.enabled = false
-	fmt.Printf("test: failoverAttributes(nil) -> %v\n", failoverAttributes(nil))
-	fmt.Printf("test: failoverAttributes(f1) -> %v\n", failoverAttributes(f))
-	fmt.Printf("test: failoverAttributes(f2) -> %v\n", failoverAttributes(f2))
+	m := make(map[string]string, 16)
+	failoverState(m, nil)
+	fmt.Printf("test: failoverState(map,nil) -> %v\n", m)
+	m = make(map[string]string, 16)
+	failoverState(m, f)
+	fmt.Printf("test: failoverState(map,f1) -> %v\n", m)
+	m = make(map[string]string, 16)
+	failoverState(m, f2)
+	fmt.Printf("test: failoverState(map,f2) -> %v\n", m)
 
 	//Output:
 	//test: newFailover(nil) -> [enabled:false] [validate:invalid configuration: FailoverController FailureInvoke function cannot be nil]
 	//test: newFailover(testFn) -> [enabled:false] [validate:<nil>]
 	//test: cloneFailover(f1) -> [f2-enabled:true] [f2-validate:<nil>]
-	//test: failoverAttributes(nil) -> [failover:null]
-	//test: failoverAttributes(f1) -> [failover:false]
-	//test: failoverAttributes(f2) -> [failover:true]
+	//test: failoverState(map,nil) -> map[failover:]
+	//test: failoverState(map,f1) -> map[failover:false]
+	//test: failoverState(map,f2) -> map[failover:true]
 
 }
 

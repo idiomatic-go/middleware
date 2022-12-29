@@ -2,7 +2,6 @@ package actuator
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 )
 
@@ -55,15 +54,7 @@ func (f *failover) validate() error {
 	return nil
 }
 
-func failoverAttributes(f FailoverController) []string {
-	if f == nil {
-		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, "null")}
-	} else {
-		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, f.IsEnabled())}
-	}
-}
-
-func failoverPut(f FailoverController, m map[string]string) {
+func failoverState(m map[string]string, f FailoverController) {
 	if f == nil {
 		m[FailoverName] = ""
 	} else {
