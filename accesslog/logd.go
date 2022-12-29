@@ -24,11 +24,15 @@ type Origin struct {
 
 // Logd - struct for all logging information
 type Logd struct {
-	Traffic  string
-	Start    time.Time
-	Duration time.Duration
-	Origin   *Origin
-	Act      ActuatorState
+	Traffic     string
+	Start       time.Time
+	Duration    time.Duration
+	Origin      *Origin
+	RouteName   string
+	Timeout     []string
+	RateLimiter []string
+	Retry       []string
+	Failover    []string
 
 	// Request
 	Url      string
@@ -45,13 +49,17 @@ type Logd struct {
 	StatusFlags   string
 }
 
-func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, act ActuatorState, req *http.Request, resp *http.Response, statusFlags string) *Logd {
+func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, routeName string, timeout []string, rateLimiter []string, failover []string, retry []string, req *http.Request, resp *http.Response, statusFlags string) *Logd {
 	l := new(Logd)
 	l.Traffic = traffic
 	l.Start = start
 	l.Duration = duration
 	l.Origin = origin
-	l.Act = act
+	l.RouteName = routeName
+	l.Timeout = timeout
+	l.RateLimiter = rateLimiter
+	l.Retry = retry
+	l.Failover = failover
 	l.AddRequest(req)
 	l.AddResponse(resp)
 	l.StatusFlags = statusFlags
@@ -67,7 +75,7 @@ func (l *Logd) IsEgress() bool {
 }
 
 func (l *Logd) IsPing() bool {
-	return l.IsIngress() && isPingTraffic(l.Act.Name)
+	return l.IsIngress() && isPingTraffic(l.RouteName)
 }
 
 func (l *Logd) AddResponse(resp *http.Response) {
@@ -166,23 +174,28 @@ func (l *Logd) Value(entry Entry) string {
 
 	// Actuator State
 	case RouteNameOperator:
-		return l.Act.Name
-	case TimeoutDurationOperator:
-		if l.Act.Timeout.Enabled {
-			return l.Act.Timeout.Value(0)
-		}
-	case RateLimitOperator:
-		if l.Act.RateLimiter.Enabled {
-			return l.Act.RateLimiter.Value(0)
-		}
-	case RateBurstOperator:
-		if l.Act.RateLimiter.Enabled {
-			return l.Act.RateLimiter.Value(1)
-		}
-	case FailoverOperator:
-		if l.Act.Failover.Enabled {
-			return l.Act.Failover.Value(0)
-		}
+		return l.RouteName
+		/*
+			case TimeoutDurationOperator:
+				if l.Timeout != nil {
+					return l..
+				}Enabled {
+					return l.Act.Timeout.Value(0)
+				}
+			case RateLimitOperator:
+				if l.Act.RateLimiter.Enabled {
+					return l.Act.RateLimiter.Value(0)
+				}
+			case RateBurstOperator:
+				if l.Act.RateLimiter.Enabled {
+					return l.Act.RateLimiter.Value(1)
+				}
+			case FailoverOperator:
+				if l.Act.Failover.Enabled {
+					return l.Act.Failover.Value(0)
+				}
+
+		*/
 	}
 
 	return ""
