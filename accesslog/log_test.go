@@ -2,7 +2,6 @@ package accesslog
 
 import (
 	"fmt"
-	"golang.org/x/time/rate"
 	"net/http"
 	"reflect"
 	"time"
@@ -13,10 +12,10 @@ func Example_Log_Error() {
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
-	a1 := ActuatorState{Name: "egress-route"}
+	//a1 := ActuatorState{Name: "egress-route"}
 
-	Log(EgressTraffic, start, time.Since(start), ActuatorState{}, nil, nil, "")
-	Log(EgressTraffic, start, time.Since(start), a1, nil, nil, "")
+	Log(EgressTraffic, start, time.Since(start), map[string]string{}, nil, nil, "")
+	Log(EgressTraffic, start, time.Since(start), map[string]string{ActName: "egress-route"}, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"error": "egress route name is empty"}]
@@ -56,7 +55,7 @@ func Example_Log_Ping() {
 		return
 	}
 	var start1 time.Time
-	Log(IngressTraffic, start1, time.Since(start), ActuatorState{Name: name}, nil, nil, "")
+	Log(IngressTraffic, start1, time.Since(start), map[string]string{ActName: name}, nil, nil, "")
 
 	//Output:
 	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ping","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"ingress-ping-route"}]
@@ -75,7 +74,7 @@ func Example_Log_Origin_Timeout() {
 		return
 	}
 	var start1 time.Time
-	Log(EgressTraffic, start1, time.Since(start), NewActuatorStateWithTimeout("egress-route", 5000), nil, nil, "")
+	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", TimeoutName: "5000"}, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","timeout_ms":5000,"static":"value"}]
@@ -94,7 +93,7 @@ func Example_Log_Origin_RateLimiter_500() {
 		return
 	}
 	var start1 time.Time
-	Log(EgressTraffic, start1, time.Since(start), NewActuatorStateWithRateLimiter("egress-route", 500, 10), nil, nil, "")
+	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RateLimitName: "500", RateBurstName: "10"}, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","rate_limit_s":500,"rate_burst":10,"static2":"value"}]
@@ -113,7 +112,7 @@ func Example_Log_Origin_RateLimiter_Inf() {
 		return
 	}
 	var start1 time.Time
-	Log(EgressTraffic, start1, time.Since(start), NewActuatorStateWithRateLimiter("egress-route", rate.Inf, 10), nil, nil, "")
+	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RateLimitName: "1000", RateBurstName: "10"}, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","rate_limit_s":-1,"rate_burst":10,"static2":"value"}]
@@ -132,7 +131,7 @@ func Example_Log_Origin_Failover() {
 		return
 	}
 	var start1 time.Time
-	Log(EgressTraffic, start1, time.Since(start), NewActuatorStateWithFailover("egress-route", true), nil, nil, "")
+	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", FailoverName: "true"}, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","failover":true,"static2":"value"}]
@@ -151,8 +150,8 @@ func Example_Log_Request() {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	Log(EgressTraffic, start, time.Since(start), ActuatorState{Name: "egress-route"}, nil, nil, "")
-	Log(EgressTraffic, start, time.Since(start), ActuatorState{Name: "egress-route"}, req, nil, "")
+	Log(EgressTraffic, start, time.Since(start), map[string]string{ActName: "egress-route"}, nil, nil, "")
+	Log(EgressTraffic, start, time.Since(start), map[string]string{ActName: "egress-route"}, req, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"protocol":null,"method":null,"url":null,"path":null,"host":null,"customer":null}]
@@ -170,8 +169,8 @@ func Example_Log_Response() {
 		return
 	}
 	var start time.Time
-	Log(EgressTraffic, start, time.Since(start), ActuatorState{Name: "egress-route"}, nil, nil, "UT")
-	Log(EgressTraffic, start, time.Since(start), ActuatorState{Name: "egress-route"}, nil, resp, "UT")
+	Log(EgressTraffic, start, time.Since(start), map[string]string{ActName: "egress-route"}, nil, nil, "UT")
+	Log(EgressTraffic, start, time.Since(start), map[string]string{ActName: "egress-route"}, nil, resp, "UT")
 
 	//Output:
 	//test: WriteEgress() -> [{"status_code":"0","bytes_received":"0","status_flags":"UT"}]
@@ -179,7 +178,7 @@ func Example_Log_Response() {
 
 }
 
-func Example_Log_State() {
+func __Example_Log_State() {
 	t := time.Duration(time.Millisecond * 500)
 	i := reflect.TypeOf(t)
 	a := any(t)

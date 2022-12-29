@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type LogAccess func(traffic string, start time.Time, duration time.Duration, routeName string, timeout []string, rateLimiter []string, failover []string, retry []string, req *http.Request, resp *http.Response, statusFlags string)
+type LogAccess func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string)
 
 var defaultLogger = newLogger(NewLoggerConfig(defaultAccess))
 
@@ -16,12 +16,12 @@ func SetDefaultLogger(lc *LoggerConfig) {
 	}
 }
 
-var defaultAccess LogAccess = func(traffic string, start time.Time, duration time.Duration, routeName string, timeout []string, rateLimiter []string, failover []string, retry []string, req *http.Request, resp *http.Response, statusFlags string) {
+var defaultAccess LogAccess = func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) {
 	log.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"statusFlags\":\"%v\"}\n", traffic, start, duration, req, resp, statusFlags)
 }
 
 type LoggingController interface {
-	LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retry string, req *http.Request, resp *http.Response, statusFlags string)
+	LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retry bool, req *http.Request, resp *http.Response, statusFlags string)
 }
 
 type LoggerConfig struct {
@@ -46,16 +46,17 @@ func newLogger(config *LoggerConfig) *logger {
 	return &logger{config: *config}
 }
 
-func (l *logger) LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retry string, req *http.Request, resp *http.Response, statusFlags string) {
+func (l *logger) LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retry bool, req *http.Request, resp *http.Response, statusFlags string) {
 	if l.config.accessInvoke == nil {
 		return
 	}
-	l.config.accessInvoke(traffic, start, duration, act.Name(),
-		timeoutAttributes(timeoutController(act)),
-		rateLimiterAttributes(rateLimiterController(act)),
-		failoverAttributes(failoverController(act)),
-		retryAttributes(retryController(act), retry),
-		req, resp, statusFlags)
+	state := make(map[string]string, 12)
+	state[ActName] = act.Name()
+	timeoutPut(timeoutController(act), state)
+	rateLimiterPut(rateLimiterController(act), state)
+	failoverPut(failoverController(act), state)
+	retryPut(retryController(act), retry, state)
+	l.config.accessInvoke(traffic, start, duration, state, req, resp, statusFlags)
 }
 
 func timeoutController(act Actuator) TimeoutController {

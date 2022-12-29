@@ -3,6 +3,7 @@ package actuator
 import (
 	"errors"
 	"fmt"
+	"strconv"
 )
 
 type FailoverInvoke func(name string, failover bool)
@@ -59,6 +60,14 @@ func failoverAttributes(f FailoverController) []string {
 		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, "null")}
 	} else {
 		return []string{fmt.Sprintf(StateAttributeFmt, FailoverName, f.IsEnabled())}
+	}
+}
+
+func failoverPut(f FailoverController, m map[string]string) {
+	if f == nil {
+		m[FailoverName] = ""
+	} else {
+		m[FailoverName] = strconv.FormatBool(f.IsEnabled())
 	}
 }
 

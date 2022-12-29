@@ -4,17 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
-)
-
-const (
-	TimeoutName = "timeout"
 )
 
 type TimeoutController interface {
 	Duration() time.Duration
 	SetTimeout(timeout time.Duration)
-	IsStatusCode(statusCode int) bool
 	StatusCode() int
 }
 
@@ -70,6 +66,16 @@ func timeoutAttributes(t TimeoutController) []string {
 		fmt.Sprintf(StateAttributeFmt, StatusCodeName, statusCode)}
 }
 
+func timeoutPut(t TimeoutController, m map[string]string) {
+	var val int64 = -1
+	//var statusCode = -1
+	if t != nil {
+		val = int64(t.Duration() / time.Millisecond)
+		//	statusCode = t.StatusCode()
+	}
+	m[TimeoutName] = strconv.Itoa(int(val))
+}
+
 func (t *timeout) Duration() time.Duration {
 	if t.config.timeout <= 0 {
 		return 0
@@ -86,8 +92,4 @@ func (t *timeout) SetTimeout(timeout time.Duration) {
 
 func (t *timeout) StatusCode() int {
 	return t.config.statusCode
-}
-
-func (t *timeout) IsStatusCode(statusCode int) bool {
-	return t.config.statusCode == statusCode
 }

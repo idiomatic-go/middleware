@@ -17,12 +17,17 @@ const (
 	NotEnabledFlag        = "NE"
 	InvalidResponseFlag   = "IR"
 	InvalidStatusCodeFlag = "SC"
-	StateAttributeFmt     = "%v:%v"
-	FailoverName          = "failover"
-	RetryName             = "retry"
-	RetryRateLimitName    = "retryRateLimit"
-	RetryRateBurstName    = "retryBurst"
-	StatusCodeName        = "statusCode"
+
+	StateAttributeFmt  = "%v:%v"
+	TimeoutName        = "timeout"
+	FailoverName       = "failover"
+	RetryName          = "retry"
+	RetryRateLimitName = "retryRateLimit"
+	RetryRateBurstName = "retryBurst"
+	RateLimitName      = "rateLimit"
+	RateBurstName      = "burst"
+	StatusCodeName     = "statusCode"
+	ActName            = "name"
 )
 
 type Matcher func(req *http.Request) (routeName string)

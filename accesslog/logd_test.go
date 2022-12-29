@@ -26,10 +26,10 @@ func Example_Value_Actuator() {
 	data := Logd{}
 	fmt.Printf("test: Value(\"%v\") -> [%v]\n", name, data.Value(NewEntry(op, "", "", true)))
 
-	data = Logd{Act: ActuatorState{Name: name}}
+	data = Logd{ActState: map[string]string{ActName: name}}
 	fmt.Printf("test: Value(\"%v\") -> [route_name:%v]\n", name, data.Value(NewEntry(op, "", "", true)))
 
-	data = Logd{Act: NewActuatorStateWithTimeout(name, 500)}
+	data = Logd{ActState: map[string]string{TimeoutName: "500"}}
 	//fmt.Printf("test: Value(\"%v\") -> [route_name:%v]\n", name, data.Value(NewEntry(op, "", "", true)))
 	fmt.Printf("test: Value(\"%v\") -> [timeout:%v]\n", name, data.Value(NewEntry(TimeoutDurationOperator, "", "", false)))
 

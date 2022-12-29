@@ -8,9 +8,17 @@ import (
 )
 
 const (
-	EgressTraffic  = "egress"
-	IngressTraffic = "ingress"
-	PingTraffic    = "ping"
+	EgressTraffic      = "egress"
+	IngressTraffic     = "ingress"
+	PingTraffic        = "ping"
+	TimeoutName        = "timeout"
+	FailoverName       = "failover"
+	RetryName          = "retry"
+	RetryRateLimitName = "retryRateLimit"
+	RetryRateBurstName = "retryBurst"
+	RateLimitName      = "rateLimit"
+	RateBurstName      = "burst"
+	ActName            = "name"
 )
 
 // Origin - attributes that uniquely identify a service instance
@@ -24,15 +32,11 @@ type Origin struct {
 
 // Logd - struct for all logging information
 type Logd struct {
-	Traffic     string
-	Start       time.Time
-	Duration    time.Duration
-	Origin      *Origin
-	RouteName   string
-	Timeout     []string
-	RateLimiter []string
-	Retry       []string
-	Failover    []string
+	Traffic  string
+	Start    time.Time
+	Duration time.Duration
+	Origin   *Origin
+	ActState map[string]string
 
 	// Request
 	Url      string
@@ -49,17 +53,16 @@ type Logd struct {
 	StatusFlags   string
 }
 
-func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, routeName string, timeout []string, rateLimiter []string, failover []string, retry []string, req *http.Request, resp *http.Response, statusFlags string) *Logd {
+func NewLogd(traffic string, start time.Time, duration time.Duration, origin *Origin, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Logd {
 	l := new(Logd)
 	l.Traffic = traffic
 	l.Start = start
 	l.Duration = duration
 	l.Origin = origin
-	l.RouteName = routeName
-	l.Timeout = timeout
-	l.RateLimiter = rateLimiter
-	l.Retry = retry
-	l.Failover = failover
+	if actState == nil {
+		actState = make(map[string]string, 1)
+	}
+	l.ActState = actState
 	l.AddRequest(req)
 	l.AddResponse(resp)
 	l.StatusFlags = statusFlags
@@ -75,7 +78,7 @@ func (l *Logd) IsEgress() bool {
 }
 
 func (l *Logd) IsPing() bool {
-	return l.IsIngress() && isPingTraffic(l.RouteName)
+	return l.IsIngress() && isPingTraffic(l.ActState[ActName])
 }
 
 func (l *Logd) AddResponse(resp *http.Response) {
@@ -174,28 +177,21 @@ func (l *Logd) Value(entry Entry) string {
 
 	// Actuator State
 	case RouteNameOperator:
-		return l.RouteName
-		/*
-			case TimeoutDurationOperator:
-				if l.Timeout != nil {
-					return l..
-				}Enabled {
-					return l.Act.Timeout.Value(0)
-				}
-			case RateLimitOperator:
-				if l.Act.RateLimiter.Enabled {
-					return l.Act.RateLimiter.Value(0)
-				}
-			case RateBurstOperator:
-				if l.Act.RateLimiter.Enabled {
-					return l.Act.RateLimiter.Value(1)
-				}
-			case FailoverOperator:
-				if l.Act.Failover.Enabled {
-					return l.Act.Failover.Value(0)
-				}
-
-		*/
+		return l.ActState[ActName]
+	case TimeoutDurationOperator:
+		return l.ActState[TimeoutName]
+	case RateLimitOperator:
+		return l.ActState[RateLimitName]
+	case RateBurstOperator:
+		return l.ActState[RateBurstName]
+	case FailoverOperator:
+		return l.ActState[FailoverName]
+	case RetryOperator:
+		return l.ActState[RetryName]
+	case RetryRateLimitOperator:
+		return l.ActState[RetryRateLimitName]
+	case RetryRateBurstOperator:
+		return l.ActState[RetryRateBurstName]
 	}
 
 	return ""

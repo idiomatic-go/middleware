@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"golang.org/x/time/rate"
 	"net/http"
+	"strconv"
 )
 
 const (
-	RateLimitName = "rateLimit"
-	RateBurstName = "burst"
-
 	InfValue     = "-1"
 	DefaultBurst = 1
 )
@@ -74,23 +72,6 @@ func validateLimiter(max *rate.Limit, burst *int) {
 	}
 }
 
-/*
-func (r *rateLimiter) Attribute(name string) Attribute {
-	if strings.Index(name, RateLimitName) != -1 {
-		return NewAttribute(RateLimitName, r.config.limit)
-	}
-	if strings.Index(name, RateBurstName) != -1 {
-		return NewAttribute(RateBurstName, r.config.burst)
-	}
-	if strings.Index(name, StatusCodeName) != -1 {
-		return NewAttribute(StatusCodeName, r.config.statusCode)
-	}
-	return nilAttribute(name)
-}
-
-
-*/
-
 func rateLimiterAttributes(r RateLimiterController) []string {
 	var limit rate.Limit = -1
 	var burst = -1
@@ -104,6 +85,18 @@ func rateLimiterAttributes(r RateLimiterController) []string {
 		fmt.Sprintf(StateAttributeFmt, RateBurstName, burst),
 		fmt.Sprintf(StateAttributeFmt, StatusCodeName, statusCode),
 	}
+}
+
+func rateLimiterPut(r RateLimiterController, m map[string]string) {
+	var limit rate.Limit = -1
+	var burst = -1
+
+	if r != nil {
+		limit = r.(*rateLimiter).config.limit
+		burst = r.(*rateLimiter).config.burst
+	}
+	m[RateLimitName] = fmt.Sprintf("%v", limit)
+	m[RateBurstName] = strconv.Itoa(burst)
 }
 
 func (r *rateLimiter) Allow() bool {

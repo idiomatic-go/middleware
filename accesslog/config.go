@@ -13,36 +13,31 @@ const (
 	UserAgentHeaderName     = "USER-AGENT"
 	FordwardedForHeaderName = "X-FORWARDED-FOR"
 
-	// Envoy
-	TrafficOperator = "%TRAFFIC%" //  ingress, egress, ping
-
+	TrafficOperator   = "%TRAFFIC%"    //  ingress, egress, ping
 	StartTimeOperator = "%START_TIME%" // start time
 	DurationOperator  = "%DURATION%"   // Total duration in milliseconds of the request from the start time to the last byte out.
 
-	// Application
 	OriginRegionOperator     = "%REGION%"      // origin region
 	OriginZoneOperator       = "%ZONE%"        // origin zone
 	OriginSubZoneOperator    = "%SUB_ZONE%"    // origin sub zone
 	OriginServiceOperator    = "%SERVICE%"     // origin service
 	OriginInstanceIdOperator = "%INSTANCE_ID%" // origin instance id
 
-	RouteNameOperator = "%ROUTE_NAME%"
-
-	RateLimitOperator = "%RATE_LIMIT%"
-	RateBurstOperator = "%RATE_BURST%"
-
+	RouteNameOperator       = "%ROUTE_NAME%"
 	TimeoutDurationOperator = "%TIMEOUT_DURATION%"
+	RateLimitOperator       = "%RATE_LIMIT%"
+	RateBurstOperator       = "%RATE_BURST%"
+	RetryOperator           = "%RETRY"
+	RetryRateLimitOperator  = "%RETRY_RATE_LIMIT%"
+	RetryRateBurstOperator  = "%RETRY_RATE_BURST%"
+	FailoverOperator        = "%FAILOVER%"
 
-	FailoverOperator = "%FAILOVER%"
-
-	// Response
 	ResponseStatusCodeOperator    = "%STATUS_CODE%"    // HTTP status code
 	ResponseBytesReceivedOperator = "%BYTES_RECEIVED%" // bytes received
 	ResponseBytesSentOperator     = "%BYTES_SENT%"     // bytes sent
 	StatusFlagsOperator           = "%STATUS_FLAGS%"   // status flags
 	//UpstreamHostOperator  = "%UPSTREAM_HOST%"  // Upstream host URL (e.g., tcp://ip:port for TCP connections).
 
-	// Request
 	RequestProtocolOperator = "%PROTOCOL%" // HTTP Protocol
 	RequestMethodOperator   = "%METHOD%"   // HTTP method
 	RequestUrlOperator      = "%URL%"
@@ -54,7 +49,6 @@ const (
 	RequestAuthorityOperator    = "%AUTHORITY%"       // authority request header value
 	RequestForwardedForOperator = "%X-FORWARDED-FOR%" // client IP address (X-FORWARDED-FOR request header value)
 
-	// gRPC
 	GRPCStatusOperator       = "%GRPC_STATUS(X)%"     // gRPC status code formatted according to the optional parameter X, which can be CAMEL_STRING, SNAKE_STRING and NUMBER. X-REQUEST-ID request header value
 	GRPCStatusNumberOperator = "%GRPC_STATUS_NUMBER%" // gRPC status code.
 

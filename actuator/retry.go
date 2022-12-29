@@ -6,6 +6,7 @@ import (
 	"golang.org/x/time/rate"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -82,6 +83,21 @@ func retryAttributes(r RetryController, retried string) []string {
 		fmt.Sprintf(StateAttributeFmt, RetryRateLimitName, r.(*retry).config.limit),
 		fmt.Sprintf(StateAttributeFmt, RetryRateBurstName, r.(*retry).config.burst),
 	}
+}
+
+func retryPut(r RetryController, retried bool, m map[string]string) {
+	var limit rate.Limit = -1
+	var burst = -1
+	var name = ""
+	if r != nil {
+		name = strconv.FormatBool(retried)
+		limit = r.(*retry).config.limit
+		burst = r.(*retry).config.burst
+	}
+	m[RetryName] = name
+	m[RetryRateLimitName] = fmt.Sprintf("%v", limit)
+	m[RetryRateBurstName] = strconv.Itoa(burst)
+
 }
 
 func (r *retry) IsEnabled() bool { return r.enabled }
