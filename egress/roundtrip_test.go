@@ -68,12 +68,12 @@ func init() {
 	})
 	actuator.EgressTable.Add(timeoutRoute, actuator.NewTimeoutConfig(time.Millisecond, 504))
 	actuator.EgressTable.Add(rateLimitRoute, actuator.NewRateLimiterConfig(2000, 0, 503))
-	actuator.EgressTable.Add(retryRoute, actuator.NewTimeoutConfig(time.Millisecond, 504), actuator.NewRetryConfig([]int{503, 504}, 0, 0))
+	actuator.EgressTable.Add(retryRoute, actuator.NewTimeoutConfig(time.Millisecond, 504), actuator.NewRetryConfig([]int{503, 504}, 0, 0, 0))
 
-	actuator.SetLoggerAccessInvoke(actuator.NewLoggerConfig(func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) {
+	actuator.SetLoggerAccess(func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) {
 		accesslog.Log(traffic, start, duration, actState, req, resp, statusFlags)
 	},
-	))
+	)
 }
 
 func Example_Default_Actuator() {
