@@ -12,8 +12,6 @@ func Example_Log_Error() {
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
-	//a1 := ActuatorState{Name: "egress-route"}
-
 	Log(EgressTraffic, start, time.Since(start), map[string]string{}, nil, nil, "")
 	Log(EgressTraffic, start, time.Since(start), map[string]string{ActName: "egress-route"}, nil, nil, "")
 
@@ -23,33 +21,14 @@ func Example_Log_Error() {
 
 }
 
-/*
-func Example_WriteIngress_Error() {
+func Example_Log_Origin() {
+	name := "ingress-origin-route"
 	SetTestIngressWrite()
-	start := time.Now()
-	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
-
-	a1 := ActuatorState{Name: "ingress-route"}
-
-	WriteIngress(start, time.Since(start), ActuatorState{}, nil, nil, "")
-	WriteIngress(start, time.Since(start), a1, nil, nil, "")
-
-	//Output:
-	//test: WriteIngress() -> [{"error": "ingress route name is empty"}]
-	//test: WriteIngress() -> [{"error": "ingress log entries are empty"}]
-}
-
-
-*/
-func Example_Log_Ping() {
-	name := "ingress-ping-route"
-	SetTestIngressWrite()
-	SetPingRoutes([]string{name})
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
 	err := CreateIngressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
-		{Operator: RouteNameOperator}})
+		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
+	})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -58,17 +37,34 @@ func Example_Log_Ping() {
 	Log(IngressTraffic, start1, time.Since(start), map[string]string{ActName: name}, nil, nil, "")
 
 	//Output:
-	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ping","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"ingress-ping-route"}]
+	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ingress","route_name":"ingress-origin-route","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234"}]
 
 }
 
-func Example_Log_Origin_Timeout() {
+func Example_Log_Ping() {
+	name := "ingress-ping-route"
+	SetTestIngressWrite()
+	SetPingRoutes([]string{name})
+	start := time.Now()
+	err := CreateIngressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
+		{Operator: TrafficOperator}, {Operator: RouteNameOperator}})
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+	var start1 time.Time
+	Log(IngressTraffic, start1, time.Since(start), map[string]string{ActName: name}, nil, nil, "")
+
+	//Output:
+	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ping","route_name":"ingress-ping-route"}]
+
+}
+
+func Example_Log_Timeout() {
 	SetTestEgressWrite()
 	start := time.Now()
-	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
-		{Operator: RouteNameOperator}, {Operator: TimeoutDurationOperator}, {Operator: "static", Name: "value"}})
+		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: TimeoutDurationOperator}, {Operator: "static", Name: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -77,17 +73,15 @@ func Example_Log_Origin_Timeout() {
 	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", TimeoutName: "5000"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","timeout_ms":5000,"static":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","timeout_ms":5000,"static":"value"}]
 
 }
 
-func Example_Log_Origin_RateLimiter_500() {
+func Example_Log_RateLimiter_500() {
 	SetTestEgressWrite()
 	start := time.Now()
-	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
-		{Operator: RouteNameOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static2", Name: "value"}})
+		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static2", Name: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -96,17 +90,15 @@ func Example_Log_Origin_RateLimiter_500() {
 	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RateLimitName: "500", RateBurstName: "10"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","rate_limit_s":500,"rate_burst":10,"static2":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","rate_limit_s":500,"rate_burst":10,"static2":"value"}]
 
 }
 
-func Example_Log_Origin_RateLimiter_Inf() {
+func Example_Log_RateLimiter_Inf() {
 	SetTestEgressWrite()
 	start := time.Now()
-	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
-		{Operator: RouteNameOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static2", Name: "value"}})
+		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static2", Name: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -115,17 +107,15 @@ func Example_Log_Origin_RateLimiter_Inf() {
 	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RateLimitName: "1000", RateBurstName: "10"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","rate_limit_s":-1,"rate_burst":10,"static2":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","rate_limit_s":1000,"rate_burst":10,"static2":"value"}]
 
 }
 
-func Example_Log_Origin_Failover() {
+func Example_Log_Failover() {
 	SetTestEgressWrite()
 	start := time.Now()
-	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
-		{Operator: RouteNameOperator}, {Operator: FailoverOperator}, {Operator: "static2", Name: "value"}})
+		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: FailoverOperator}, {Operator: "static2", Name: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -134,7 +124,25 @@ func Example_Log_Origin_Failover() {
 	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", FailoverName: "true"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234","route_name":"egress-route","failover":true,"static2":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","failover":true,"static2":"value"}]
+
+}
+
+func Example_Log_Retry() {
+	SetTestEgressWrite()
+	start := time.Now()
+	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
+		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: RetryOperator},
+		{Operator: RetryRateLimitOperator}, {Operator: RetryRateBurstOperator}})
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+	var start1 time.Time
+	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RetryName: "true", RetryRateLimitName: "123", RetryRateBurstName: "67"}, nil, nil, "")
+
+	//Output:
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","retry":true,"retry_rate_limit_s":123,"retry_rate_burst":67}]
 
 }
 
