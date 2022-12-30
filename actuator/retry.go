@@ -24,13 +24,13 @@ type RetryController interface {
 type RetryConfig struct {
 	limit rate.Limit
 	burst int
-	//wait  time.Duration
+	wait  time.Duration
 	codes []int
 }
 
-func NewRetryConfig(validCodes []int, limit rate.Limit, burst int) *RetryConfig {
+func NewRetryConfig(validCodes []int, limit rate.Limit, burst int, wait time.Duration) *RetryConfig {
 	c := new(RetryConfig)
-	//c.wait = wait
+	c.wait = wait
 	c.limit = limit
 	c.burst = burst
 	c.codes = validCodes
@@ -69,8 +69,11 @@ func (r *retry) validate() error {
 	if len(r.config.codes) == 0 {
 		return errors.New("invalid configuration: retry controller status codes are empty")
 	}
-	if r.config.limit <= 0 || r.config.limit == rate.Inf {
-		return errors.New("invalid configuration: retry controller limit is <= 0 or == rate.Inf")
+	if r.config.limit < 0 {
+		return errors.New("invalid configuration: retry controller limit is < 0")
+	}
+	if r.config.burst < 0 {
+		return errors.New("invalid configuration: retry controller burst is < 0")
 	}
 	return nil
 }
@@ -127,17 +130,17 @@ func (r *retry) IsRetryable(statusCode int) (bool, string) {
 		return false, NotEnabledFlag
 	}
 	if statusCode < http.StatusInternalServerError {
-		return false, InvalidStatusCodeFlag
+		return false, ""
 	}
 	if !r.rateLimiter.Allow() {
 		return false, RateLimitFlag
 	}
 	for _, code := range r.config.codes {
 		if code == statusCode {
-			//jitter := time.Duration(r.rand.Int31n(1000))
-			//time.Sleep(r.current.wait + jitter)
+			jitter := time.Duration(r.rand.Int31n(1000))
+			time.Sleep(r.config.wait + jitter)
 			return true, ""
 		}
 	}
-	return false, InvalidStatusCodeFlag
+	return false, ""
 }

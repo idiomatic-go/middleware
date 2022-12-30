@@ -6,15 +6,7 @@ import (
 	"time"
 )
 
-type LogAccess func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string)
-
 var defaultLogger = newLogger(NewLoggerConfig(defaultAccess))
-
-func SetLoggerAccessInvoke(lc *LoggerConfig) {
-	if lc != nil && lc.accessInvoke != nil {
-		defaultLogger.config.accessInvoke = lc.accessInvoke
-	}
-}
 
 var defaultAccess LogAccess = func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) {
 	log.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"statusFlags\":\"%v\"}\n", traffic, start, duration, req, resp, statusFlags)

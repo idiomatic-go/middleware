@@ -6,10 +6,10 @@ import (
 )
 
 func Example_newRetry() {
-	t := newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, 5, 10))
+	t := newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, 5, 10, 0))
 	fmt.Printf("test: newRetry() -> [name:%v] [config:%v]\n", t.name, t.config)
 
-	t = newRetry("test-route2", newTable(true), NewRetryConfig([]int{503, 504}, 2, 20))
+	t = newRetry("test-route2", newTable(true), NewRetryConfig([]int{503, 504}, 2, 20, 0))
 	fmt.Printf("test: newRetry() -> [name:%v] [config:%v]\n", t.name, t.config)
 
 	t2 := cloneRetry(t)
@@ -24,23 +24,23 @@ func Example_newRetry() {
 	fmt.Printf("test: retryState(t,false,map) -> %v\n", m)
 
 	m = make(map[string]string, 16)
-	t2 = newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, rate.Inf, 10))
+	t2 = newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, rate.Inf, 10, 0))
 	retryState(m, t2, true)
 	fmt.Printf("test: retryState(t2,true,map) -> %v\n", m)
 
 	//Output:
-	//test: newRetry() -> [name:test-route] [config:{5 10 [504]}]
-	//test: newRetry() -> [name:test-route2] [config:{2 20 [503 504]}]
+	//test: newRetry() -> [name:test-route] [config:{5 10 0 [504]}]
+	//test: newRetry() -> [name:test-route2] [config:{2 20 0 [503 504]}]
 	//test: cloneRetry() -> [prev-enabled:false] [curr-enabled:true]
 	//test: retryState(nil,false,map) -> map[retry: retryBurst:-1 retryRateLimit:-1]
-	//test: retryState(t,false,map) -> map[retry:false retryBurst:20 retryRateLimit:2
+	//test: retryState(t,false,map) -> map[retry:false retryBurst:20 retryRateLimit:2]
 	//test: retryState(t2,true,map) -> map[retry:true retryBurst:10 retryRateLimit:99999]
 
 }
 
-func Example_Retry_Status() {
+func Example_Status() {
 	name := "test-route"
-	config := NewRetryConfig([]int{504}, 5, 10)
+	config := NewRetryConfig([]int{504}, 5, 10, 0)
 	t := newTable(true)
 	err := t.Add(name, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
@@ -67,9 +67,9 @@ func Example_Retry_Status() {
 
 }
 
-func Example_Retry_IsRetryable_Disabled() {
+func Example_IsRetryable_Disabled() {
 	name := "test-route"
-	config := NewRetryConfig([]int{503, 504}, 100, 10)
+	config := NewRetryConfig([]int{503, 504}, 100, 10, 0)
 	t := newTable(true)
 	err := t.Add(name, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
@@ -94,9 +94,9 @@ func Example_Retry_IsRetryable_Disabled() {
 
 }
 
-func Example_Retry_IsRetryable_StatusCode() {
+func Example_IsRetryable_StatusCode() {
 	name := "test-route"
-	config := NewRetryConfig([]int{503, 504}, 100, 10)
+	config := NewRetryConfig([]int{503, 504}, 100, 10, 0)
 	t := newTable(true)
 	err := t.Add(name, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
@@ -124,18 +124,18 @@ func Example_Retry_IsRetryable_StatusCode() {
 
 	//Output:
 	//test: Add() -> [<nil>] [count:1]
-	//test: IsRetryable(200) -> [ok:false] [status:SC]
-	//test: IsRetryable(500) -> [ok:false] [status:SC]
-	//test: IsRetryable(502) -> [ok:false] [status:SC]
+	//test: IsRetryable(200) -> [ok:false] [status:]
+	//test: IsRetryable(500) -> [ok:false] [status:]
+	//test: IsRetryable(502) -> [ok:false] [status:]
 	//test: IsRetryable(503) -> [ok:true] [status:]
 	//test: IsRetryable(504) -> [ok:true] [status:]
-	//test: IsRetryable(505) -> [ok:false] [status:SC]
+	//test: IsRetryable(505) -> [ok:false] [status:]
 
 }
 
-func Example_Retry_IsRetryable_RateLimit() {
+func Example_IsRetryable_RateLimit() {
 	name := "test-route"
-	config := NewRetryConfig([]int{503, 504}, 1, 1)
+	config := NewRetryConfig([]int{503, 504}, 1, 1, 0)
 	t := newTable(true)
 	err := t.Add(name, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
