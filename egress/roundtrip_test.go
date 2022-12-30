@@ -76,7 +76,7 @@ func init() {
 	))
 }
 
-func Example_Routes() {
+func Example_Default_Actuator() {
 	act := actuator.EgressTable.Lookup(nil)
 	fmt.Printf("test: Lookup(nil) -> [name:%v]\n", act.Name())
 
@@ -84,7 +84,7 @@ func Example_Routes() {
 	//test: Lookup(nil) -> [name:*]
 }
 
-func Example_RoundTrip_No_Wrapper() {
+func Example_No_Wrapper() {
 	req, _ := http.NewRequest("GET", googleUrl, nil)
 
 	// Testing - check for a nil wrapper or round tripper
@@ -102,7 +102,7 @@ func Example_RoundTrip_No_Wrapper() {
 
 }
 
-func Example_RoundTrip_Default() {
+func Example_Default() {
 	req, _ := http.NewRequest("GET", instagramUrl, nil)
 
 	if !isEnabled {
@@ -118,7 +118,7 @@ func Example_RoundTrip_Default() {
 
 }
 
-func Example_RoundTrip_Timeout() {
+func Example_Default_Timeout() {
 	req, _ := http.NewRequest("GET", googleUrl, nil)
 
 	if !isEnabled {
@@ -134,7 +134,7 @@ func Example_RoundTrip_Timeout() {
 
 }
 
-func Example_RoundTrip_RateLimit() {
+func Example_Default_RateLimit() {
 	req, _ := http.NewRequest("GET", twitterUrl, nil)
 
 	if !isEnabled {
@@ -150,7 +150,7 @@ func Example_RoundTrip_RateLimit() {
 
 }
 
-func Example_RoundTrip_Retry_NotEnabled() {
+func Example_Default_Retry_NotEnabled() {
 	req, _ := http.NewRequest("GET", facebookUrl, nil)
 
 	if !isEnabled {
@@ -172,7 +172,7 @@ func Example_RoundTrip_Retry_NotEnabled() {
 
 }
 
-func Example_RoundTrip_Retry_RateLimited() {
+func Example_Default_Retry_RateLimited() {
 	req, _ := http.NewRequest("GET", facebookUrl, nil)
 
 	if !isEnabled {
@@ -194,7 +194,7 @@ func Example_RoundTrip_Retry_RateLimited() {
 
 }
 
-func Example_RoundTrip_Retry() {
+func Example_Default_Retry() {
 	req, _ := http.NewRequest("GET", facebookUrl, nil)
 
 	if !isEnabled {
@@ -209,9 +209,6 @@ func Example_RoundTrip_Retry() {
 		if c, ok := act.Retry(); ok {
 			c.SetRateLimiter(100, 10)
 		}
-		//if c, ok := act.Timeout(); ok {
-		//	c.SetTimeout(time.Millisecond*1000)
-		//}
 	}
 
 	resp, err := http.DefaultClient.Do(req)
