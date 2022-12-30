@@ -3,8 +3,9 @@ package egress
 import (
 	"fmt"
 	"github.com/idiomatic-go/middleware/accesslog"
-	"github.com/idiomatic-go/middleware/route"
+	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
+	"time"
 )
 
 var (
@@ -44,7 +45,7 @@ func init() {
 		fmt.Printf("init() -> [:%v]\n", err)
 	}
 	accesslog.SetTestEgressWrite()
-	Routes.SetMatcher(func(req *http.Request) string {
+	actuator.EgressTable.SetMatcher(func(req *http.Request) string {
 		if req == nil {
 			return ""
 		}
@@ -56,15 +57,21 @@ func init() {
 		}
 		return ""
 	})
-	r, _ := route.NewRouteWithConfig(timeoutRoute, 1, 500, 100, accessLogging, false)
-	Routes.Add(r)
-	r, _ = route.NewRouteWithConfig(rateLimitRoute, 2000, 0, 0, accessLogging, false)
-	Routes.Add(r)
+	actuator.EgressTable.Add(timeoutRoute, actuator.NewTimeoutConfig(time.Millisecond, 504))
+	actuator.EgressTable.Add(rateLimitRoute, actuator.NewRateLimiterConfig(2000, 0, 503))
+	//r, _ := route.NewRouteWithConfig(timeoutRoute, 1, 500, 100, accessLogging, false)
+	//Routes.Add(r)
+	//r, _ = route.NewRouteWithConfig(rateLimitRoute, 2000, 0, 0, accessLogging, false)
+	//Routes.Add(r)
+	actuator.SetAccessInvoke(actuator.NewLoggerConfig(func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) {
+		accesslog.Log(traffic, start, duration, actState, req, resp, statusFlags)
+	},
+	))
 }
 
 func Example_Routes() {
-	r := Routes.Lookup(nil)
-	fmt.Printf("test: Lookup(nil) -> [name:%v]\n", r.Name())
+	act := actuator.EgressTable.Lookup(nil)
+	fmt.Printf("test: Lookup(nil) -> [name:%v]\n", act.Name())
 
 	//Output:
 	//test: Lookup(nil) -> [name:*]

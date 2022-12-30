@@ -10,9 +10,9 @@ type LogAccess func(traffic string, start time.Time, duration time.Duration, act
 
 var defaultLogger = newLogger(NewLoggerConfig(defaultAccess))
 
-func SetDefaultLogger(lc *LoggerConfig) {
-	if lc != nil {
-		defaultLogger = newLogger(lc)
+func SetAccessInvoke(lc *LoggerConfig) {
+	if lc != nil && lc.accessInvoke != nil {
+		defaultLogger.config.accessInvoke = lc.accessInvoke
 	}
 }
 

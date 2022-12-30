@@ -24,7 +24,7 @@ func Example_defaultLogger() {
 	l := defaultLogger
 	fmt.Printf("test: defaultLogger -> [accessInvoke:%v]\n", l.config.accessInvoke != nil)
 
-	SetDefaultLogger(NewLoggerConfig(nil))
+	SetAccessInvoke(NewLoggerConfig(nil))
 	l = defaultLogger
 	fmt.Printf("test: defaultLogger -> [accessInvoke:%v]\n", l.config.accessInvoke != nil)
 

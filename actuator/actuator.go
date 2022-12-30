@@ -62,8 +62,8 @@ type Table interface {
 	Actuators
 }
 
-var Ingress = NewIngressTable()
-var Egress = NewEgressTable()
+var IngressTable = NewIngressTable()
+var EgressTable = NewEgressTable()
 
 func NewActuator(name string, config ...any) Actuator {
 	return newActuator(name, newTable(true), config...)
@@ -138,7 +138,6 @@ func (a *actuator) Name() string {
 }
 
 func (a *actuator) Logger() LoggingController {
-
 	return a.logger
 }
 
