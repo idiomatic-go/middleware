@@ -150,7 +150,7 @@ func Example_RoundTrip_RateLimit() {
 
 }
 
-func Example_RoundTrip_Retry_NE_Status() {
+func Example_RoundTrip_Retry_NotEnabled() {
 	req, _ := http.NewRequest("GET", facebookUrl, nil)
 
 	if !isEnabled {
@@ -172,7 +172,7 @@ func Example_RoundTrip_Retry_NE_Status() {
 
 }
 
-func Example_RoundTrip_Retry_RL_Status() {
+func Example_RoundTrip_Retry_RateLimited() {
 	req, _ := http.NewRequest("GET", facebookUrl, nil)
 
 	if !isEnabled {
@@ -221,5 +221,5 @@ func Example_RoundTrip_Retry() {
 	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":false,"retry_rate_limit":100,"retry_rate_burst":10,"failover":null}]
 	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":true,"retry_rate_limit":100,"retry_rate_burst":10,"failover":null}]
 	//test: RoundTrip(egress:true) -> [status_code:504] [err:<nil>]
-	
+
 }
