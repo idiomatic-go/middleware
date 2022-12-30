@@ -35,7 +35,7 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		prevFlags := statusFlags
 		retry, statusFlags = rc.IsRetryable(resp.StatusCode)
 		if retry {
-			act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, retry, req, resp, prevFlags)
+			act.Logger().LogAccess(actuator.EgressTraffic, start, time.Since(start), act, false, req, resp, prevFlags)
 			start = time.Now()
 			resp, err, statusFlags = w.exchange(tc, req)
 		}

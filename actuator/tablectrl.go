@@ -150,6 +150,7 @@ func (t *table) setRetryRateLimit(name string, limit rate.Limit, burst int) {
 	if act, ok := t.actuators[name]; ok {
 		c := cloneRetry(act.retry)
 		c.config.limit = limit
+		c.config.burst = burst
 		// Not cloning the limiter as an old reference will not cause stale data when logging
 		c.rateLimiter = rate.NewLimiter(limit, burst)
 		t.update(name, cloneActuator[*retry](act, c))

@@ -206,16 +206,20 @@ func Example_RoundTrip_Retry() {
 		if c, ok := act.Retry(); ok {
 			c.Enable()
 		}
-		if c, ok := act.RateLimiter(); ok {
+		if c, ok := act.Retry(); ok {
 			c.SetRateLimiter(100, 10)
 		}
+		//if c, ok := act.Timeout(); ok {
+		//	c.SetTimeout(time.Millisecond*1000)
+		//}
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"RL","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"failover":null}]
+	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":false,"retry_rate_limit":100,"retry_rate_burst":10,"failover":null}]
+	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":true,"retry_rate_limit":100,"retry_rate_burst":10,"failover":null}]
 	//test: RoundTrip(egress:true) -> [status_code:504] [err:<nil>]
-
+	
 }

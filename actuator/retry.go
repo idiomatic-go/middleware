@@ -112,7 +112,7 @@ func (r *retry) Enable() {
 }
 
 func (r *retry) SetRateLimiter(limit rate.Limit, burst int) {
-	if r.config.limit == limit {
+	if r.config.limit == limit && r.config.burst == burst {
 		return
 	}
 	r.table.setRetryRateLimit(r.name, limit, burst)
