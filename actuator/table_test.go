@@ -61,8 +61,8 @@ func ExampleTable_Add_Exists_LookupByName() {
 
 	//Output:
 	//test: empty() -> [true]
-	//test: Add(nil) -> [err:invalid argument: name is empty] [count:0] [exists:false] [lookup:<nil>]
-	//test: Add(actuator) -> [err:<nil>] [count:1] [exists:true] [lookup:true]
+	//test: Add(nil) -> [err:[invalid argument: name is empty]] [count:0] [exists:false] [lookup:<nil>]
+	//test: Add(actuator) -> [err:[]] [count:1] [exists:true] [lookup:true]
 	//test: remove("") -> [count:1] [exists:true] [lookup:true]
 	//test: remove(name) -> [count:0] [exists:false] [lookup:<nil>]
 
@@ -94,7 +94,7 @@ func ExampleTable_Lookup() {
 	//test: empty() -> [true]
 	//test: Lookup(nil) -> [actuator:*]
 	//test: Lookup(req) -> [actuator:*]
-	//test: Add(actuator) -> [actuator:<nil>] [count:1] [exists:true]
+	//test: Add(actuator) -> [actuator:[]] [count:1] [exists:true]
 	//test: Lookup(req) ->  [actuator:test-route]
 
 }

@@ -69,7 +69,7 @@ func Example_Timeout_SetTimeout() {
 	fmt.Printf("test: timeoutState(map,t) -> %v\n", m)
 
 	//Output:
-	//test: Add() -> [<nil>] [count:1]
+	//test: Add() -> [[]] [count:1]
 	//test: Duration() -> [1.5s]
 	//test: SetTimeout(2s) -> [prev-duration:1.5s] [curr-duration:2s]
 	//test: timeoutState(map,t) -> map[timeout:2000]

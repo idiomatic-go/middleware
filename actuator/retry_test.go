@@ -61,7 +61,7 @@ func Example_Status() {
 	prevEnabled = act.t().retry.IsEnabled()
 
 	//Output:
-	//test: Add() -> [<nil>] [count:1]
+	//test: Add() -> [[]] [count:1]
 	//test: IsEnabled() -> [false]
 	//test: Disable() -> [prev-enabled:false] [curr-enabled:true]
 	//test: Enable() -> [prev-enabled:true] [curr-enabled:true]
@@ -88,7 +88,7 @@ func Example_IsRetryable_Disabled() {
 	fmt.Printf("test: IsRetryable(504) -> [ok:%v] [status:%v]\n", ok, status)
 
 	//Output:
-	//test: Add() -> [<nil>] [count:1]
+	//test: Add() -> [[]] [count:1]
 	//test: IsRetryable(200) -> [ok:false] [status:NE]
 	//test: IsRetryable(503) -> [ok:false] [status:NE]
 	//test: IsRetryable(504) -> [ok:false] [status:NE]
@@ -124,7 +124,7 @@ func Example_IsRetryable_StatusCode() {
 	fmt.Printf("test: IsRetryable(505) -> [ok:%v] [status:%v]\n", ok, status)
 
 	//Output:
-	//test: Add() -> [<nil>] [count:1]
+	//test: Add() -> [[]] [count:1]
 	//test: IsRetryable(200) -> [ok:false] [status:]
 	//test: IsRetryable(500) -> [ok:false] [status:]
 	//test: IsRetryable(502) -> [ok:false] [status:]
@@ -159,7 +159,7 @@ func Example_IsRetryable_RateLimit() {
 	fmt.Printf("test: IsRetryable(504) -> [ok:%v] [status:%v]\n", ok, status)
 
 	//Output:
-	//test: Add() -> [<nil>] [count:1]
+	//test: Add() -> [[]] [count:1]
 	//test: IsRetryable(503) -> [ok:true] [status:]
 	//test: IsRetryable(504) -> [ok:false] [status:RL]
 	//test: IsRetryable(503) -> [ok:true] [status:]

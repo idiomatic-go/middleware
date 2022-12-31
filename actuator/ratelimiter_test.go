@@ -82,7 +82,7 @@ func Example_RateLimiter_Mutate() {
 	fmt.Printf("test: SetBurst(1) -> %v\n", m)
 
 	//Output:
-	//test: Add() -> [<nil>] [count:1]
+	//test: Add() -> [[]] [count:1]
 	//test: rateLimiterState(map,t) -> map[burst:100 rateLimit:10]
 	//test: SetLimit(5000) -> map[burst:100 rateLimit:99999]
 	//test: SetBurst(1) -> map[burst:1 rateLimit:99999]

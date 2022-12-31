@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func Example_Log_Error() {
+func ExampleLog_Error() {
 	SetTestEgressWrite()
 	start := time.Now()
 	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
@@ -21,7 +21,7 @@ func Example_Log_Error() {
 
 }
 
-func Example_Log_Origin() {
+func ExampleLog_Origin() {
 	name := "ingress-origin-route"
 	SetTestIngressWrite()
 	start := time.Now()
@@ -41,7 +41,7 @@ func Example_Log_Origin() {
 
 }
 
-func Example_Log_Ping() {
+func ExampleLog_Ping() {
 	name := "ingress-ping-route"
 	SetTestIngressWrite()
 	SetPingRoutes([]string{name})
@@ -60,7 +60,7 @@ func Example_Log_Ping() {
 
 }
 
-func Example_Log_Timeout() {
+func ExampleLog_Timeout() {
 	SetTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
@@ -77,7 +77,7 @@ func Example_Log_Timeout() {
 
 }
 
-func Example_Log_RateLimiter_500() {
+func ExampleLog_RateLimiter_500() {
 	SetTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
@@ -94,7 +94,7 @@ func Example_Log_RateLimiter_500() {
 
 }
 
-func Example_Log_RateLimiter_Inf() {
+func ExampleLog_RateLimiter_Inf() {
 	SetTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
@@ -111,7 +111,7 @@ func Example_Log_RateLimiter_Inf() {
 
 }
 
-func Example_Log_Failover() {
+func ExampleLog_Failover() {
 	SetTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
@@ -128,7 +128,7 @@ func Example_Log_Failover() {
 
 }
 
-func Example_Log_Retry() {
+func ExampleLog_Retry() {
 	SetTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
@@ -146,7 +146,7 @@ func Example_Log_Retry() {
 
 }
 
-func Example_Log_Request() {
+func ExampleLog_Request() {
 	SetTestEgressWrite()
 	req, _ := http.NewRequest("", "www.google.com/search/documents", nil)
 	req.Header.Add("customer", "Ted's Bait & Tackle")
@@ -167,7 +167,7 @@ func Example_Log_Request() {
 
 }
 
-func Example_Log_Response() {
+func ExampleLog_Response() {
 	SetTestEgressWrite()
 	resp := &http.Response{StatusCode: 404, ContentLength: 1234}
 

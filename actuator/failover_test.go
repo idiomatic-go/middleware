@@ -29,7 +29,7 @@ func Example_newFailover() {
 	fmt.Printf("test: failoverState(map,f2) -> %v\n", m)
 
 	//Output:
-	//test: newFailover(nil) -> [enabled:false] [validate:invalid configuration: FailoverController FailureInvoke function cannot be nil]
+	//test: newFailover(nil) -> [enabled:false] [validate:invalid configuration: FailoverController FailureInvoke function is nil]
 	//test: newFailover(testFn) -> [enabled:false] [validate:<nil>]
 	//test: cloneFailover(f1) -> [f2-enabled:true] [f2-validate:<nil>]
 	//test: failoverState(map,nil) -> map[failover:]
@@ -70,7 +70,7 @@ func Example_Failover_Status() {
 	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, f.t().failover.IsEnabled())
 
 	//Output:
-	//test: Add() -> [error:<nil>] [count:1]
+	//test: Add() -> [error:[]] [count:1]
 	//test: IsEnabled() -> [false]
 	//test: Disable() -> [prev-enabled:false] [curr-enabled:false]
 	//test: Enable() -> [prev-enabled:false] [curr-enabled:true]
@@ -93,7 +93,7 @@ func Example_Failover_Invoke() {
 	fmt.Printf("test: Invoke(false) -> []\n")
 
 	//Output:
-	//test: Add() -> [error:<nil>] [count:1]
+	//test: Add() -> [error:[]] [count:1]
 	//test: Invoke(failover-test,true)
 	//test: Invoke(true) -> []
 	//test: Invoke(failover-test,false)
