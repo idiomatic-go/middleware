@@ -49,7 +49,7 @@ func newTimeout(name string, table *table, config *TimeoutConfig) *timeout {
 
 func (t *timeout) validate() error {
 	if t.config.timeout <= 0 {
-		return errors.New("invalid configuration: TimeoutController duration cannot be <= 0")
+		return errors.New("invalid configuration: TimeoutController duration is <= 0")
 	}
 	return nil
 }

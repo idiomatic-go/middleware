@@ -49,7 +49,7 @@ func newFailover(name string, table *table, config *FailoverConfig) *failover {
 
 func (f *failover) validate() error {
 	if f.invoke == nil {
-		return errors.New("invalid configuration: FailoverController FailureInvoke function cannot be nil")
+		return errors.New("invalid configuration: FailoverController FailureInvoke function is nil")
 	}
 	return nil
 }

@@ -36,3 +36,30 @@ func ExampleActuator_newActuator() {
 	//test: Actuate() -> [test]
 
 }
+
+func ExampleActuator_newActuator_Error() {
+	t := newTable(false)
+
+	_, errs := newActuator("test", t, actuateFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRateLimiterConfig(100, 10, 503))
+	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
+
+	_, errs = newActuator("test", t, actuateFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRetryConfig(nil, 100, 10, 0))
+	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
+
+	_, errs = newActuator("test", t, actuateFn, NewTimeoutConfig(0, 0))
+	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
+
+	_, errs = newActuator("test", t, actuateFn, NewTimeoutConfig(10, 0), NewFailoverConfig(nil))
+	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
+
+	_, errs = newActuator("test", t, actuateFn, NewRateLimiterConfig(-1, 10, 504))
+	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
+
+	//Output:
+	//test: newActuator() -> [errs:[]]
+	//test: newActuator() -> [errs:[invalid configuration: RetryController status codes are empty]]
+	//test: newActuator() -> [errs:[invalid configuration: TimeoutController duration is <= 0]]
+	//test: newActuator() -> [errs:[invalid configuration: FailoverController FailureInvoke function is nil]]
+	//test: newActuator() -> [errs:[invalid configuration: RateLimiterController limit is < 0]]
+
+}

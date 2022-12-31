@@ -1,6 +1,7 @@
 package actuator
 
 import (
+	"errors"
 	"fmt"
 	"golang.org/x/time/rate"
 	"net/http"
@@ -28,7 +29,7 @@ type RateLimiterConfig struct {
 }
 
 func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int) *RateLimiterConfig {
-	validateLimiter(&limit, &burst)
+	//validateLimiter(&limit, &burst)
 	c := new(RateLimiterConfig)
 	c.limit = limit
 	c.burst = burst
@@ -74,6 +75,12 @@ func validateLimiter(max *rate.Limit, burst *int) {
 }
 
 func (r *rateLimiter) validate() error {
+	if r.config.limit < 0 {
+		return errors.New(fmt.Sprintf("invalid configuration: RateLimiterController limit is < 0"))
+	}
+	if r.config.burst < 0 {
+		return errors.New(fmt.Sprintf("invalid configuration: RateLimiterController burst is < 0"))
+	}
 	return nil
 }
 
