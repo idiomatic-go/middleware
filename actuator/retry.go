@@ -122,10 +122,6 @@ func (r *retry) SetRateLimiter(limit rate.Limit, burst int) {
 	r.table.setRetryRateLimit(r.name, limit, burst)
 }
 
-func (r *retry) Attribute(name string) Attribute {
-	return nilAttribute(name)
-}
-
 func (r *retry) IsRetryable(statusCode int) (bool, string) {
 	if !r.IsEnabled() {
 		return false, NotEnabledFlag
