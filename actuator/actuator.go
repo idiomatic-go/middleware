@@ -7,20 +7,16 @@ import (
 )
 
 const (
-	HostActuatorName      = "host"
-	DefaultActuatorName   = "*"
-	NilValue              = -1
-	RateLimitInfValue     = 99999
-	EgressTraffic         = "egress"
-	IngressTraffic        = "ingress"
-	RateLimitFlag         = "RL"
-	UpstreamTimeoutFlag   = "UT"
-	HostTimeoutFlag       = "HT"
-	NotEnabledFlag        = "NE"
-	InvalidResponseFlag   = "IR"
-	InvalidStatusCodeFlag = "SC"
+	HostActuatorName    = "host"
+	DefaultActuatorName = "*"
+	RateLimitInfValue   = 99999
+	EgressTraffic       = "egress"
+	IngressTraffic      = "ingress"
+	RateLimitFlag       = "RL"
+	UpstreamTimeoutFlag = "UT"
+	HostTimeoutFlag     = "HT"
+	NotEnabledFlag      = "NE"
 
-	StateAttributeFmt  = "%v:%v"
 	TimeoutName        = "timeout"
 	FailoverName       = "failover"
 	RetryName          = "retry"
@@ -28,7 +24,6 @@ const (
 	RetryRateBurstName = "retryBurst"
 	RateLimitName      = "rateLimit"
 	RateBurstName      = "burst"
-	StatusCodeName     = "statusCode"
 	ActName            = "name"
 )
 
