@@ -19,6 +19,7 @@ type RetryController interface {
 	Disable()
 	SetRateLimiter(limit rate.Limit, burst int)
 	IsRetryable(statusCode int) (ok bool, status string)
+	LimitAndBurst() (rate.Limit, int)
 }
 
 type RetryConfig struct {
@@ -143,4 +144,8 @@ func (r *retry) IsRetryable(statusCode int) (bool, string) {
 		}
 	}
 	return false, ""
+}
+
+func (r *retry) LimitAndBurst() (rate.Limit, int) {
+	return r.config.limit, r.config.burst
 }

@@ -7,7 +7,8 @@ import (
 
 func Example_newRetry() {
 	t := newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, 5, 10, 0))
-	fmt.Printf("test: newRetry() -> [name:%v] [config:%v]\n", t.name, t.config)
+	limit, burst := t.LimitAndBurst()
+	fmt.Printf("test: newRetry() -> [name:%v] [config:%v] [limit:%v] [burst:%v]\n", t.name, t.config, limit, burst)
 
 	t = newRetry("test-route2", newTable(true), NewRetryConfig([]int{503, 504}, 2, 20, 0))
 	fmt.Printf("test: newRetry() -> [name:%v] [config:%v]\n", t.name, t.config)
@@ -29,7 +30,7 @@ func Example_newRetry() {
 	fmt.Printf("test: retryState(t2,true,map) -> %v\n", m)
 
 	//Output:
-	//test: newRetry() -> [name:test-route] [config:{5 10 0 [504]}]
+	//test: newRetry() -> [name:test-route] [config:{5 10 0 [504]}] [limit:5] [burst:10]
 	//test: newRetry() -> [name:test-route2] [config:{2 20 0 [503 504]}]
 	//test: cloneRetry() -> [prev-enabled:false] [curr-enabled:true]
 	//test: retryState(nil,false,map) -> map[retry: retryBurst:-1 retryRateLimit:-1]

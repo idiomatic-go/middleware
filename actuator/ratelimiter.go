@@ -18,6 +18,7 @@ type RateLimiterController interface {
 	SetLimit(limit rate.Limit)
 	SetBurst(burst int)
 	SetRateLimiter(limit rate.Limit, burst int)
+	LimitAndBurst() (rate.Limit, int)
 }
 
 type RateLimiterConfig struct {
@@ -118,4 +119,8 @@ func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {
 		return
 	}
 	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: limit, burst: burst})
+}
+
+func (r *rateLimiter) LimitAndBurst() (rate.Limit, int) {
+	return r.config.limit, r.config.burst
 }

@@ -7,18 +7,20 @@ import (
 
 func Example_newRateLimiter() {
 	t := newRateLimiter("test-route", newTable(true), NewRateLimiterConfig(1, 100, 503))
-	fmt.Printf("test: newRateLimiter() -> [name:%v] [config:%v]\n", t.name, t.config)
+	limit, burst := t.LimitAndBurst()
+	fmt.Printf("test: newRateLimiter() -> [name:%v] [limit:%v] [burst:%v] [statusCode:%v]\n", t.name, limit, burst, t.StatusCode())
 
 	t = newRateLimiter("test-route2", newTable(true), NewRateLimiterConfig(rate.Inf, DefaultBurst, 429))
-	fmt.Printf("test: newRateLimiter() -> [name:%v] [config:%v]\n", t.name, t.config)
+	limit, burst = t.LimitAndBurst()
+	fmt.Printf("test: newRateLimiter() -> [name:%v] [limit:%v] [burst:%v] [statusCode:%v]\n", t.name, limit, burst, t.StatusCode())
 
 	t2 := cloneRateLimiter(t)
 	t2.config.limit = 123
 	fmt.Printf("test: cloneRateLimiter() -> [prev-limit:%v] [prev-name:%v] [curr-limit:%v] [curr-name:%v]\n", t.config.limit, t.name, t2.config.limit, t2.name)
 
 	//Output:
-	//test: newRateLimiter() -> [name:test-route] [config:{1 100 503}]
-	//test: newRateLimiter() -> [name:test-route2] [config:{1.7976931348623157e+308 1 429}]
+	//test: newRateLimiter() -> [name:test-route] [limit:1] [burst:100] [statusCode:503]
+	//test: newRateLimiter() -> [name:test-route2] [limit:1.7976931348623157e+308] [burst:1] [statusCode:429]
 	//test: cloneRateLimiter() -> [prev-limit:1.7976931348623157e+308] [prev-name:test-route2] [curr-limit:123] [curr-name:test-route2]
 
 }
