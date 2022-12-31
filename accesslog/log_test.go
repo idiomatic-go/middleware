@@ -90,7 +90,7 @@ func Example_Log_RateLimiter_500() {
 	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RateLimitName: "500", RateBurstName: "10"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","rate_limit_s":500,"rate_burst":10,"static2":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","rate_limit":500,"rate_burst":10,"static2":"value"}]
 
 }
 
@@ -107,7 +107,7 @@ func Example_Log_RateLimiter_Inf() {
 	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RateLimitName: "1000", RateBurstName: "10"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","rate_limit_s":1000,"rate_burst":10,"static2":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","rate_limit":1000,"rate_burst":10,"static2":"value"}]
 
 }
 
@@ -142,7 +142,7 @@ func Example_Log_Retry() {
 	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RetryName: "true", RetryRateLimitName: "123", RetryRateBurstName: "67"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","retry":true,"retry_rate_limit_s":123,"retry_rate_burst":67}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","retry":true,"retry_rate_limit":123,"retry_rate_burst":67}]
 
 }
 
