@@ -6,10 +6,15 @@ import (
 	"time"
 )
 
+var actuateFn Actuate = func(act Actuator, events []Event) error {
+	fmt.Printf("test: Actuate() -> [%v]\n", act.Name())
+	return nil
+}
+
 func ExampleActuator_newActuator() {
 	t := newTable(true)
 
-	a := newActuator("test", t, NewTimeoutConfig(time.Millisecond*1500, 0), NewRateLimiterConfig(100, 10, 503))
+	a, _ := newActuator("test", t, actuateFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRateLimiterConfig(100, 10, 503))
 
 	_, toOk := a.Timeout()
 	_, rateOk := a.RateLimiter()
@@ -23,8 +28,11 @@ func ExampleActuator_newActuator() {
 	d1 := a1.timeout.Duration()
 	fmt.Printf("test: cloneActuator() -> [prev-duration:%v] [curr-duration:%v]\n", d, d1)
 
+	a.Actuate(nil)
+
 	//Output:
 	//test: newActuator() -> [logger:true] [timeout:true] [rateLimit:true] [retry:false] [failover:false]
 	//test: cloneActuator() -> [prev-duration:1.5s] [curr-duration:500ms]
+	//test: Actuate() -> [test]
 
 }

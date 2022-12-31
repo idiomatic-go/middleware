@@ -2,7 +2,7 @@ package actuator
 
 import "fmt"
 
-var testFn FailoverInvoke = func(name string, failover bool) { fmt.Printf("test: Invoke(%v,%v)\n", name, failover) }
+var failoverFn FailoverInvoke = func(name string, failover bool) { fmt.Printf("test: Invoke(%v,%v)\n", name, failover) }
 
 func Example_newFailover() {
 	name := "failover-test"
@@ -10,7 +10,7 @@ func Example_newFailover() {
 	f := newFailover(name, nil, nil)
 	fmt.Printf("test: newFailover(nil) -> [enabled:%v] [validate:%v]\n", f.enabled, f.validate())
 
-	f = newFailover(name, nil, NewFailoverConfig(testFn))
+	f = newFailover(name, nil, NewFailoverConfig(failoverFn))
 	fmt.Printf("test: newFailover(testFn) -> [enabled:%v] [validate:%v]\n", f.enabled, f.validate())
 
 	f2 := cloneFailover(f)
@@ -43,7 +43,7 @@ func Example_Failover_Status() {
 	name := "failover-test"
 	t := newTable(true)
 
-	err := t.Add(name, NewFailoverConfig(testFn))
+	err := t.Add(name, nil, NewFailoverConfig(failoverFn))
 	fmt.Printf("test: Add() -> [error:%v] [count:%v]\n", err, t.count())
 
 	f := t.LookupByName(name)
@@ -82,7 +82,7 @@ func Example_Failover_Status() {
 func Example_Failover_Invoke() {
 	name := "failover-test"
 	t := newTable(true)
-	err := t.Add(name, NewFailoverConfig(testFn))
+	err := t.Add(name, nil, NewFailoverConfig(failoverFn))
 	fmt.Printf("test: Add() -> [error:%v] [count:%v]\n", err, t.count())
 
 	f := t.LookupByName(name)

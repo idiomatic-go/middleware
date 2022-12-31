@@ -61,7 +61,7 @@ func Example_RateLimiter_Mutate() {
 	name := "test-route"
 	config := NewRateLimiterConfig(10, 100, 503)
 	t := newTable(true)
-	err := t.Add(name, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)

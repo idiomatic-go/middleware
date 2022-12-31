@@ -30,15 +30,6 @@ func newTable(egress bool) *table {
 	t.actuators = make(map[string]*actuator, 100)
 	t.hostAct = newDefaultActuator(HostActuatorName)
 	t.defaultAct = newDefaultActuator(DefaultActuatorName)
-	/*if egress {
-		t.defaultAct = newActuator(DefaultActuatorName, t, newTimeout(DefaultActuatorName, t, nil),
-			newCircuitBreaker(DefaultActuatorName, t, nil),
-			newFailover(DefaultActuatorName, t, nil))
-	} else {
-		t.defaultAct = newActuator(DefaultActuatorName, t, newTimeout(DefaultActuatorName, t, nil), newRateLimiter(DefaultActuatorName, t, nil))
-	}
-
-	*/
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
@@ -47,28 +38,34 @@ func newTable(egress bool) *table {
 
 func (t *table) isEgress() bool { return t.egress }
 
-func (t *table) SetHostActuator(config ...any) error {
+func (t *table) SetHostActuator(fn Actuate, config ...any) []error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	act := newActuator(HostActuatorName, t, config...)
+	act, errs := newActuator(HostActuatorName, t, fn, config...)
+	if len(errs) > 0 {
+		return errs
+	}
 	err := act.validate(t.egress)
 	if err != nil {
-		return err
+		return []error{err}
 	}
 	t.hostAct = act
 	return nil
 }
 
-func (t *table) SetDefaultActuator(name string, config ...any) error {
+func (t *table) SetDefaultActuator(name string, fn Actuate, config ...any) []error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if name == "" {
 		name = DefaultActuatorName
 	}
-	act := newActuator(name, t, config...)
+	act, errs := newActuator(name, t, fn, config...)
+	if len(errs) > 0 {
+		return errs
+	}
 	err := act.validate(t.egress)
 	if err != nil {
-		return err
+		return []error{err}
 	}
 	t.defaultAct = act
 	return nil
@@ -111,16 +108,19 @@ func (t *table) LookupByName(name string) Actuator {
 	return nil
 }
 
-func (t *table) Add(name string, config ...any) error {
+func (t *table) Add(name string, fn Actuate, config ...any) []error {
 	if IsEmpty(name) {
-		return errors.New("invalid argument: name is empty")
+		return []error{errors.New("invalid argument: name is empty")}
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	act := newActuator(name, t, config...)
+	act, errs := newActuator(name, t, fn, config...)
+	if len(errs) > 0 {
+		return errs
+	}
 	err := act.validate(t.egress)
 	if err != nil {
-		return err
+		return []error{err}
 	}
 	t.actuators[name] = act
 	return nil

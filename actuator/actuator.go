@@ -2,6 +2,7 @@ package actuator
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -31,7 +32,7 @@ const (
 	ActName            = "name"
 )
 
-type Matcher func(req *http.Request) (routeName string)
+type Actuate func(act Actuator, events []Event) error
 
 type Actuator interface {
 	Name() string
@@ -40,15 +41,17 @@ type Actuator interface {
 	RateLimiter() (RateLimiterController, bool)
 	Retry() (RetryController, bool)
 	Failover() (FailoverController, bool)
-	Actuate(events string) error
+	Actuate(events []Event) error
 	t() *actuator
 }
 
+type Matcher func(req *http.Request) (routeName string)
+
 type Configuration interface {
 	SetMatcher(fn Matcher)
-	SetDefaultActuator(name string, config ...any) error
-	SetHostActuator(config ...any) error
-	Add(name string, config ...any) error
+	SetDefaultActuator(name string, fn Actuate, config ...any) []error
+	SetHostActuator(fn Actuate, config ...any) []error
+	Add(name string, fn Actuate, config ...any) []error
 }
 
 type Actuators interface {
@@ -65,14 +68,6 @@ type Table interface {
 var IngressTable = NewIngressTable()
 var EgressTable = NewEgressTable()
 
-func NewActuator(name string, config ...any) Actuator {
-	return newActuator(name, newTable(true), config...)
-}
-
-//func NewActuatorWithLogger(name string, config *LoggerConfig) Actuator {
-//	return &actuator{name: name, logger: newLogger(config)}
-//}
-
 type actuator struct {
 	name        string
 	logger      *logger
@@ -80,6 +75,7 @@ type actuator struct {
 	rateLimiter *rateLimiter
 	failover    *failover
 	retry       *retry
+	actuate     Actuate
 }
 
 func cloneActuator[T *timeout | *rateLimiter | *retry | *failover](curr *actuator, controller T) *actuator {
@@ -99,23 +95,34 @@ func cloneActuator[T *timeout | *rateLimiter | *retry | *failover](curr *actuato
 	return newAct
 }
 
-func newActuator(name string, t *table, config ...any) *actuator {
+func newActuator(name string, t *table, fn Actuate, config ...any) (*actuator, []error) {
+	var errs []error
+	var err error
 	act := new(actuator)
 	act.name = name
+	act.actuate = fn
 	act.logger = defaultLogger
 	for _, cfg := range config {
+		err = nil
 		switch c := cfg.(type) {
 		case *TimeoutConfig:
 			act.timeout = newTimeout(name, t, c)
+			err = act.timeout.validate()
 		case *RateLimiterConfig:
 			act.rateLimiter = newRateLimiter(name, t, c)
+			err = act.rateLimiter.validate()
 		case *FailoverConfig:
 			act.failover = newFailover(name, t, c)
+			err = act.failover.validate()
 		case *RetryConfig:
 			act.retry = newRetry(name, t, c)
+			err = act.retry.validate()
+		}
+		if err != nil {
+			errs = append(errs, err)
 		}
 	}
-	return act
+	return act, errs
 }
 
 func newDefaultActuator(name string) *actuator {
@@ -128,6 +135,9 @@ func (a *actuator) validate(egress bool) error {
 	} else {
 		if a.failover != nil {
 			return errors.New("invalid configuration: FailoverController is not valid for ingress traffic")
+		}
+		if a.retry != nil {
+			return errors.New("invalid configuration: RetryController is not valid for ingress traffic")
 		}
 	}
 	return nil
@@ -169,8 +179,11 @@ func (a *actuator) Failover() (FailoverController, bool) {
 	return a.failover, true
 }
 
-func (a *actuator) Actuate(events string) error {
-	return nil
+func (a *actuator) Actuate(events []Event) error {
+	if a.actuate == nil {
+		return errors.New(fmt.Sprintf("invalid configuration: Actuate function is nil for : %v", a.name))
+	}
+	return a.actuate(a, events)
 }
 
 func (a *actuator) t() *actuator {

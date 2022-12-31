@@ -73,6 +73,10 @@ func validateLimiter(max *rate.Limit, burst *int) {
 	}
 }
 
+func (r *rateLimiter) validate() error {
+	return nil
+}
+
 func rateLimiterState(m map[string]string, r RateLimiterController) {
 	var limit rate.Limit = -1
 	var burst = -1

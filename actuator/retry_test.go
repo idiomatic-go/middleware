@@ -43,7 +43,7 @@ func Example_Status() {
 	name := "test-route"
 	config := NewRetryConfig([]int{504}, 5, 10, 0)
 	t := newTable(true)
-	err := t.Add(name, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
@@ -72,7 +72,7 @@ func Example_IsRetryable_Disabled() {
 	name := "test-route"
 	config := NewRetryConfig([]int{503, 504}, 100, 10, 0)
 	t := newTable(true)
-	err := t.Add(name, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
@@ -99,7 +99,7 @@ func Example_IsRetryable_StatusCode() {
 	name := "test-route"
 	config := NewRetryConfig([]int{503, 504}, 100, 10, 0)
 	t := newTable(true)
-	err := t.Add(name, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
@@ -138,7 +138,7 @@ func Example_IsRetryable_RateLimit() {
 	name := "test-route"
 	config := NewRetryConfig([]int{503, 504}, 1, 1, 0)
 	t := newTable(true)
-	err := t.Add(name, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
