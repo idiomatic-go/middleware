@@ -43,6 +43,10 @@ var (
 		{Operator: accesslog.TimeoutDurationOperator},
 		{Operator: accesslog.RateLimitOperator},
 		{Operator: accesslog.RateBurstOperator},
+		{Operator: accesslog.RetryOperator},
+		{Operator: accesslog.RetryRateLimitOperator},
+		{Operator: accesslog.RetryRateBurstOperator},
+		{Operator: accesslog.FailoverOperator},
 	}
 )
 

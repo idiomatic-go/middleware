@@ -3,7 +3,6 @@ package extract
 import (
 	"fmt"
 	"github.com/idiomatic-go/middleware/accesslog"
-	"github.com/idiomatic-go/middleware/route"
 	"net/http"
 	"time"
 )
@@ -62,15 +61,15 @@ func Example_Handler_Processed() {
 	err := Initialize("http://localhost:8080/accesslog", nil, nil)
 	fmt.Printf("test: initialize() -> [%v]\n", err)
 
-	r0, _ := route.NewRoute("route-data-0")
-	r1, _ := route.NewRoute("route-data-1")
-	r2, _ := route.NewRoute("route-data-2")
-	r3, _ := route.NewRoute("route-data-3")
+	//r0, _ := route.NewRoute("route-data-0")
+	//r1, _ := route.NewRoute("route-data-1")
+	//r2, _ := route.NewRoute("route-data-2")
+	//r3, _ := route.NewRoute("route-data-3")
 
-	data0 := accesslog.Logd{Origin: &accesslog.Origin{Region: "region-1"}, Route: r0}
-	data1 := accesslog.Logd{Origin: &accesslog.Origin{Region: "region-2"}, Route: r1}
-	data2 := accesslog.Logd{Origin: &accesslog.Origin{Region: "region-3"}, Route: r2}
-	data3 := accesslog.Logd{Origin: &accesslog.Origin{Region: "region-4"}, Route: r3}
+	data0 := accesslog.Logd{Origin: &accesslog.Origin{Region: "region-1"}, ActState: map[string]string{accesslog.ActName: "route-data-0"}}
+	data1 := accesslog.Logd{Origin: &accesslog.Origin{Region: "region-2"}, ActState: map[string]string{accesslog.ActName: "route-data-1"}}
+	data2 := accesslog.Logd{Origin: &accesslog.Origin{Region: "region-3"}, ActState: map[string]string{accesslog.ActName: "route-data-2"}}
+	data3 := accesslog.Logd{Origin: &accesslog.Origin{Region: "region-4"}, ActState: map[string]string{accesslog.ActName: "route-data-3"}}
 	extract(&data0)
 	extract(&data1)
 	extract(&data2)
@@ -80,9 +79,9 @@ func Example_Handler_Processed() {
 
 	//Output:
 	//test: initialize() -> [<nil>]
-	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-0","region":"region-1","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","response_flags":null,"bytes_received":"0","bytes_sent":"0","timeout":-1,"limit":"INF","burst":1}]
-	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-1","region":"region-2","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","response_flags":null,"bytes_received":"0","bytes_sent":"0","timeout":-1,"limit":"INF","burst":1}]
-	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-2","region":"region-3","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","response_flags":null,"bytes_received":"0","bytes_sent":"0","timeout":-1,"limit":"INF","burst":1}]
-	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-3","region":"region-4","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","response_flags":null,"bytes_received":"0","bytes_sent":"0","timeout":-1,"limit":"INF","burst":1}]
-
+	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-0","region":"region-1","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"bytes_received":"0","bytes_sent":"0","timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
+	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-1","region":"region-2","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"bytes_received":"0","bytes_sent":"0","timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
+	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-2","region":"region-3","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"bytes_received":"0","bytes_sent":"0","timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
+	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-3","region":"region-4","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"bytes_received":"0","bytes_sent":"0","timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
+	
 }
