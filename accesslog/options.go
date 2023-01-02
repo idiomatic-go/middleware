@@ -2,11 +2,12 @@ package accesslog
 
 import (
 	"fmt"
+	"github.com/idiomatic-go/middleware/accessdata"
 	"log"
 )
 
 // Extract - optionally allows extraction of log data
-type Extract func(l *Logd)
+type Extract func(l *accessdata.Entry)
 
 // Write - override log output disposition, default is log.Println
 type Write func(s string)
@@ -17,8 +18,6 @@ type options struct {
 	extractFn    Extract
 	ingressWrite Write
 	egressWrite  Write
-	origin       Origin
-	pingRoutes   []string
 }
 
 var opt options
@@ -38,7 +37,7 @@ func SetExtract(fn Extract) {
 	opt.extractFn = fn
 }
 
-func callExtract(l *Logd) {
+func callExtract(l *accessdata.Entry) {
 	if IsExtract() {
 		opt.extractFn(l)
 	}
@@ -94,27 +93,4 @@ func egressWrite(s string) {
 	if opt.egressWrite != nil {
 		opt.egressWrite(s)
 	}
-}
-
-// SetOrigin - required to track service identification
-func SetOrigin(o Origin) {
-	opt.origin = o
-}
-
-func getOrigin() *Origin {
-	return &opt.origin
-}
-
-// SetPingRoutes - initialize the ping routes
-func SetPingRoutes(routes []string) {
-	opt.pingRoutes = routes
-}
-
-func isPingTraffic(name string) bool {
-	for _, n := range opt.pingRoutes {
-		if n == name {
-			return true
-		}
-	}
-	return false
 }

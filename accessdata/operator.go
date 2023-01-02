@@ -3,10 +3,11 @@ package accessdata
 import "strings"
 
 const (
-	headerPrefix            = "header"
-	directOperator          = "direct"
-	operatorPrefix          = "%"
-	requestReferencePrefix  = "%REQ("
+	HeaderPrefix           = "header"
+	DirectOperator         = "direct"
+	OperatorPrefix         = "%"
+	RequestReferencePrefix = "%REQ("
+
 	RequestIdHeaderName     = "X-REQUEST-ID"
 	UserAgentHeaderName     = "USER-AGENT"
 	FordwardedForHeaderName = "X-FORWARDED-FOR"
@@ -59,15 +60,15 @@ type Operator struct {
 }
 
 func IsClientHeader(operator string) bool {
-	return strings.HasPrefix(operator, headerPrefix)
+	return strings.HasPrefix(operator, HeaderPrefix)
 }
 
 func IsDirect(operator string) bool {
-	return strings.HasPrefix(operator, directOperator)
+	return strings.HasPrefix(operator, DirectOperator)
 }
 
 func CreateDirect(name string) string {
-	return directOperator + ":" + name
+	return DirectOperator + ":" + name
 }
 
 func ParseDirect(s string) string {

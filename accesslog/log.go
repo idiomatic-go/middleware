@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/idiomatic-go/middleware/accessdata"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -14,13 +13,13 @@ const (
 )
 
 func Log(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) {
-	if actState == nil || actState[ActName] == "" {
+	if actState == nil || actState[accessdata.ActName] == "" {
 		egressWrite(fmt.Sprintf(errorNilRouteFmt, traffic))
 		return
 	}
-	data := NewLogd(traffic, start, duration, getOrigin(), actState, req, resp, statusFlags)
+	data := accessdata.NewEntry(traffic, start, duration, actState, req, resp, statusFlags)
 	callExtract(data)
-	if traffic == IngressTraffic {
+	if traffic == accessdata.IngressTraffic {
 		if !opt.writeIngress {
 			return
 		}
@@ -28,7 +27,7 @@ func Log(traffic string, start time.Time, duration time.Duration, actState map[s
 			ingressWrite(fmt.Sprintf(errorEmptyFmt, traffic))
 			return
 		}
-		s := accessdata.WriteJson(ingressEntries, nil)
+		s := accessdata.WriteJson(ingressEntries, data)
 		ingressWrite(s)
 	} else {
 		if !opt.writeEgress {
@@ -38,23 +37,7 @@ func Log(traffic string, start time.Time, duration time.Duration, actState map[s
 			egressWrite(fmt.Sprintf(errorEmptyFmt, traffic))
 			return
 		}
-		s := accessdata.WriteJson(egressEntries, nil)
+		s := accessdata.WriteJson(egressEntries, data)
 		egressWrite(s)
 	}
-}
-
-func FormatJson(items []Entry, data *Logd) string {
-	if len(items) == 0 || data == nil {
-		return "{}"
-	}
-	sb := strings.Builder{}
-	for _, entry := range items {
-		if entry.IsDirect() {
-			writeJson(&sb, entry.Name, entry.Value, entry.StringValue)
-			continue
-		}
-		writeJson(&sb, entry.Name, data.Value(entry), entry.StringValue)
-	}
-	sb.WriteString("}")
-	return sb.String()
 }
