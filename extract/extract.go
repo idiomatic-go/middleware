@@ -2,51 +2,52 @@ package extract
 
 import (
 	"errors"
+	"github.com/idiomatic-go/middleware/accessdata"
 	"github.com/idiomatic-go/middleware/accesslog"
 	"net/http"
 	urlpkg "net/url"
 	"strings"
 )
 
-type messageHandler func(l *accesslog.Logd) bool
+type messageHandler func(l *accessdata.Entry) bool
 
 var (
 	url     string
-	c       chan *accesslog.Logd
-	entries []accesslog.Entry
+	c       chan *accessdata.Entry
+	entries []accessdata.Operator
 	client                 = http.DefaultClient
 	handler messageHandler = do
-	config                 = []accesslog.Reference{
-		{Operator: accesslog.StartTimeOperator},
-		{Operator: accesslog.DurationOperator},
-		{Operator: accesslog.TrafficOperator},
-		{Operator: accesslog.RouteNameOperator},
+	config                 = []accessdata.Operator{
+		{Value: accessdata.StartTimeOperator},
+		{Value: accessdata.DurationOperator},
+		{Value: accessdata.TrafficOperator},
+		{Value: accessdata.RouteNameOperator},
 
-		{Operator: accesslog.OriginRegionOperator},
-		{Operator: accesslog.OriginZoneOperator},
-		{Operator: accesslog.OriginSubZoneOperator},
-		{Operator: accesslog.OriginServiceOperator},
-		{Operator: accesslog.OriginInstanceIdOperator},
+		{Value: accessdata.OriginRegionOperator},
+		{Value: accessdata.OriginZoneOperator},
+		{Value: accessdata.OriginSubZoneOperator},
+		{Value: accessdata.OriginServiceOperator},
+		{Value: accessdata.OriginInstanceIdOperator},
 
-		{Operator: accesslog.RequestMethodOperator},
-		{Operator: accesslog.RequestHostOperator},
-		{Operator: accesslog.RequestPathOperator},
-		{Operator: accesslog.RequestProtocolOperator},
-		{Operator: accesslog.RequestIdOperator},
-		{Operator: accesslog.RequestForwardedForOperator},
+		{Value: accessdata.RequestMethodOperator},
+		{Value: accessdata.RequestHostOperator},
+		{Value: accessdata.RequestPathOperator},
+		{Value: accessdata.RequestProtocolOperator},
+		{Value: accessdata.RequestIdOperator},
+		{Value: accessdata.RequestForwardedForOperator},
 
-		{Operator: accesslog.ResponseStatusCodeOperator},
-		{Operator: accesslog.StatusFlagsOperator},
-		{Operator: accesslog.ResponseBytesReceivedOperator},
-		{Operator: accesslog.ResponseBytesSentOperator},
+		{Value: accessdata.ResponseStatusCodeOperator},
+		{Value: accessdata.StatusFlagsOperator},
+		{Value: accessdata.ResponseBytesReceivedOperator},
+		{Value: accessdata.ResponseBytesSentOperator},
 
-		{Operator: accesslog.TimeoutDurationOperator},
-		{Operator: accesslog.RateLimitOperator},
-		{Operator: accesslog.RateBurstOperator},
-		{Operator: accesslog.RetryOperator},
-		{Operator: accesslog.RetryRateLimitOperator},
-		{Operator: accesslog.RetryRateBurstOperator},
-		{Operator: accesslog.FailoverOperator},
+		{Value: accessdata.TimeoutDurationOperator},
+		{Value: accessdata.RateLimitOperator},
+		{Value: accessdata.RateBurstOperator},
+		{Value: accessdata.RetryOperator},
+		{Value: accessdata.RetryRateLimitOperator},
+		{Value: accessdata.RetryRateBurstOperator},
+		{Value: accessdata.FailoverOperator},
 	}
 )
 
@@ -61,12 +62,12 @@ func Initialize(uri string, newClient *http.Client, fn ErrorHandler) error {
 		return err1
 	}
 	url = u.String()
-	entries = []accesslog.Entry{}
+	entries = []accessdata.Operator{}
 	err = accesslog.CreateEntries(&entries, config)
 	if err != nil {
 		return err
 	}
-	c = make(chan *accesslog.Logd, 100)
+	c = make(chan *accessdata.Entry, 100)
 	go receive()
 	if newClient != nil {
 		client = newClient
@@ -82,13 +83,13 @@ func Shutdown() {
 	}
 }
 
-func extract(l *accesslog.Logd) {
+func extract(l *accessdata.Entry) {
 	if l != nil {
 		c <- l
 	}
 }
 
-func do(l *accesslog.Logd) bool {
+func do(l *accessdata.Entry) bool {
 	if l == nil {
 		OnError(errors.New("invalid argument : access log data is nil"))
 		return false
@@ -100,7 +101,7 @@ func do(l *accesslog.Logd) bool {
 	var req *http.Request
 	var err error
 
-	reader := strings.NewReader(accesslog.FormatJson(entries, l))
+	reader := strings.NewReader(accessdata.WriteJson(entries, l))
 	req, err = http.NewRequest(http.MethodPost, url, reader)
 	if err == nil {
 		_, err = client.Do(req)
