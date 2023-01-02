@@ -7,22 +7,22 @@ import (
 	"strings"
 )
 
-var ingressEntries []accessdata.Operator
-var egressEntries []accessdata.Operator
+var ingressOperators []accessdata.Operator
+var egressOperators []accessdata.Operator
 
-func CreateIngressEntries(config []accessdata.Operator) error {
-	ingressEntries = []accessdata.Operator{}
-	return CreateEntries(&ingressEntries, config)
+func CreateIngressOperators(config []accessdata.Operator) error {
+	ingressOperators = []accessdata.Operator{}
+	return CreateOperators(&ingressOperators, config)
 }
 
-func CreateEgressEntries(config []accessdata.Operator) error {
-	egressEntries = []accessdata.Operator{}
-	return CreateEntries(&egressEntries, config)
+func CreateEgressOperators(config []accessdata.Operator) error {
+	egressOperators = []accessdata.Operator{}
+	return CreateOperators(&egressOperators, config)
 }
 
-func CreateEntries(items *[]accessdata.Operator, config []accessdata.Operator) error {
+func CreateOperators(items *[]accessdata.Operator, config []accessdata.Operator) error {
 	if items == nil {
-		return errors.New("invalid configuration : entries are nil")
+		return errors.New("invalid configuration : operators are nil")
 	}
 	if len(config) == 0 {
 		return errors.New("invalid configuration : configuration is empty")
@@ -40,7 +40,7 @@ func CreateEntries(items *[]accessdata.Operator, config []accessdata.Operator) e
 			return errors.New(fmt.Sprintf("invalid reference : name is empty %v", op2.Name))
 		}
 		if _, ok := dup[op2.Value]; ok {
-			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate [%v]", op2.Value))
+			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate [%v]", op2.Name))
 		}
 		dup[op2.Value] = op2.Value
 		*items = append(*items, op2)

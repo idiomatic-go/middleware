@@ -85,48 +85,48 @@ func Example_createOperator() {
 
 }
 
-/*
 func Example_CreateEntries() {
-	var items []Entry
+	var items []accessdata.Operator
 
-	err := CreateEntries(nil, []Reference{{Operator: "", Name: "name"}})
-	fmt.Printf("test: CreateEntries(\"items: nil\") -> [err:%v] [%v]\n", err, items)
+	err := CreateOperators(nil, []accessdata.Operator{{Value: "", Name: "name"}})
+	fmt.Printf("test: CreateOperators(\"items: nil\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateEntries(&items, []Reference{})
-	fmt.Printf("test: CreateEntries({}) -> [err:%v] [%v]\n", err, items)
+	err = CreateOperators(&items, []accessdata.Operator{})
+	fmt.Printf("test: CreateOperators({}) -> [err:%v] [%v]\n", err, items)
 
-	err = CreateEntries(&items, []Reference{{Operator: "", Name: "name"}})
-	fmt.Printf("test: CreateEntries(\"Operator: \"\"\") -> [err:%v] [%v]\n", err, items)
+	err = CreateOperators(&items, []accessdata.Operator{{Value: "", Name: "name"}})
+	fmt.Printf("test: CreateOperators(\"Value: \"\"\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateEntries(&items, []Reference{{Operator: "%INVALID", Name: ""}})
-	fmt.Printf("test: CreateEntries(\"Operator: INVALID\") -> [err:%v] [%v]\n", err, items)
+	err = CreateOperators(&items, []accessdata.Operator{{Value: "%INVALID", Name: ""}})
+	fmt.Printf("test: CreateOperators(\"Value: INVALID\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateEntries(&items, []Reference{{Operator: "static", Name: "name"}})
-	fmt.Printf("test: CreateEntries(\"Operator: static\") -> [err:%v] [%v]\n", err, items)
+	err = CreateOperators(&items, []accessdata.Operator{{Value: "static", Name: "name"}})
+	fmt.Printf("test: CreateOperators(\"Value: static\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateEntries(&items, []Reference{{Operator: "%START_TIME%", Name: ""}})
-	fmt.Printf("test: CreateEntries(\"Operator: START_TIME\") -> [err:%v] [%v]\n", err, items)
+	err = CreateOperators(&items, []accessdata.Operator{{Value: "%START_TIME%", Name: ""}})
+	fmt.Printf("test: CreateOperators(\"Value: START_TIME\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateEntries(&items, []Reference{{Operator: "%START_TIME%", Name: "timestamp"}})
-	fmt.Printf("test: CreateEntries(\"Operator: START_TIME\") -> [err:%v] [%v]\n", err, items)
+	err = CreateOperators(&items, []accessdata.Operator{{Value: "%START_TIME%", Name: "timestamp"}})
+	fmt.Printf("test: CreateOperators(\"Value: START_TIME\") -> [err:%v] [%v]\n", err, items)
 
-	var newItems []Entry
+	var newItems []accessdata.Operator
 
-	err = CreateEntries(&newItems, []Reference{{Operator: "%START_TIME%", Name: "timestamp"}, {Operator: "%START_TIME%", Name: "timestamp"}})
-	fmt.Printf("test: CreateEntries(\"Operator: START_TIME\") -> [err:%v] [%v]\n", err, items)
+	err = CreateOperators(&newItems, []accessdata.Operator{{Value: "%START_TIME%", Name: "timestamp"}, {Value: "%START_TIME%", Name: "timestamp"}})
+	fmt.Printf("test: CreateOperators(\"Value: START_TIME\") -> [err:%v] [%v]\n", err, items)
 
 	//Output:
-	//test: CreateEntries("items: nil") -> [err:invalid configuration : entries are nil] [[]]
-	//test: CreateEntries({}) -> [err:invalid configuration : configuration is empty] [[]]
-	//test: CreateEntries("Operator: """) -> [err:invalid entry reference : operator is empty ] [[]]
-	//test: CreateEntries("Operator: INVALID") -> [err:invalid entry reference : operator not found %INVALID] [[]]
-	//test: CreateEntries("Operator: static") -> [err:<nil>] [[{direct static name true}]]
-	//test: CreateEntries("Operator: START_TIME") -> [err:<nil>] [[{direct static name true} {%START_TIME% start_time  true}]]
-	//test: CreateEntries("Operator: START_TIME") -> [err:<nil>] [[{direct static name true} {%START_TIME% start_time  true} {%START_TIME% timestamp  true}]]
-	//test: CreateEntries("Operator: START_TIME") -> [err:invalid reference : name is a duplicate [timestamp]] [[{direct static name true} {%START_TIME% start_time  true} {%START_TIME% timestamp  true}]]
+	//test: CreateOperators("items: nil") -> [err:invalid configuration : operators are nil] [[]]
+	//test: CreateOperators({}) -> [err:invalid configuration : configuration is empty] [[]]
+	//test: CreateOperators("Value: """) -> [err:invalid operator: value is empty name] [[]]
+	//test: CreateOperators("Value: INVALID") -> [err:invalid operator : value not found %INVALID] [[]]
+	//test: CreateOperators("Value: static") -> [err:<nil>] [[{direct:name static}]]
+	//test: CreateOperators("Value: START_TIME") -> [err:<nil>] [[{direct:name static} {start_time %START_TIME%}]]
+	//test: CreateOperators("Value: START_TIME") -> [err:<nil>] [[{direct:name static} {start_time %START_TIME%} {timestamp %START_TIME%}]]
+	//test: CreateOperators("Value: START_TIME") -> [err:invalid reference : name is a duplicate [timestamp]] [[{direct:name static} {start_time %START_TIME%} {timestamp %START_TIME%}]]
 
 }
 
+/*
 func _Example_CreateEntries_Request() {
 	var items []Entry
 

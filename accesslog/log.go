@@ -23,21 +23,21 @@ func Log(traffic string, start time.Time, duration time.Duration, actState map[s
 		if !opt.writeIngress {
 			return
 		}
-		if len(ingressEntries) == 0 {
+		if len(ingressOperators) == 0 {
 			ingressWrite(fmt.Sprintf(errorEmptyFmt, traffic))
 			return
 		}
-		s := accessdata.WriteJson(ingressEntries, data)
+		s := accessdata.WriteJson(ingressOperators, data)
 		ingressWrite(s)
 	} else {
 		if !opt.writeEgress {
 			return
 		}
-		if len(egressEntries) == 0 {
+		if len(egressOperators) == 0 {
 			egressWrite(fmt.Sprintf(errorEmptyFmt, traffic))
 			return
 		}
-		s := accessdata.WriteJson(egressEntries, data)
+		s := accessdata.WriteJson(egressOperators, data)
 		egressWrite(s)
 	}
 }
