@@ -52,17 +52,3 @@ func itoa(buf *[]byte, i int, wid int) {
 	b[bp] = byte('0' + i)
 	*buf = append(*buf, b[bp:]...)
 }
-
-/*
-func NormalizeHttpHeaderName(name string) string {
-	if IsEmpty(name) {
-		return ""
-	}
-	if !unicode.IsUpper(rune(name[0])) {
-		var s = string(unicode.ToUpper(rune(name[0])))
-		return s + name[1:]
-	}
-	return name
-}
-
-*/

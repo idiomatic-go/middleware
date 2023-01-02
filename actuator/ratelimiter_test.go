@@ -54,10 +54,9 @@ func Example_RateLimiter_Status() {
 	//test: Enable() -> [prev-enabled:false] [curr-enabled:true]
 
 }
-
-
 */
-func Example_RateLimiter_Mutate() {
+
+func Example_RateLimiter_Set() {
 	name := "test-route"
 	config := NewRateLimiterConfig(10, 100, 503)
 	t := newTable(true)
@@ -65,26 +64,40 @@ func Example_RateLimiter_Mutate() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	m := make(map[string]string, 16)
-	rateLimiterState(m, act.t().rateLimiter)
-	fmt.Printf("test: rateLimiterState(map,t) -> %v\n", m)
+	fmt.Printf("test: rateLimiterState(map,t) -> %v\n", rateLimiterState(nil, act.t().rateLimiter))
 
 	act.t().rateLimiter.SetLimit(rate.Inf)
 	act1 := t.LookupByName(name)
-	m = make(map[string]string, 16)
-	rateLimiterState(m, act1.t().rateLimiter)
-	fmt.Printf("test: SetLimit(5000) -> %v\n", m)
+	fmt.Printf("test: SetLimit(rate.Inf) -> %v\n", rateLimiterState(nil, act1.t().rateLimiter))
 
 	act1.t().rateLimiter.SetBurst(1)
 	act = t.LookupByName(name)
-	m = make(map[string]string, 16)
-	rateLimiterState(m, act.t().rateLimiter)
-	fmt.Printf("test: SetBurst(1) -> %v\n", m)
+	fmt.Printf("test: SetBurst(1) -> %v\n", rateLimiterState(nil, act.t().rateLimiter))
 
 	//Output:
 	//test: Add() -> [[]] [count:1]
 	//test: rateLimiterState(map,t) -> map[burst:100 rateLimit:10]
-	//test: SetLimit(5000) -> map[burst:100 rateLimit:99999]
+	//test: SetLimit(rate.Inf) -> map[burst:100 rateLimit:99999]
+	//test: SetBurst(1) -> map[burst:1 rateLimit:99999]
+
+}
+
+func Example_RateLimiter_Adjust() {
+	name := "test-route"
+	config := NewRateLimiterConfig(10, 100, 503)
+	t := newTable(true)
+	err := t.Add(name, nil, config)
+	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
+
+	act := t.LookupByName(name)
+	act.t().rateLimiter.AdjustRateLimiter(10)
+	act1 := t.LookupByName(name)
+	fmt.Printf("test: rateLimiterState(map,t) -> %v\n", rateLimiterState(nil, act1.t().rateLimiter))
+
+	//Output:
+	//test: Add() -> [[]] [count:1]
+	//test: rateLimiterState(map,t) -> map[burst:100 rateLimit:10]
+	//test: SetLimit(rate.Inf) -> map[burst:100 rateLimit:99999]
 	//test: SetBurst(1) -> map[burst:1 rateLimit:99999]
 
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/time/rate"
+	"math"
 	"net/http"
 	"strconv"
 )
@@ -19,6 +20,7 @@ type RateLimiterController interface {
 	SetLimit(limit rate.Limit)
 	SetBurst(burst int)
 	SetRateLimiter(limit rate.Limit, burst int)
+	AdjustRateLimiter(percentage int) bool
 	LimitAndBurst() (rate.Limit, int)
 }
 
@@ -84,7 +86,7 @@ func (r *rateLimiter) validate() error {
 	return nil
 }
 
-func rateLimiterState(m map[string]string, r RateLimiterController) {
+func rateLimiterState(m map[string]string, r RateLimiterController) map[string]string {
 	var limit rate.Limit = -1
 	var burst = -1
 
@@ -95,8 +97,12 @@ func rateLimiterState(m map[string]string, r RateLimiterController) {
 		}
 		burst = r.(*rateLimiter).config.burst
 	}
+	if m == nil {
+		m = make(map[string]string, 16)
+	}
 	m[RateLimitName] = fmt.Sprintf("%v", limit)
 	m[RateBurstName] = strconv.Itoa(burst)
+	return m
 }
 
 func (r *rateLimiter) Allow() bool {
@@ -132,6 +138,43 @@ func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {
 	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: limit, burst: burst})
 }
 
+func (r *rateLimiter) AdjustRateLimiter(percentage int) bool {
+	newLimit, ok := limitAdjust(float64(r.config.limit), percentage)
+	if !ok {
+		return false
+	}
+	newBurst, ok1 := burstAdjust(r.config.burst, percentage)
+	if !ok1 {
+		return false
+	}
+	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: rate.Limit(newLimit), burst: newBurst})
+	return true
+}
+
 func (r *rateLimiter) LimitAndBurst() (rate.Limit, int) {
 	return r.config.limit, r.config.burst
+}
+
+func limitAdjust(val float64, percentage int) (float64, bool) {
+	change := float64(percentage) / 100.0
+	change = math.Abs(change)
+	change = change * val
+	if change >= val {
+		return val, false
+	}
+	if percentage > 0 {
+		return val + change, true
+	}
+	return val - change, true
+}
+
+func burstAdjust(val int, percentage int) (int, bool) {
+	change := int(math.Round(math.Abs(float64(percentage/100)) * float64(val)))
+	if change >= val {
+		return val, false
+	}
+	if percentage > 0 {
+		return val + change, true
+	}
+	return val - change, true
 }
