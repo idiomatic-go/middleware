@@ -1,86 +1,91 @@
 package accesslog
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/idiomatic-go/middleware/accessdata"
+)
 
-func translateEntry(e Entry) Entry {
-	newE := Entry{Operator: e.Operator, Value: e.Value, Name: e.Name, StringValue: e.StringValue}
-	if newE.Operator == "" {
-		newE.Operator = "<empty>"
+func translateOperator(op accessdata.Operator) accessdata.Operator {
+	newOp := accessdata.Operator{Name: op.Name, Value: op.Value}
+	if newOp.Name == "" {
+		newOp.Name = "<empty>"
 	}
-	if newE.Value == "" {
-		newE.Value = "<empty>"
+	if newOp.Value == "" {
+		newOp.Value = "<empty>"
 	}
-	if newE.Name == "" {
-		newE.Name = "<empty>"
-	}
-	return newE
+	//if newE.Name == "" {
+	//	newE.Name = "<empty>"
+	//}
+	return newOp
 }
 
-func Example_createHeaderEntry() {
-	entry := createHeaderEntry(Reference{Operator: "", Name: ""})
-	fmt.Printf("test: Entry(\"\") -> [%v]\n", translateEntry(entry))
+func Example_createHeaderOperator() {
+	op := createHeaderOperator(accessdata.Operator{Name: "", Value: ""})
+	fmt.Printf("test: Operator(\"\") -> [%v]\n", translateOperator(op))
 
-	entry = createHeaderEntry(Reference{Operator: "test", Name: ""})
-	fmt.Printf("test: Entry(\"test\") -> [%v]\n", translateEntry(entry))
+	op = createHeaderOperator(accessdata.Operator{Value: "test", Name: ""})
+	fmt.Printf("test: Operator(\"test\") -> [%v]\n", translateOperator(op))
 
-	entry = createHeaderEntry(Reference{Operator: "%REQ(", Name: ""})
-	fmt.Printf("test: Entry(\"REQ(\") -> [%v]\n", translateEntry(entry))
+	op = createHeaderOperator(accessdata.Operator{Value: "%REQ(", Name: ""})
+	fmt.Printf("test: Operator(\"REQ(\") -> [%v]\n", translateOperator(op))
 
-	entry = createHeaderEntry(Reference{Operator: "%REQ(t", Name: ""})
-	fmt.Printf("test: Entry(\"REQ(t\") -> [%v]\n", translateEntry(entry))
+	op = createHeaderOperator(accessdata.Operator{Value: "%REQ(t", Name: ""})
+	fmt.Printf("test: Operator(\"REQ(t\") -> [%v]\n", translateOperator(op))
 
-	entry = createHeaderEntry(Reference{Operator: "%REQ()", Name: ""})
-	fmt.Printf("test: Entry(\"REQ()\") -> [%v]\n", translateEntry(entry))
+	op = createHeaderOperator(accessdata.Operator{Value: "%REQ()", Name: ""})
+	fmt.Printf("test: Operator(\"REQ()\") -> [%v]\n", translateOperator(op))
 
-	entry = createHeaderEntry(Reference{Operator: "%REQ(member)", Name: ""})
-	fmt.Printf("test: Entry(\"REQ(member)\") -> [%v]\n", translateEntry(entry))
+	op = createHeaderOperator(accessdata.Operator{Value: "%REQ(member)", Name: ""})
+	fmt.Printf("test: Operator(\"REQ(member)\") -> [%v]\n", translateOperator(op))
 
-	entry = createHeaderEntry(Reference{Operator: "%REQ(member)", Name: "alias-member"})
-	fmt.Printf("test: Entry(\"REQ(member)\") -> [%v]\n", translateEntry(entry))
+	op = createHeaderOperator(accessdata.Operator{Value: "%REQ(member)", Name: "alias-member"})
+	fmt.Printf("test: Operator(\"REQ(member)\") -> [%v]\n", translateOperator(op))
 
 	//Output:
-	//test: Entry("") -> [{<empty> <empty> <empty> false}]
-	//test: Entry("test") -> [{<empty> <empty> <empty> false}]
-	//test: Entry("REQ(") -> [{<empty> <empty> <empty> false}]
-	//test: Entry("REQ(t") -> [{<empty> <empty> <empty> false}]
-	//test: Entry("REQ()") -> [{<empty> <empty> <empty> false}]
-	//test: Entry("REQ(member)") -> [{header:member member <empty> true}]
-	//test: Entry("REQ(member)") -> [{header:member alias-member <empty> true}]
+	//test: Operator("") -> [{<empty> <empty>}]
+	//test: Operator("test") -> [{<empty> <empty>}]
+	//test: Operator("REQ(") -> [{<empty> <empty>}]
+	//test: Operator("REQ(t") -> [{<empty> <empty>}]
+	//test: Operator("REQ()") -> [{<empty> <empty>}]
+	//test: Operator("REQ(member)") -> [{member header:member}]
+	//test: Operator("REQ(member)") -> [{alias-member header:member}]
 
 }
 
-func Example_createEntry() {
-	entry, err := createEntry(Reference{})
-	fmt.Printf("test: createEntry({}) -> [%v] [err:%v]\n", translateEntry(entry), err)
+func Example_createOperator() {
+	op, err := createOperator(accessdata.Operator{})
+	fmt.Printf("test: createOperator({}) -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	entry, err = createEntry(Reference{Operator: "static", Name: " "})
-	fmt.Printf("test: createEntry(\"static\") -> [%v] [err:%v]\n", translateEntry(entry), err)
+	op, err = createOperator(accessdata.Operator{Value: "static", Name: " "})
+	fmt.Printf("test: createOperator(\"static\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	entry, err = createEntry(Reference{Operator: "%TRAFFIC__%", Name: ""})
-	fmt.Printf("test: createEntry(\"TRAFFIC__\") -> [%v] [err:%v]\n", translateEntry(entry), err)
+	op, err = createOperator(accessdata.Operator{Value: "%TRAFFIC__%", Name: ""})
+	fmt.Printf("test: createOperator(\"TRAFFIC__\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	entry, err = createEntry(Reference{Operator: "%REQ(static)"})
-	fmt.Printf("test: createEntry(\"REQ(static)\") -> [%v] [err:%v]\n", translateEntry(entry), err)
+	op, err = createOperator(accessdata.Operator{Value: "%REQ(static)"})
+	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	entry, err = createEntry(Reference{Operator: "%REQ(static)", Name: "new-name"})
-	fmt.Printf("test: createEntry(\"REQ(static)\") -> [%v] [err:%v]\n", translateEntry(entry), err)
+	op, err = createOperator(accessdata.Operator{Value: "%REQ(static)", Name: "new-name"})
+	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	entry, err = createEntry(Reference{Operator: "%TRAFFIC%", Name: ""})
-	fmt.Printf("test: createEntry(\"TRAFFIC\") -> [%v] [err:%v]\n", translateEntry(entry), err)
+	op, err = createOperator(accessdata.Operator{Value: "%TRAFFIC%", Name: ""})
+	fmt.Printf("test: createOperator(\"TRAFFIC\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	entry, err = createEntry(Reference{Operator: "%TRAFFIC%", Name: "new-name"})
-	fmt.Printf("test: createEntry(\"TRAFFIC\") -> [%v] [err:%v]\n", translateEntry(entry), err)
+	op, err = createOperator(accessdata.Operator{Value: "%TRAFFIC%", Name: "new-name"})
+	fmt.Printf("test: createOperator(\"TRAFFIC\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
 	//Output:
-	//test: createEntry({}) -> [{<empty> <empty> <empty> false}] [err:invalid entry reference : operator is empty ]
-	//test: createEntry("static") -> [{<empty> <empty> <empty> false}] [err:invalid entry reference : name is empty [operator=static]]
-	//test: createEntry("TRAFFIC__") -> [{<empty> <empty> <empty> false}] [err:invalid entry reference : operator not found %TRAFFIC__%]
-	//test: createEntry("REQ(static)") -> [{header:static static <empty> true}] [err:<nil>]
-	//test: createEntry("REQ(static)") -> [{header:static new-name <empty> true}] [err:<nil>]
-	//test: createEntry("TRAFFIC") -> [{%TRAFFIC% traffic <empty> true}] [err:<nil>]
-	//test: createEntry("TRAFFIC") -> [{%TRAFFIC% new-name <empty> true}] [err:<nil>]
+	//test: createOperator({}) -> [{<empty> <empty>}] [err:invalid operator: value is empty ]
+	//test: createOperator("static") -> [{<empty> <empty>}] [err:invalid operator : name is empty [static]]
+	//test: createOperator("TRAFFIC__") -> [{<empty> <empty>}] [err:invalid operator : value not found %TRAFFIC__%]
+	//test: createOperator("REQ(static)") -> [{static header:static}] [err:<nil>]
+	//test: createOperator("REQ(static)") -> [{new-name header:static}] [err:<nil>]
+	//test: createOperator("TRAFFIC") -> [{traffic %TRAFFIC%}] [err:<nil>]
+	//test: createOperator("TRAFFIC") -> [{new-name %TRAFFIC%}] [err:<nil>]
+
 }
 
+/*
 func Example_CreateEntries() {
 	var items []Entry
 
@@ -144,3 +149,5 @@ func _Example_CreateEntries_Request() {
 	//test: CreateEntries("REQ(customer)") -> [err:<nil>] [[{header:customer customer  true}]]
 
 }
+
+*/

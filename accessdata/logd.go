@@ -53,7 +53,7 @@ type Entry struct {
 	StatusFlags   string
 }
 
-func NewLogd(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Entry {
+func NewEntry(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Entry {
 	l := new(Entry)
 	l.Traffic = traffic
 	l.Start = start
@@ -107,11 +107,11 @@ func (l *Entry) AddRequest(req *http.Request) {
 	}
 }
 
-func (l *Entry) Value(operator string) string {
-	if IsClientHeader(operator) {
-		return l.HeaderValue(operator)
+func (l *Entry) Value(value string) string {
+	if IsClientHeader(value) {
+		return l.HeaderValue(value)
 	}
-	switch operator {
+	switch value {
 	case TrafficOperator:
 		if l.IsPing() {
 			return PingTraffic
@@ -193,12 +193,11 @@ func (l *Entry) Value(operator string) string {
 	case RetryRateBurstOperator:
 		return l.ActState[RetryRateBurstName]
 	}
-
 	return ""
 }
 
-func (l *Entry) HeaderValue(operator string) string {
-	tokens := strings.Split(operator, ":")
+func (l *Entry) HeaderValue(value string) string {
+	tokens := strings.Split(value, ":")
 	if len(tokens) == 1 {
 		return ""
 	}

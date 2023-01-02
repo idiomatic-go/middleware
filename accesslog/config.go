@@ -3,6 +3,7 @@ package accesslog
 import (
 	"errors"
 	"fmt"
+	"github.com/idiomatic-go/middleware/accessdata"
 	"strings"
 )
 
@@ -54,20 +55,20 @@ const (
 
 )
 
-var ingressEntries []Entry
-var egressEntries []Entry
+var ingressEntries []accessdata.Operator
+var egressEntries []accessdata.Operator
 
-func CreateIngressEntries(config []Reference) error {
-	ingressEntries = []Entry{}
+func CreateIngressEntries(config []accessdata.Operator) error {
+	ingressEntries = []accessdata.Operator{}
 	return CreateEntries(&ingressEntries, config)
 }
 
-func CreateEgressEntries(config []Reference) error {
-	egressEntries = []Entry{}
+func CreateEgressEntries(config []accessdata.Operator) error {
+	egressEntries = []accessdata.Operator{}
 	return CreateEntries(&egressEntries, config)
 }
 
-func CreateEntries(items *[]Entry, config []Reference) error {
+func CreateEntries(items *[]accessdata.Operator, config []accessdata.Operator) error {
 	if items == nil {
 		return errors.New("invalid configuration : entries are nil")
 	}
@@ -75,61 +76,61 @@ func CreateEntries(items *[]Entry, config []Reference) error {
 		return errors.New("invalid configuration : configuration is empty")
 	}
 	dup := make(map[string]string)
-	for _, ref := range config {
-		entry, err := createEntry(ref)
+	for _, op := range config {
+		op2, err := createOperator(op)
 		if err != nil {
 			return err
 		}
-		if IsEmpty(entry.Operator) {
-			return errors.New(fmt.Sprintf("invalid reference : operator is invalid %v", ref.Operator))
+		if IsEmpty(op2.Value) {
+			return errors.New(fmt.Sprintf("invalid operator : operator is invalid %v", op2.Value))
 		}
-		if IsEmpty(entry.Name) {
-			return errors.New(fmt.Sprintf("invalid reference : name is empty %v", ref.Operator))
+		if IsEmpty(op2.Name) {
+			return errors.New(fmt.Sprintf("invalid reference : name is empty %v", op2.Name))
 		}
-		if _, ok := dup[entry.Name]; ok {
-			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate [%v]", entry.Name))
+		if _, ok := dup[op2.Value]; ok {
+			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate [%v]", op2.Value))
 		}
-		dup[entry.Name] = entry.Name
-		*items = append(*items, entry)
+		dup[op2.Value] = op2.Value
+		*items = append(*items, op2)
 	}
 	return nil
 }
 
-func createEntry(ref Reference) (Entry, error) {
-	if IsEmpty(ref.Operator) {
-		return Entry{}, errors.New(fmt.Sprintf("invalid entry reference : operator is empty %v", ref.Operator))
+func createOperator(op accessdata.Operator) (accessdata.Operator, error) {
+	if IsEmpty(op.Value) {
+		return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator: value is empty %v", op.Name))
 	}
-	if !strings.HasPrefix(ref.Operator, operatorPrefix) {
-		if IsEmpty(ref.Name) {
-			return Entry{}, errors.New(fmt.Sprintf("invalid entry reference : name is empty [operator=%v]", ref.Operator))
+	if !strings.HasPrefix(op.Value, operatorPrefix) {
+		if IsEmpty(op.Name) {
+			return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : name is empty [%v]", op.Value))
 		}
-		return NewEntry(directOperator, ref.Operator, ref.Name, true), nil
+		return accessdata.Operator{Name: accessdata.CreateDirect(op.Name), Value: op.Value}, nil
 	}
-	if entry, ok := directory[ref.Operator]; ok {
-		item := NewEntry(entry.Operator, entry.Name, "", entry.StringValue)
-		if !IsEmpty(ref.Name) {
-			item.Name = ref.Name
+	if op2, ok := accessdata.Operators[op.Value]; ok {
+		newOp := accessdata.Operator{Name: op2.Name, Value: op.Value}
+		if !IsEmpty(op.Name) {
+			newOp.Name = op.Name
 		}
-		return item, nil
+		return newOp, nil
 	}
-	if strings.HasPrefix(ref.Operator, requestReferencePrefix) {
-		return createHeaderEntry(ref), nil
+	if strings.HasPrefix(op.Value, requestReferencePrefix) {
+		return createHeaderOperator(op), nil
 	}
-	return Entry{}, errors.New(fmt.Sprintf("invalid entry reference : operator not found %v", ref.Operator))
+	return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : value not found %v", op.Value))
 }
 
-func createHeaderEntry(ref Reference) Entry {
-	if IsEmpty(ref.Operator) || !strings.HasPrefix(ref.Operator, requestReferencePrefix) || len(ref.Operator) <= len(requestReferencePrefix) {
-		return Entry{}
+func createHeaderOperator(op accessdata.Operator) accessdata.Operator {
+	if IsEmpty(op.Value) || !strings.HasPrefix(op.Value, requestReferencePrefix) || len(op.Value) <= len(requestReferencePrefix) {
+		return accessdata.Operator{}
 	}
-	s := ref.Operator[len(requestReferencePrefix):]
+	s := op.Value[len(requestReferencePrefix):]
 	tokens := strings.Split(s, ")")
 	if len(tokens) == 1 || tokens[0] == "" {
-		return Entry{}
+		return accessdata.Operator{}
 	}
-	op := fmt.Sprintf("%v:%v", headerPrefix, tokens[0])
-	if IsEmpty(ref.Name) {
-		return NewEntry(op, tokens[0], "", true)
+	op1 := fmt.Sprintf("%v:%v", headerPrefix, tokens[0])
+	if IsEmpty(op.Name) {
+		return accessdata.Operator{Name: tokens[0], Value: op1}
 	}
-	return NewEntry(op, ref.Name, "", true)
+	return accessdata.Operator{Name: op.Name, Value: op1}
 }

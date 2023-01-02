@@ -2,6 +2,7 @@ package accesslog
 
 import (
 	"fmt"
+	"github.com/idiomatic-go/middleware/accessdata"
 	"net/http"
 	"strings"
 	"time"
@@ -27,7 +28,7 @@ func Log(traffic string, start time.Time, duration time.Duration, actState map[s
 			ingressWrite(fmt.Sprintf(errorEmptyFmt, traffic))
 			return
 		}
-		s := FormatJson(ingressEntries, data)
+		s := accessdata.WriteJson(ingressEntries, nil)
 		ingressWrite(s)
 	} else {
 		if !opt.writeEgress {
@@ -37,7 +38,7 @@ func Log(traffic string, start time.Time, duration time.Duration, actState map[s
 			egressWrite(fmt.Sprintf(errorEmptyFmt, traffic))
 			return
 		}
-		s := FormatJson(egressEntries, data)
+		s := accessdata.WriteJson(egressEntries, nil)
 		egressWrite(s)
 	}
 }

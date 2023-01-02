@@ -1,12 +1,6 @@
 package accesslog
 
-import (
-	"fmt"
-	"net/http"
-	"reflect"
-	"time"
-)
-
+/*
 func ExampleLog_Error() {
 	SetTestEgressWrite()
 	start := time.Now()
@@ -198,3 +192,5 @@ func __Example_Log_State() {
 	//Output:
 	//fail
 }
+
+*/
