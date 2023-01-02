@@ -14,25 +14,21 @@ func Example_newRetry() {
 	fmt.Printf("test: newRetry() -> [name:%v] [config:%v]\n", t.name, t.config)
 
 	t2 := cloneRetry(t)
-	t2.enabled = true
+	t2.enabled = false
 	fmt.Printf("test: cloneRetry() -> [prev-enabled:%v] [curr-enabled:%v]\n", t.enabled, t2.enabled)
 
 	//t = newRetry("test-route3", newTable(true), NewRetryConfig([]int{503, 504}, time.Millisecond*2000, false))
-	m := make(map[string]string, 16)
-	retryState(m, nil, false)
-	fmt.Printf("test: retryState(nil,false,map) -> %v\n", m)
-	retryState(m, t, false)
-	fmt.Printf("test: retryState(t,false,map) -> %v\n", m)
+	fmt.Printf("test: retryState(nil,false,map) -> %v\n", retryState(nil, nil, false))
 
-	m = make(map[string]string, 16)
+	fmt.Printf("test: retryState(t,false,map) -> %v\n", retryState(nil, t, false))
+
 	t2 = newRetry("test-route", newTable(true), NewRetryConfig([]int{504}, rate.Inf, 10, 0))
-	retryState(m, t2, true)
-	fmt.Printf("test: retryState(t2,true,map) -> %v\n", m)
+	fmt.Printf("test: retryState(t2,true,map) -> %v\n", retryState(nil, t2, true))
 
 	//Output:
 	//test: newRetry() -> [name:test-route] [config:{5 10 0 [504]}] [limit:5] [burst:10]
 	//test: newRetry() -> [name:test-route2] [config:{2 20 0 [503 504]}]
-	//test: cloneRetry() -> [prev-enabled:false] [curr-enabled:true]
+	//test: cloneRetry() -> [prev-enabled:true] [curr-enabled:false]
 	//test: retryState(nil,false,map) -> map[retry: retryBurst:-1 retryRateLimit:-1]
 	//test: retryState(t,false,map) -> map[retry:false retryBurst:20 retryRateLimit:2]
 	//test: retryState(t2,true,map) -> map[retry:true retryBurst:10 retryRateLimit:99999]
@@ -50,7 +46,7 @@ func Example_Status() {
 	fmt.Printf("test: IsEnabled() -> [%v]\n", act.t().retry.IsEnabled())
 	prevEnabled := act.t().retry.IsEnabled()
 
-	act.t().retry.Enable()
+	act.t().retry.Disable()
 	act1 := t.LookupByName(name)
 	fmt.Printf("test: Disable() -> [prev-enabled:%v] [curr-enabled:%v]\n", prevEnabled, act1.t().retry.IsEnabled())
 	prevEnabled = act1.t().retry.IsEnabled()
@@ -62,9 +58,9 @@ func Example_Status() {
 
 	//Output:
 	//test: Add() -> [[]] [count:1]
-	//test: IsEnabled() -> [false]
-	//test: Disable() -> [prev-enabled:false] [curr-enabled:true]
-	//test: Enable() -> [prev-enabled:true] [curr-enabled:true]
+	//test: IsEnabled() -> [true]
+	//test: Disable() -> [prev-enabled:true] [curr-enabled:false]
+	//test: Enable() -> [prev-enabled:false] [curr-enabled:true]
 
 }
 
@@ -76,8 +72,8 @@ func Example_IsRetryable_Disabled() {
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	//act.Retry().Enable()
-	//act = t.LookupByName(name)
+	act.t().retry.Disable()
+	act = t.LookupByName(name)
 	ok, status := act.t().retry.IsRetryable(200)
 	fmt.Printf("test: IsRetryable(200) -> [ok:%v] [status:%v]\n", ok, status)
 

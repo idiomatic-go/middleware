@@ -156,9 +156,7 @@ func (r *rateLimiter) LimitAndBurst() (rate.Limit, int) {
 }
 
 func limitAdjust(val float64, percentage int) (float64, bool) {
-	change := float64(percentage) / 100.0
-	change = math.Abs(change)
-	change = change * val
+	change := (math.Abs(float64(percentage)) / 100.0) * val
 	if change >= val {
 		return val, false
 	}
@@ -169,8 +167,9 @@ func limitAdjust(val float64, percentage int) (float64, bool) {
 }
 
 func burstAdjust(val int, percentage int) (int, bool) {
-	change := int(math.Round(math.Abs(float64(percentage/100)) * float64(val)))
-	if change >= val {
+	floatChange := (math.Abs(float64(percentage)) / 100.0) * float64(val)
+	change := int(math.Round(floatChange))
+	if change == 0 || change >= val {
 		return val, false
 	}
 	if percentage > 0 {

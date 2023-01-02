@@ -84,20 +84,43 @@ func Example_RateLimiter_Set() {
 
 func Example_RateLimiter_Adjust() {
 	name := "test-route"
-	config := NewRateLimiterConfig(10, 100, 503)
+	config := NewRateLimiterConfig(10, 1, 503)
 	t := newTable(true)
 	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
-	act.t().rateLimiter.AdjustRateLimiter(10)
+	fmt.Printf("test: rateLimiterState(map,t) -> %v\n", rateLimiterState(nil, act.t().rateLimiter))
+
+	ok := act.t().rateLimiter.AdjustRateLimiter(10)
 	act1 := t.LookupByName(name)
-	fmt.Printf("test: rateLimiterState(map,t) -> %v\n", rateLimiterState(nil, act1.t().rateLimiter))
+	fmt.Printf("test: AdjustRateLimiter(10) -> [%v] [state:%v]\n", ok, rateLimiterState(nil, act1.t().rateLimiter))
+
+	ok = act1.t().rateLimiter.AdjustRateLimiter(1)
+	act = t.LookupByName(name)
+	fmt.Printf("test: AdjustRateLimiter(1) -> [%v] [state:%v]\n", ok, rateLimiterState(nil, act.t().rateLimiter))
+
+	act1.t().rateLimiter.SetRateLimiter(100, 25)
+	act = t.LookupByName(name)
+	fmt.Printf("test: rateLimiterState(map,t) -> %v\n", rateLimiterState(nil, act.t().rateLimiter))
+
+	ok = act.t().rateLimiter.AdjustRateLimiter(10)
+	act1 = t.LookupByName(name)
+	fmt.Printf("test: AdjustRateLimiter(10) -> [%v] [state:%v]\n", ok, rateLimiterState(nil, act1.t().rateLimiter))
+
+	ok = act1.t().rateLimiter.AdjustRateLimiter(-10)
+	act = t.LookupByName(name)
+	fmt.Printf("test: AdjustRateLimiter(-10) -> [%v] [state:%v]\n", ok, rateLimiterState(nil, act.t().rateLimiter))
+
+	//fmt.Printf("test: AdjustRateLimiter(10) -> [%v] [state:%v]\n", ok, rateLimiterState(nil, act1.t().rateLimiter))
 
 	//Output:
 	//test: Add() -> [[]] [count:1]
-	//test: rateLimiterState(map,t) -> map[burst:100 rateLimit:10]
-	//test: SetLimit(rate.Inf) -> map[burst:100 rateLimit:99999]
-	//test: SetBurst(1) -> map[burst:1 rateLimit:99999]
+	//test: rateLimiterState(map,t) -> map[burst:1 rateLimit:10]
+	//test: AdjustRateLimiter(10) -> [false] [state:map[burst:1 rateLimit:10]]
+	//test: AdjustRateLimiter(1) -> [false] [state:map[burst:1 rateLimit:10]]
+	//test: rateLimiterState(map,t) -> map[burst:25 rateLimit:100]
+	//test: AdjustRateLimiter(10) -> [true] [state:map[burst:28 rateLimit:110]]
+	//test: AdjustRateLimiter(-10) -> [true] [state:map[burst:25 rateLimit:99]]
 
 }

@@ -19,6 +19,7 @@ type RetryController interface {
 	Disable()
 	SetRateLimiter(limit rate.Limit, burst int)
 	IsRetryable(statusCode int) (ok bool, status string)
+	AdjustRateLimiter(percentage int) bool
 	LimitAndBurst() (rate.Limit, int)
 }
 
@@ -57,7 +58,7 @@ func newRetry(name string, table *table, config *RetryConfig) *retry {
 	t := new(retry)
 	t.name = name
 	t.table = table
-	t.enabled = false
+	t.enabled = true
 	t.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	if config != nil {
 		t.config = *config
@@ -79,7 +80,7 @@ func (r *retry) validate() error {
 	return nil
 }
 
-func retryState(m map[string]string, r RetryController, retried bool) {
+func retryState(m map[string]string, r RetryController, retried bool) map[string]string {
 	var limit rate.Limit = -1
 	var burst = -1
 	var name = ""
@@ -91,11 +92,13 @@ func retryState(m map[string]string, r RetryController, retried bool) {
 		}
 		burst = r.(*retry).config.burst
 	}
-	if m != nil {
-		m[RetryName] = name
-		m[RetryRateLimitName] = fmt.Sprintf("%v", limit)
-		m[RetryRateBurstName] = strconv.Itoa(burst)
+	if m == nil {
+		m = make(map[string]string, 16)
 	}
+	m[RetryName] = name
+	m[RetryRateLimitName] = fmt.Sprintf("%v", limit)
+	m[RetryRateBurstName] = strconv.Itoa(burst)
+	return m
 
 }
 
@@ -140,6 +143,19 @@ func (r *retry) IsRetryable(statusCode int) (bool, string) {
 		}
 	}
 	return false, ""
+}
+
+func (r *retry) AdjustRateLimiter(percentage int) bool {
+	newLimit, ok := limitAdjust(float64(r.config.limit), percentage)
+	if !ok {
+		return false
+	}
+	newBurst, ok1 := burstAdjust(r.config.burst, percentage)
+	if !ok1 {
+		return false
+	}
+	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: rate.Limit(newLimit), burst: newBurst})
+	return true
 }
 
 func (r *retry) LimitAndBurst() (rate.Limit, int) {
