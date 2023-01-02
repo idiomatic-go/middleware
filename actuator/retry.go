@@ -17,8 +17,8 @@ type RetryController interface {
 	IsEnabled() bool
 	Enable()
 	Disable()
-	SetRateLimiter(limit rate.Limit, burst int)
 	IsRetryable(statusCode int) (ok bool, status string)
+	SetRateLimiter(limit rate.Limit, burst int)
 	AdjustRateLimiter(percentage int) bool
 	LimitAndBurst() (rate.Limit, int)
 }
