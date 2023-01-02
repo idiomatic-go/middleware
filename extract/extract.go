@@ -63,7 +63,7 @@ func Initialize(uri string, newClient *http.Client, fn ErrorHandler) error {
 	}
 	url = u.String()
 	entries = []accessdata.Operator{}
-	err = accesslog.CreateEntries(&entries, config)
+	err = accesslog.CreateOperators(&entries, config)
 	if err != nil {
 		return err
 	}
