@@ -108,8 +108,9 @@ func (l *Entry) AddRequest(req *http.Request) {
 }
 
 func (l *Entry) Value(value string) string {
-	if IsClientHeader(value) {
-		return l.HeaderValue(value)
+	if strings.HasPrefix(value, RequestReferencePrefix) {
+		name := requestOperatorHeaderName(value)
+		return l.Header.Get(name)
 	}
 	switch value {
 	case TrafficOperator:
@@ -194,12 +195,4 @@ func (l *Entry) Value(value string) string {
 		return l.ActState[RetryRateBurstName]
 	}
 	return ""
-}
-
-func (l *Entry) HeaderValue(value string) string {
-	tokens := strings.Split(value, ":")
-	if len(tokens) == 1 {
-		return ""
-	}
-	return l.Header.Get(tokens[1])
 }

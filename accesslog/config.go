@@ -33,14 +33,14 @@ func CreateOperators(items *[]accessdata.Operator, config []accessdata.Operator)
 		if err != nil {
 			return err
 		}
-		if IsEmpty(op2.Value) {
-			return errors.New(fmt.Sprintf("invalid operator : operator is invalid %v", op2.Value))
-		}
-		if IsEmpty(op2.Name) {
-			return errors.New(fmt.Sprintf("invalid reference : name is empty %v", op2.Name))
-		}
+		//if IsEmpty(op2.Value) {
+		//	return errors.New(fmt.Sprintf("invalid operator : operator is invalid %v", op2.Value))
+		//}
+		//if IsEmpty(op2.Name) {
+		//	return errors.New(fmt.Sprintf("invalid reference : name is empty %v", op2.Name))
+		//}
 		if _, ok := dup[op2.Value]; ok {
-			return errors.New(fmt.Sprintf("invalid reference : name is a duplicate [%v]", op2.Name))
+			return errors.New(fmt.Sprintf("invalid operator : value is a duplicate [%v]", op2.Value))
 		}
 		dup[op2.Value] = op2.Value
 		*items = append(*items, op2)
@@ -52,11 +52,11 @@ func createOperator(op accessdata.Operator) (accessdata.Operator, error) {
 	if IsEmpty(op.Value) {
 		return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator: value is empty %v", op.Name))
 	}
-	if !strings.HasPrefix(op.Value, accessdata.OperatorPrefix) {
+	if accessdata.IsDirectOperator(op) {
 		if IsEmpty(op.Name) {
 			return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : name is empty [%v]", op.Value))
 		}
-		return accessdata.Operator{Name: accessdata.CreateDirect(op.Name), Value: op.Value}, nil
+		return accessdata.Operator{Name: op.Name, Value: op.Value}, nil
 	}
 	if op2, ok := accessdata.Operators[op.Value]; ok {
 		newOp := accessdata.Operator{Name: op2.Name, Value: op.Value}
@@ -65,14 +65,18 @@ func createOperator(op accessdata.Operator) (accessdata.Operator, error) {
 		}
 		return newOp, nil
 	}
-	if strings.HasPrefix(op.Value, accessdata.RequestReferencePrefix) {
-		return createHeaderOperator(op), nil
+	if accessdata.IsRequestOperator(op) {
+		newOp, ok := accessdata.ParseRequestOperator(op)
+		if !ok {
+			return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : request is empty or invalid %v", op.Value))
+		}
+		return newOp, nil
 	}
-	return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : value not found %v", op.Value))
+	return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : value not found or invalid %v", op.Value))
 }
 
-func createHeaderOperator(op accessdata.Operator) accessdata.Operator {
-	if IsEmpty(op.Value) || !strings.HasPrefix(op.Value, accessdata.RequestReferencePrefix) || len(op.Value) <= len(accessdata.RequestReferencePrefix) {
+func createRequestOperator(op accessdata.Operator) accessdata.Operator {
+	if len(op.Value) <= len(accessdata.RequestReferencePrefix) {
 		return accessdata.Operator{}
 	}
 	s := op.Value[len(accessdata.RequestReferencePrefix):]

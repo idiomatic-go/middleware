@@ -1,6 +1,8 @@
 package accessdata
 
-import "strings"
+import (
+	"strings"
+)
 
 const (
 	HeaderPrefix           = "header"
@@ -59,10 +61,44 @@ type Operator struct {
 	Value string
 }
 
-func IsClientHeader(operator string) bool {
-	return strings.HasPrefix(operator, HeaderPrefix)
+//func IsClientHeader(operator string) bool {
+//	return strings.HasPrefix(operator, HeaderPrefix)
+//}
+
+func IsDirectOperator(op Operator) bool {
+	return !strings.HasPrefix(op.Value, OperatorPrefix)
 }
 
+func IsRequestOperator(op Operator) bool {
+	if !strings.HasPrefix(op.Value, RequestReferencePrefix) {
+		return false
+	}
+	if len(op.Value) < (len(RequestReferencePrefix) + 2) {
+		return false
+	}
+	return op.Value[len(op.Value)-1:] == ")"
+}
+
+func ParseRequestOperator(op Operator) (Operator, bool) {
+	if len(op.Value) < (len(RequestReferencePrefix) + 2) {
+		return Operator{}, false
+	}
+	ref := op.Value[len(RequestReferencePrefix) : len(op.Value)-1]
+	newOp := Operator{Name: ref, Value: op.Value}
+	if op.Name != "" {
+		newOp.Name = op.Name
+	}
+	return newOp, true
+}
+
+func requestOperatorHeaderName(value string) string {
+	if len(value) < (len(RequestReferencePrefix) + 2) {
+		return ""
+	}
+	return value[len(RequestReferencePrefix) : len(value)-1]
+}
+
+/*
 func IsDirect(operator string) bool {
 	return strings.HasPrefix(operator, DirectOperator)
 }
@@ -79,8 +115,11 @@ func ParseDirect(s string) string {
 	return ""
 }
 
-func IsStringValue(operator string) bool {
-	switch operator {
+
+*/
+
+func IsStringValue(op Operator) bool {
+	switch op.Value {
 	case DurationOperator, TimeoutDurationOperator, RateBurstOperator, RateLimitOperator, RetryOperator, RetryRateLimitOperator, RetryRateBurstOperator, FailoverOperator:
 		return false
 	}
