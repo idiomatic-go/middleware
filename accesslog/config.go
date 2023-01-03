@@ -32,12 +32,6 @@ func CreateOperators(items *[]accessdata.Operator, config []accessdata.Operator)
 		if err != nil {
 			return err
 		}
-		//if IsEmpty(op2.Value) {
-		//	return errors.New(fmt.Sprintf("invalid operator : operator is invalid %v", op2.Value))
-		//}
-		//if IsEmpty(op2.Name) {
-		//	return errors.New(fmt.Sprintf("invalid reference : name is empty %v", op2.Name))
-		//}
 		if _, ok := dup[op2.Name]; ok {
 			return errors.New(fmt.Sprintf("invalid operator: name is a duplicate [%v]", op2.Name))
 		}

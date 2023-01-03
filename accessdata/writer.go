@@ -17,10 +17,6 @@ func WriteJson(items []Operator, data *Entry) string {
 	}
 	sb := strings.Builder{}
 	for _, op := range items {
-		if IsDirectOperator(op) {
-			writeMarkup(&sb, op.Name, op.Value, IsStringValue(op))
-			continue
-		}
 		writeMarkup(&sb, op.Name, data.Value(op.Value), IsStringValue(op))
 	}
 	sb.WriteString("}")

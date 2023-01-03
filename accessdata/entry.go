@@ -53,7 +53,7 @@ type Entry struct {
 	StatusFlags   string
 }
 
-func NewEntry(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Entry {
+func newEntry(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Entry {
 	l := new(Entry)
 	l.Traffic = traffic
 	l.Start = start
@@ -67,6 +67,14 @@ func NewEntry(traffic string, start time.Time, duration time.Duration, actState 
 	l.AddResponse(resp)
 	l.StatusFlags = statusFlags
 	return l
+}
+
+func NewIngressEntry(start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Entry {
+	return newEntry(IngressTraffic, start, duration, actState, req, resp, statusFlags)
+}
+
+func NewEgressEntry(start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Entry {
+	return newEntry(EgressTraffic, start, duration, actState, req, resp, statusFlags)
 }
 
 func (l *Entry) IsIngress() bool {
@@ -108,6 +116,9 @@ func (l *Entry) AddRequest(req *http.Request) {
 }
 
 func (l *Entry) Value(value string) string {
+	if !strings.HasPrefix(value, OperatorPrefix) {
+		return value
+	}
 	if strings.HasPrefix(value, RequestReferencePrefix) {
 		name := requestOperatorHeaderName(value)
 		return l.Header.Get(name)
