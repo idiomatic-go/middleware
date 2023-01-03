@@ -54,7 +54,7 @@ func (t *timeout) validate() error {
 	return nil
 }
 
-func timeoutState(m map[string]string, t TimeoutController) {
+func timeoutState(m map[string]string, t *timeout) {
 	var val int64 = -1
 	//var statusCode = -1
 	if t != nil {

@@ -86,16 +86,16 @@ func (r *rateLimiter) validate() error {
 	return nil
 }
 
-func rateLimiterState(m map[string]string, r RateLimiterController) map[string]string {
+func rateLimiterState(m map[string]string, r *rateLimiter) map[string]string {
 	var limit rate.Limit = -1
 	var burst = -1
 
 	if r != nil {
-		limit = r.(*rateLimiter).config.limit
+		limit = r.config.limit
 		if limit == rate.Inf {
 			limit = RateLimitInfValue
 		}
-		burst = r.(*rateLimiter).config.burst
+		burst = r.config.burst
 	}
 	if m == nil {
 		m = make(map[string]string, 16)

@@ -54,7 +54,7 @@ func (f *failover) validate() error {
 	return nil
 }
 
-func failoverState(m map[string]string, f FailoverController) {
+func failoverState(m map[string]string, f *failover) {
 	if f == nil {
 		m[FailoverName] = ""
 	} else {

@@ -80,17 +80,17 @@ func (r *retry) validate() error {
 	return nil
 }
 
-func retryState(m map[string]string, r RetryController, retried bool) map[string]string {
+func retryState(m map[string]string, r *retry, retried bool) map[string]string {
 	var limit rate.Limit = -1
 	var burst = -1
 	var name = ""
 	if r != nil {
 		name = strconv.FormatBool(retried)
-		limit = r.(*retry).config.limit
+		limit = r.config.limit
 		if limit == rate.Inf {
 			limit = RateLimitInfValue
 		}
-		burst = r.(*retry).config.burst
+		burst = r.config.burst
 	}
 	if m == nil {
 		m = make(map[string]string, 16)

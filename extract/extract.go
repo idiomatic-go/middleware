@@ -3,6 +3,7 @@ package extract
 import (
 	"errors"
 	"github.com/idiomatic-go/middleware/accessdata"
+	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
 	urlpkg "net/url"
 	"strings"
@@ -66,6 +67,7 @@ func Initialize(uri string, newClient *http.Client, fn ErrorHandler) error {
 		client = newClient
 	}
 	SetErrorHandler(fn)
+	actuator.EnableExtract(extract)
 	return nil
 }
 
@@ -75,25 +77,25 @@ func Shutdown() {
 	}
 }
 
-func extract(l *accessdata.Entry) {
-	if l != nil {
-		c <- l
+func extract(entry *accessdata.Entry) {
+	if entry != nil {
+		c <- entry
 	}
 }
 
-func do(l *accessdata.Entry) bool {
-	if l == nil {
+func do(entry *accessdata.Entry) bool {
+	if entry == nil {
 		OnError(errors.New("invalid argument : access log data is nil"))
 		return false
 	}
 	// let's not extract the extract, the extract, the extract ...
-	if l.Url == url {
+	if entry.Url == url {
 		return false
 	}
 	var req *http.Request
 	var err error
 
-	reader := strings.NewReader(accessdata.WriteJson(operators, l))
+	reader := strings.NewReader(accessdata.WriteJson(operators, entry))
 	req, err = http.NewRequest(http.MethodPost, url, reader)
 	if err == nil {
 		_, err = client.Do(req)
