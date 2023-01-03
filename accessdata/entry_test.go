@@ -75,7 +75,7 @@ func Example_Value_Request_Header() {
 	req.Header.Add("customer", "Ted's Bait & Tackle")
 	data := Entry{}
 	data.AddRequest(req)
-	fmt.Printf("test: Value(\"customer\") -> [%v]\n", data.Value("header:customer"))
+	fmt.Printf("test: Value(\"customer\") -> [%v]\n", data.Value("%REQ(customer)"))
 
 	//Output:
 	//test: Value("customer") -> [Ted's Bait & Tackle]

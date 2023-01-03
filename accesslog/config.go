@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/idiomatic-go/middleware/accessdata"
-	"strings"
 )
 
 var ingressOperators []accessdata.Operator
@@ -66,15 +65,12 @@ func createOperator(op accessdata.Operator) (accessdata.Operator, error) {
 		return newOp, nil
 	}
 	if accessdata.IsRequestOperator(op) {
-		newOp, ok := accessdata.ParseRequestOperator(op)
-		if !ok {
-			return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : request is empty or invalid %v", op.Value))
-		}
-		return newOp, nil
+		return accessdata.Operator{Name: accessdata.RequestOperatorHeaderName(op), Value: op.Value}, nil
 	}
 	return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : value not found or invalid %v", op.Value))
 }
 
+/*
 func createRequestOperator(op accessdata.Operator) accessdata.Operator {
 	if len(op.Value) <= len(accessdata.RequestReferencePrefix) {
 		return accessdata.Operator{}
@@ -90,3 +86,6 @@ func createRequestOperator(op accessdata.Operator) accessdata.Operator {
 	}
 	return accessdata.Operator{Name: op.Name, Value: op1}
 }
+
+
+*/

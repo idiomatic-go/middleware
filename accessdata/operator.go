@@ -61,10 +61,6 @@ type Operator struct {
 	Value string
 }
 
-//func IsClientHeader(operator string) bool {
-//	return strings.HasPrefix(operator, HeaderPrefix)
-//}
-
 func IsDirectOperator(op Operator) bool {
 	return !strings.HasPrefix(op.Value, OperatorPrefix)
 }
@@ -79,16 +75,11 @@ func IsRequestOperator(op Operator) bool {
 	return op.Value[len(op.Value)-1:] == ")"
 }
 
-func ParseRequestOperator(op Operator) (Operator, bool) {
-	if len(op.Value) < (len(RequestReferencePrefix) + 2) {
-		return Operator{}, false
-	}
-	ref := op.Value[len(RequestReferencePrefix) : len(op.Value)-1]
-	newOp := Operator{Name: ref, Value: op.Value}
+func RequestOperatorHeaderName(op Operator) string {
 	if op.Name != "" {
-		newOp.Name = op.Name
+		return op.Name
 	}
-	return newOp, true
+	return requestOperatorHeaderName(op.Value)
 }
 
 func requestOperatorHeaderName(value string) string {
@@ -97,26 +88,6 @@ func requestOperatorHeaderName(value string) string {
 	}
 	return value[len(RequestReferencePrefix) : len(value)-1]
 }
-
-/*
-func IsDirect(operator string) bool {
-	return strings.HasPrefix(operator, DirectOperator)
-}
-
-func CreateDirect(name string) string {
-	return DirectOperator + ":" + name
-}
-
-func ParseDirect(s string) string {
-	index := strings.Index(s, ":")
-	if index != -1 {
-		return s[index:]
-	}
-	return ""
-}
-
-
-*/
 
 func IsStringValue(op Operator) bool {
 	switch op.Value {
