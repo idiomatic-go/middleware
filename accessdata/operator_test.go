@@ -42,15 +42,19 @@ func Example_IsRequestOperator() {
 	ok = IsRequestOperator(op)
 	fmt.Printf("test: IsRequestOperator(%v) -> %v\n", op, ok)
 
+	op = Operator{Name: "", Value: "%REQ(header)"}
+	ok = IsRequestOperator(op)
+	fmt.Printf("test: IsRequestOperator(%v) -> %v\n", op, ok)
+
 	op = Operator{Name: "", Value: "%REQ()"}
 	ok = IsRequestOperator(op)
 	fmt.Printf("test: IsRequestOperator(%v) -> %v\n", op, ok)
 
-	op = Operator{Name: "", Value: "%REQ(1)"}
+	op = Operator{Name: "", Value: "%REQ(1)%"}
 	ok = IsRequestOperator(op)
 	fmt.Printf("test: IsRequestOperator(%v) -> %v\n", op, ok)
 
-	op = Operator{Name: "", Value: "%REQ(header-name)"}
+	op = Operator{Name: "", Value: "%REQ(header-name)%"}
 	ok = IsRequestOperator(op)
 	fmt.Printf("test: IsRequestOperator(%v) -> %v\n", op, ok)
 
@@ -59,9 +63,10 @@ func Example_IsRequestOperator() {
 	//test: IsRequestOperator(<empty>) -> false
 	//test: IsRequestOperator({ REQ }) -> false
 	//test: IsRequestOperator({ %REQ(header}) -> false
+	//test: IsRequestOperator({ %REQ(header)}) -> false
 	//test: IsRequestOperator({ %REQ()}) -> false
-	//test: IsRequestOperator({ %REQ(1)}) -> true
-	//test: IsRequestOperator({ %REQ(header-name)}) -> true
+	//test: IsRequestOperator({ %REQ(1)%}) -> true
+	//test: IsRequestOperator({ %REQ(header-name)%}) -> true
 
 }
 
@@ -78,11 +83,15 @@ func Example_RequestOperatorHeaderName() {
 	name = RequestOperatorHeaderName(op)
 	fmt.Printf("test: RequestOperatorHeaderName() -> %v [op:%v]\n", name, op.Value)
 
-	op = Operator{Name: "", Value: "%REQ(1)"}
+	op = Operator{Name: "", Value: "%REQ()%"}
 	name = RequestOperatorHeaderName(op)
 	fmt.Printf("test: RequestOperatorHeaderName() -> %v [op:%v]\n", name, op.Value)
 
-	op = Operator{Name: "", Value: "%REQ(name)"}
+	op = Operator{Name: "", Value: "%REQ(1)%"}
+	name = RequestOperatorHeaderName(op)
+	fmt.Printf("test: RequestOperatorHeaderName() -> %v [op:%v]\n", name, op.Value)
+
+	op = Operator{Name: "", Value: "%REQ(name)%"}
 	name = RequestOperatorHeaderName(op)
 	fmt.Printf("test: RequestOperatorHeaderName() -> %v [op:%v]\n", name, op.Value)
 
@@ -90,8 +99,9 @@ func Example_RequestOperatorHeaderName() {
 	//test: RequestOperatorHeaderName() ->  [op:]
 	//test: RequestOperatorHeaderName() ->  [op:%REQ(]
 	//test: RequestOperatorHeaderName() ->  [op:%REQ()]
-	//test: RequestOperatorHeaderName() -> 1 [op:%REQ(1)]
-	//test: RequestOperatorHeaderName() -> name [op:%REQ(name)]
+	//test: RequestOperatorHeaderName() ->  [op:%REQ()%]
+	//test: RequestOperatorHeaderName() -> 1 [op:%REQ(1)%]
+	//test: RequestOperatorHeaderName() -> name [op:%REQ(name)%]
 
 }
 

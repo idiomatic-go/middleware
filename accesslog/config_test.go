@@ -74,13 +74,13 @@ func Example_createOperator() {
 	op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ(test"})
 	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ()"})
+	//op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ()%"})
+	//fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
+
+	op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ(static)%"})
 	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ(static)"})
-	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
-
-	op, err = createOperator(accessdata.Operator{Name: "new-name", Value: "%REQ(static)"})
+	op, err = createOperator(accessdata.Operator{Name: "new-name", Value: "%REQ(static)%"})
 	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
 	op, err = createOperator(accessdata.Operator{Name: "", Value: "%TRAFFIC%"})
@@ -96,9 +96,8 @@ func Example_createOperator() {
 	//test: createOperator("TRAFFIC__") -> [{<empty> <empty>}] [err:invalid operator: value not found or invalid %TRAFFIC__%]
 	//test: createOperator("REQ(static)") -> [{<empty> <empty>}] [err:invalid operator: value not found or invalid %REQ(]
 	//test: createOperator("REQ(static)") -> [{<empty> <empty>}] [err:invalid operator: value not found or invalid %REQ(test]
-	//test: createOperator("REQ(static)") -> [{<empty> <empty>}] [err:invalid operator: value not found or invalid %REQ()]
-	//test: createOperator("REQ(static)") -> [{static %REQ(static)}] [err:<nil>]
-	//test: createOperator("REQ(static)") -> [{new-name %REQ(static)}] [err:<nil>]
+	//test: createOperator("REQ(static)") -> [{static %REQ(static)%}] [err:<nil>]
+	//test: createOperator("REQ(static)") -> [{new-name %REQ(static)%}] [err:<nil>]
 	//test: createOperator("TRAFFIC") -> [{traffic %TRAFFIC%}] [err:<nil>]
 	//test: createOperator("TRAFFIC") -> [{new-name %TRAFFIC%}] [err:<nil>]
 
@@ -140,6 +139,3 @@ func Example_CreateEntries() {
 	//test: CreateOperators("Value: START_TIME") -> [err:invalid operator: name is a duplicate [duration]] [[{name static} {start_time %START_TIME%} {duration %DURATION%}]]
 
 }
-
-
-

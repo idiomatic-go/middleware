@@ -72,7 +72,7 @@ func IsRequestOperator(op Operator) bool {
 	if len(op.Value) < (len(RequestReferencePrefix) + 2) {
 		return false
 	}
-	return op.Value[len(op.Value)-1:] == ")"
+	return op.Value[len(op.Value)-2:] == ")%"
 }
 
 func RequestOperatorHeaderName(op Operator) string {
@@ -86,7 +86,7 @@ func requestOperatorHeaderName(value string) string {
 	if len(value) < (len(RequestReferencePrefix) + 2) {
 		return ""
 	}
-	return value[len(RequestReferencePrefix) : len(value)-1]
+	return value[len(RequestReferencePrefix) : len(value)-2]
 }
 
 func IsStringValue(op Operator) bool {

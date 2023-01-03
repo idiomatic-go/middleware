@@ -2,6 +2,7 @@ package egress
 
 import (
 	"fmt"
+	"github.com/idiomatic-go/middleware/accessdata"
 	"github.com/idiomatic-go/middleware/accesslog"
 	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
@@ -19,34 +20,34 @@ var (
 	facebookUrl    = "https://www.facebook.com"
 	instagramUrl   = "https://www.instagram.com"
 
-	config = []accesslog.Reference{
-		//{Operator: accesslog.StartTimeOperator},
-		//{Operator: accesslog.DurationOperator},
-		{Operator: accesslog.TrafficOperator},
-		{Operator: accesslog.RouteNameOperator},
+	config = []accessdata.Operator{
+		//{Value: accessdata.StartTimeOperator},
+		//{Value: accessdata.DurationOperator},
+		{Value: accessdata.TrafficOperator},
+		{Value: accessdata.RouteNameOperator},
 
-		{Operator: accesslog.RequestMethodOperator},
-		{Operator: accesslog.RequestHostOperator},
-		{Operator: accesslog.RequestPathOperator},
-		{Operator: accesslog.RequestProtocolOperator},
+		{Value: accessdata.RequestMethodOperator},
+		{Value: accessdata.RequestHostOperator},
+		{Value: accessdata.RequestPathOperator},
+		{Value: accessdata.RequestProtocolOperator},
 
-		{Operator: accesslog.ResponseStatusCodeOperator},
-		{Operator: accesslog.StatusFlagsOperator},
-		{Operator: accesslog.ResponseBytesReceivedOperator},
-		{Operator: accesslog.ResponseBytesSentOperator},
+		{Value: accessdata.ResponseStatusCodeOperator},
+		{Value: accessdata.StatusFlagsOperator},
+		{Value: accessdata.ResponseBytesReceivedOperator},
+		{Value: accessdata.ResponseBytesSentOperator},
 
-		{Operator: accesslog.TimeoutDurationOperator},
-		{Operator: accesslog.RateLimitOperator},
-		{Operator: accesslog.RateBurstOperator},
-		{Operator: accesslog.RetryOperator},
-		{Operator: accesslog.RetryRateLimitOperator},
-		{Operator: accesslog.RetryRateBurstOperator},
-		{Operator: accesslog.FailoverOperator},
+		{Value: accessdata.TimeoutDurationOperator},
+		{Value: accessdata.RateLimitOperator},
+		{Value: accessdata.RateBurstOperator},
+		{Value: accessdata.RetryOperator},
+		{Value: accessdata.RetryRateLimitOperator},
+		{Value: accessdata.RetryRateBurstOperator},
+		{Value: accessdata.FailoverOperator},
 	}
 )
 
 func init() {
-	err := accesslog.CreateEgressEntries(config)
+	err := accesslog.CreateEgressOperators(config)
 	if err != nil {
 		fmt.Printf("init() -> [:%v]\n", err)
 	}
