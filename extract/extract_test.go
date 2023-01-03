@@ -54,7 +54,7 @@ func Example_Handler_ConnectFailure() {
 func Example_Handler_Processed() {
 	// Override the message handler
 	handler = func(l *accessdata.Entry) bool {
-		fmt.Printf("test: handler(logd) -> [%v]\n", accessdata.WriteJson(entries, l))
+		fmt.Printf("test: handler(logd) -> [%v]\n", accessdata.WriteJson(operators, l))
 		return true
 	}
 
@@ -79,9 +79,9 @@ func Example_Handler_Processed() {
 
 	//Output:
 	//test: initialize() -> [<nil>]
-	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-0","region":"region-1","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"bytes_received":"0","bytes_sent":"0","timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
-	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-1","region":"region-2","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"bytes_received":"0","bytes_sent":"0","timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
-	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-2","region":"region-3","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"bytes_received":"0","bytes_sent":"0","timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
-	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-3","region":"region-4","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"bytes_received":"0","bytes_sent":"0","timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
+	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-0","region":"region-1","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
+	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-1","region":"region-2","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
+	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-2","region":"region-3","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
+	//test: handler(logd) -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":null,"route_name":"route-data-3","region":"region-4","zone":null,"sub_zone":null,"service":null,"instance_id":null,"method":null,"host":null,"path":null,"protocol":null,"request_id":null,"forwarded":null,"status_code":"0","status_flags":null,"timeout_ms":null,"rate_limit":null,"rate_burst":null,"retry":null,"retry_rate_limit":null,"retry_rate_burst":null,"failover":null}]
 
 }
