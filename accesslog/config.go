@@ -21,10 +21,10 @@ func CreateEgressOperators(config []accessdata.Operator) error {
 
 func CreateOperators(items *[]accessdata.Operator, config []accessdata.Operator) error {
 	if items == nil {
-		return errors.New("invalid configuration : operators are nil")
+		return errors.New("invalid configuration: operators slice is nil")
 	}
 	if len(config) == 0 {
-		return errors.New("invalid configuration : configuration is empty")
+		return errors.New("invalid configuration: configuration slice is empty")
 	}
 	dup := make(map[string]string)
 	for _, op := range config {
@@ -38,10 +38,10 @@ func CreateOperators(items *[]accessdata.Operator, config []accessdata.Operator)
 		//if IsEmpty(op2.Name) {
 		//	return errors.New(fmt.Sprintf("invalid reference : name is empty %v", op2.Name))
 		//}
-		if _, ok := dup[op2.Value]; ok {
-			return errors.New(fmt.Sprintf("invalid operator : value is a duplicate [%v]", op2.Value))
+		if _, ok := dup[op2.Name]; ok {
+			return errors.New(fmt.Sprintf("invalid operator: name is a duplicate [%v]", op2.Name))
 		}
-		dup[op2.Value] = op2.Value
+		dup[op2.Name] = op2.Name
 		*items = append(*items, op2)
 	}
 	return nil
@@ -53,7 +53,7 @@ func createOperator(op accessdata.Operator) (accessdata.Operator, error) {
 	}
 	if accessdata.IsDirectOperator(op) {
 		if IsEmpty(op.Name) {
-			return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : name is empty [%v]", op.Value))
+			return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator: name is empty [%v]", op.Value))
 		}
 		return accessdata.Operator{Name: op.Name, Value: op.Value}, nil
 	}
@@ -67,7 +67,7 @@ func createOperator(op accessdata.Operator) (accessdata.Operator, error) {
 	if accessdata.IsRequestOperator(op) {
 		return accessdata.Operator{Name: accessdata.RequestOperatorHeaderName(op), Value: op.Value}, nil
 	}
-	return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator : value not found or invalid %v", op.Value))
+	return accessdata.Operator{}, errors.New(fmt.Sprintf("invalid operator: value not found or invalid %v", op.Value))
 }
 
 /*

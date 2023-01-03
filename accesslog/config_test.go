@@ -19,6 +19,7 @@ func translateOperator(op accessdata.Operator) accessdata.Operator {
 	return newOp
 }
 
+/*
 func Example_createHeaderOperator() {
 	op := createHeaderOperator(accessdata.Operator{Name: "", Value: ""})
 	fmt.Printf("test: Operator(\"\") -> [%v]\n", translateOperator(op))
@@ -52,34 +53,52 @@ func Example_createHeaderOperator() {
 
 }
 
+
+*/
 func Example_createOperator() {
 	op, err := createOperator(accessdata.Operator{})
 	fmt.Printf("test: createOperator({}) -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	op, err = createOperator(accessdata.Operator{Value: "static", Name: " "})
+	op, err = createOperator(accessdata.Operator{Name: " ", Value: "static"})
 	fmt.Printf("test: createOperator(\"static\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	op, err = createOperator(accessdata.Operator{Value: "%TRAFFIC__%", Name: ""})
+	op, err = createOperator(accessdata.Operator{Name: "static", Value: "value"})
+	fmt.Printf("test: createOperator(\"static\") -> [%v] [err:%v]\n", translateOperator(op), err)
+
+	op, err = createOperator(accessdata.Operator{Name: "", Value: "%TRAFFIC__%"})
 	fmt.Printf("test: createOperator(\"TRAFFIC__\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	op, err = createOperator(accessdata.Operator{Value: "%REQ(static)"})
+	op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ("})
 	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	op, err = createOperator(accessdata.Operator{Value: "%REQ(static)", Name: "new-name"})
+	op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ(test"})
 	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	op, err = createOperator(accessdata.Operator{Value: "%TRAFFIC%", Name: ""})
+	op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ()"})
+	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
+
+	op, err = createOperator(accessdata.Operator{Name: "", Value: "%REQ(static)"})
+	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
+
+	op, err = createOperator(accessdata.Operator{Name: "new-name", Value: "%REQ(static)"})
+	fmt.Printf("test: createOperator(\"REQ(static)\") -> [%v] [err:%v]\n", translateOperator(op), err)
+
+	op, err = createOperator(accessdata.Operator{Name: "", Value: "%TRAFFIC%"})
 	fmt.Printf("test: createOperator(\"TRAFFIC\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
-	op, err = createOperator(accessdata.Operator{Value: "%TRAFFIC%", Name: "new-name"})
+	op, err = createOperator(accessdata.Operator{Name: "new-name", Value: "%TRAFFIC%"})
 	fmt.Printf("test: createOperator(\"TRAFFIC\") -> [%v] [err:%v]\n", translateOperator(op), err)
 
 	//Output:
 	//test: createOperator({}) -> [{<empty> <empty>}] [err:invalid operator: value is empty ]
-	//test: createOperator("static") -> [{<empty> <empty>}] [err:invalid operator : name is empty [static]]
-	//test: createOperator("TRAFFIC__") -> [{<empty> <empty>}] [err:invalid operator : value not found %TRAFFIC__%]
-	//test: createOperator("REQ(static)") -> [{static header:static}] [err:<nil>]
-	//test: createOperator("REQ(static)") -> [{new-name header:static}] [err:<nil>]
+	//test: createOperator("static") -> [{<empty> <empty>}] [err:invalid operator: name is empty [static]]
+	//test: createOperator("static") -> [{static value}] [err:<nil>]
+	//test: createOperator("TRAFFIC__") -> [{<empty> <empty>}] [err:invalid operator: value not found or invalid %TRAFFIC__%]
+	//test: createOperator("REQ(static)") -> [{<empty> <empty>}] [err:invalid operator: value not found or invalid %REQ(]
+	//test: createOperator("REQ(static)") -> [{<empty> <empty>}] [err:invalid operator: value not found or invalid %REQ(test]
+	//test: createOperator("REQ(static)") -> [{<empty> <empty>}] [err:invalid operator: value not found or invalid %REQ()]
+	//test: createOperator("REQ(static)") -> [{static %REQ(static)}] [err:<nil>]
+	//test: createOperator("REQ(static)") -> [{new-name %REQ(static)}] [err:<nil>]
 	//test: createOperator("TRAFFIC") -> [{traffic %TRAFFIC%}] [err:<nil>]
 	//test: createOperator("TRAFFIC") -> [{new-name %TRAFFIC%}] [err:<nil>]
 
@@ -88,66 +107,39 @@ func Example_createOperator() {
 func Example_CreateEntries() {
 	var items []accessdata.Operator
 
-	err := CreateOperators(nil, []accessdata.Operator{{Value: "", Name: "name"}})
+	err := CreateOperators(nil, []accessdata.Operator{{Name: "name", Value: ""}})
 	fmt.Printf("test: CreateOperators(\"items: nil\") -> [err:%v] [%v]\n", err, items)
 
 	err = CreateOperators(&items, []accessdata.Operator{})
 	fmt.Printf("test: CreateOperators({}) -> [err:%v] [%v]\n", err, items)
 
-	err = CreateOperators(&items, []accessdata.Operator{{Value: "", Name: "name"}})
-	fmt.Printf("test: CreateOperators(\"Value: \"\"\") -> [err:%v] [%v]\n", err, items)
-
-	err = CreateOperators(&items, []accessdata.Operator{{Value: "%INVALID", Name: ""}})
+	err = CreateOperators(&items, []accessdata.Operator{{Name: "", Value: "%INVALID"}})
 	fmt.Printf("test: CreateOperators(\"Value: INVALID\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateOperators(&items, []accessdata.Operator{{Value: "static", Name: "name"}})
+	err = CreateOperators(&items, []accessdata.Operator{{Name: "name", Value: "static"}})
 	fmt.Printf("test: CreateOperators(\"Value: static\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateOperators(&items, []accessdata.Operator{{Value: "%START_TIME%", Name: ""}})
+	err = CreateOperators(&items, []accessdata.Operator{{Name: "", Value: "%START_TIME%"}})
 	fmt.Printf("test: CreateOperators(\"Value: START_TIME\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateOperators(&items, []accessdata.Operator{{Value: "%START_TIME%", Name: "timestamp"}})
+	err = CreateOperators(&items, []accessdata.Operator{{Name: "duration", Value: "%DURATION%"}})
 	fmt.Printf("test: CreateOperators(\"Value: START_TIME\") -> [err:%v] [%v]\n", err, items)
 
 	var newItems []accessdata.Operator
 
-	err = CreateOperators(&newItems, []accessdata.Operator{{Value: "%START_TIME%", Name: "timestamp"}, {Value: "%START_TIME%", Name: "timestamp"}})
+	err = CreateOperators(&newItems, []accessdata.Operator{{Name: "duration", Value: "%DURATION%"}, {Name: "duration", Value: "%DURATION%"}})
 	fmt.Printf("test: CreateOperators(\"Value: START_TIME\") -> [err:%v] [%v]\n", err, items)
 
 	//Output:
-	//test: CreateOperators("items: nil") -> [err:invalid configuration : operators are nil] [[]]
-	//test: CreateOperators({}) -> [err:invalid configuration : configuration is empty] [[]]
-	//test: CreateOperators("Value: """) -> [err:invalid operator: value is empty name] [[]]
-	//test: CreateOperators("Value: INVALID") -> [err:invalid operator : value not found %INVALID] [[]]
-	//test: CreateOperators("Value: static") -> [err:<nil>] [[{direct:name static}]]
-	//test: CreateOperators("Value: START_TIME") -> [err:<nil>] [[{direct:name static} {start_time %START_TIME%}]]
-	//test: CreateOperators("Value: START_TIME") -> [err:<nil>] [[{direct:name static} {start_time %START_TIME%} {timestamp %START_TIME%}]]
-	//test: CreateOperators("Value: START_TIME") -> [err:invalid reference : name is a duplicate [timestamp]] [[{direct:name static} {start_time %START_TIME%} {timestamp %START_TIME%}]]
+	//test: CreateOperators("items: nil") -> [err:invalid configuration: operators slice is nil] [[]]
+	//test: CreateOperators({}) -> [err:invalid configuration: configuration slice is empty] [[]]
+	//test: CreateOperators("Value: INVALID") -> [err:invalid operator: value not found or invalid %INVALID] [[]]
+	//test: CreateOperators("Value: static") -> [err:<nil>] [[{name static}]]
+	//test: CreateOperators("Value: START_TIME") -> [err:<nil>] [[{name static} {start_time %START_TIME%}]]
+	//test: CreateOperators("Value: START_TIME") -> [err:<nil>] [[{name static} {start_time %START_TIME%} {duration %DURATION%}]]
+	//test: CreateOperators("Value: START_TIME") -> [err:invalid operator: name is a duplicate [duration]] [[{name static} {start_time %START_TIME%} {duration %DURATION%}]]
 
 }
 
-/*
-func _Example_CreateEntries_Request() {
-	var items []Entry
 
-	err := CreateEntries(&items, []Reference{{Operator: "%REQ(", Name: ""}})
-	fmt.Printf("test: CreateEntries(\"REQ(\") -> [err:%v] [%v]\n", err, items)
 
-	err = CreateEntries(&items, []Reference{{Operator: "%REQ()", Name: ""}})
-	fmt.Printf("test: CreateEntries(\"REQ()\") -> [err:%v] [%v]\n", err, items)
-
-	err = CreateEntries(&items, []Reference{{Operator: "%REQ(t", Name: ""}})
-	fmt.Printf("test: CreateEntries(\"REQ(t)\") -> [err:%v] [%v]\n", err, items)
-
-	err = CreateEntries(&items, []Reference{{Operator: "%REQ(customer)", Name: ""}})
-	fmt.Printf("test: CreateEntries(\"REQ(customer)\") -> [err:%v] [%v]\n", err, items)
-
-	//Output:
-	//test: CreateEntries("REQ()") -> [err:invalid reference : operator is invalid %REQ(] [[]]
-	//test: CreateEntries("REQ()") -> [err:invalid reference : operator is invalid %REQ()] [[]]
-	//test: CreateEntries("REQ(t)") -> [err:invalid reference : operator is invalid %REQ(t] [[]]
-	//test: CreateEntries("REQ(customer)") -> [err:<nil>] [[{header:customer customer  true}]]
-
-}
-
-*/

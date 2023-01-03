@@ -1,13 +1,18 @@
 package accesslog
 
-/*
+import (
+	"fmt"
+	"github.com/idiomatic-go/middleware/accessdata"
+	"time"
+)
+
 func ExampleLog_Error() {
 	SetTestEgressWrite()
 	start := time.Now()
-	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
+	accessdata.SetOrigin(accessdata.Origin{Region: "us-west", Zone: "dfw", SubZone: "", Service: "test-service", InstanceId: "123456-7890-1234"})
 
-	Log(EgressTraffic, start, time.Since(start), map[string]string{}, nil, nil, "")
-	Log(EgressTraffic, start, time.Since(start), map[string]string{ActName: "egress-route"}, nil, nil, "")
+	Log(accessdata.EgressTraffic, start, time.Since(start), map[string]string{}, nil, nil, "")
+	Log(accessdata.EgressTraffic, start, time.Since(start), map[string]string{accessdata.ActName: "egress-route"}, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"error": "egress route name is empty"}]
@@ -19,16 +24,16 @@ func ExampleLog_Origin() {
 	name := "ingress-origin-route"
 	SetTestIngressWrite()
 	start := time.Now()
-	SetOrigin(Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
-	err := CreateIngressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: OriginRegionOperator}, {Operator: OriginZoneOperator}, {Operator: OriginSubZoneOperator}, {Operator: OriginServiceOperator}, {Operator: OriginInstanceIdOperator},
+	accessdata.SetOrigin(accessdata.Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
+	err := CreateIngressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Value: accessdata.DurationOperator, Name: "duration_ms"},
+		{Value: accessdata.TrafficOperator}, {Value: accessdata.RouteNameOperator}, {Value: accessdata.OriginRegionOperator}, {Value: accessdata.OriginZoneOperator}, {Value: accessdata.OriginSubZoneOperator}, {Value: accessdata.OriginServiceOperator}, {Value: accessdata.OriginInstanceIdOperator},
 	})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
 	var start1 time.Time
-	Log(IngressTraffic, start1, time.Since(start), map[string]string{ActName: name}, nil, nil, "")
+	Log(accessdata.IngressTraffic, start1, time.Since(start), map[string]string{accessdata.ActName: name}, nil, nil, "")
 
 	//Output:
 	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ingress","route_name":"ingress-origin-route","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234"}]
@@ -38,16 +43,16 @@ func ExampleLog_Origin() {
 func ExampleLog_Ping() {
 	name := "ingress-ping-route"
 	SetTestIngressWrite()
-	SetPingRoutes([]string{name})
+	accessdata.SetPingRoutes([]string{name})
 	start := time.Now()
-	err := CreateIngressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: RouteNameOperator}})
+	err := CreateIngressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Value: accessdata.DurationOperator, Name: "duration_ms"},
+		{Value: accessdata.TrafficOperator}, {Value: accessdata.RouteNameOperator}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
 	var start1 time.Time
-	Log(IngressTraffic, start1, time.Since(start), map[string]string{ActName: name}, nil, nil, "")
+	Log(accessdata.IngressTraffic, start1, time.Since(start), map[string]string{accessdata.ActName: name}, nil, nil, "")
 
 	//Output:
 	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ping","route_name":"ingress-ping-route"}]
@@ -57,25 +62,26 @@ func ExampleLog_Ping() {
 func ExampleLog_Timeout() {
 	SetTestEgressWrite()
 	start := time.Now()
-	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: TimeoutDurationOperator}, {Operator: "static", Name: "value"}})
+	err := CreateEgressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Name: "duration_ms", Value: accessdata.DurationOperator},
+		{Value: accessdata.TrafficOperator}, {Value: accessdata.RouteNameOperator}, {Value: accessdata.TimeoutDurationOperator}, {Name: "static", Value: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
 	var start1 time.Time
-	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", TimeoutName: "5000"}, nil, nil, "")
+	Log(accessdata.EgressTraffic, start1, time.Since(start), map[string]string{accessdata.ActName: "egress-route", accessdata.TimeoutName: "5000"}, nil, nil, "")
 
 	//Output:
 	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","timeout_ms":5000,"static":"value"}]
 
 }
 
+/*
 func ExampleLog_RateLimiter_500() {
 	SetTestEgressWrite()
 	start := time.Now()
-	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static2", Name: "value"}})
+	err := CreateEgressEntries([]Reference{{Value: StartTimeOperator}, {Value: DurationOperator, Name: "duration_ms"},
+		{Value: TrafficOperator}, {Value: RouteNameOperator}, {Value: RateLimitOperator}, {Value: RateBurstOperator}, {Value: "static2", Name: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -91,8 +97,8 @@ func ExampleLog_RateLimiter_500() {
 func ExampleLog_RateLimiter_Inf() {
 	SetTestEgressWrite()
 	start := time.Now()
-	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: RateLimitOperator}, {Operator: RateBurstOperator}, {Operator: "static2", Name: "value"}})
+	err := CreateEgressEntries([]Reference{{Value: StartTimeOperator}, {Value: DurationOperator, Name: "duration_ms"},
+		{Value: TrafficOperator}, {Value: RouteNameOperator}, {Value: RateLimitOperator}, {Value: RateBurstOperator}, {Value: "static2", Name: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -108,8 +114,8 @@ func ExampleLog_RateLimiter_Inf() {
 func ExampleLog_Failover() {
 	SetTestEgressWrite()
 	start := time.Now()
-	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: FailoverOperator}, {Operator: "static2", Name: "value"}})
+	err := CreateEgressEntries([]Reference{{Value: StartTimeOperator}, {Value: DurationOperator, Name: "duration_ms"},
+		{Value: TrafficOperator}, {Value: RouteNameOperator}, {Value: FailoverOperator}, {Value: "static2", Name: "value"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -125,9 +131,9 @@ func ExampleLog_Failover() {
 func ExampleLog_Retry() {
 	SetTestEgressWrite()
 	start := time.Now()
-	err := CreateEgressEntries([]Reference{{Operator: StartTimeOperator}, {Operator: DurationOperator, Name: "duration_ms"},
-		{Operator: TrafficOperator}, {Operator: RouteNameOperator}, {Operator: RetryOperator},
-		{Operator: RetryRateLimitOperator}, {Operator: RetryRateBurstOperator}})
+	err := CreateEgressEntries([]Reference{{Value: StartTimeOperator}, {Value: DurationOperator, Name: "duration_ms"},
+		{Value: TrafficOperator}, {Value: RouteNameOperator}, {Value: RetryOperator},
+		{Value: RetryRateLimitOperator}, {Value: RetryRateBurstOperator}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -146,8 +152,8 @@ func ExampleLog_Request() {
 	req.Header.Add("customer", "Ted's Bait & Tackle")
 
 	var start time.Time
-	err := CreateEgressEntries([]Reference{{Operator: RequestProtocolOperator}, {Operator: RequestMethodOperator}, {Operator: RequestUrlOperator},
-		{Operator: RequestPathOperator}, {Operator: RequestHostOperator}, {Operator: "%REQ(customer)%"}})
+	err := CreateEgressEntries([]Reference{{Value: RequestProtocolOperator}, {Value: RequestMethodOperator}, {Value: RequestUrlOperator},
+		{Value: RequestPathOperator}, {Value: RequestHostOperator}, {Value: "%REQ(customer)%"}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -165,7 +171,7 @@ func ExampleLog_Response() {
 	SetTestEgressWrite()
 	resp := &http.Response{StatusCode: 404, ContentLength: 1234}
 
-	err := CreateEgressEntries([]Reference{{Operator: ResponseStatusCodeOperator}, {Operator: ResponseBytesReceivedOperator}, {Operator: StatusFlagsOperator}})
+	err := CreateEgressEntries([]Reference{{Value: ResponseStatusCodeOperator}, {Value: ResponseBytesReceivedOperator}, {Value: StatusFlagsOperator}})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
