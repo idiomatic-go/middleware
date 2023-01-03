@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var actuateFn Actuate = func(act Actuator, events []Event) error {
+var actuatorFn Actuate = func(act Actuator, events []Event) error {
 	fmt.Printf("test: Actuate() -> [%v]\n", act.Name())
 	return nil
 }
@@ -14,7 +14,7 @@ var actuateFn Actuate = func(act Actuator, events []Event) error {
 func ExampleActuator_newActuator() {
 	t := newTable(true)
 
-	a, _ := newActuator("test", t, actuateFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRateLimiterConfig(100, 10, 503))
+	a, _ := newActuator("test", t, actuatorFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRateLimiterConfig(100, 10, 503))
 
 	_, toOk := a.Timeout()
 	_, rateOk := a.RateLimiter()
@@ -40,19 +40,19 @@ func ExampleActuator_newActuator() {
 func ExampleActuator_newActuator_Error() {
 	t := newTable(false)
 
-	_, errs := newActuator("test", t, actuateFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRateLimiterConfig(100, 10, 503))
+	_, errs := newActuator("test", t, actuatorFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRateLimiterConfig(100, 10, 503))
 	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
 
-	_, errs = newActuator("test", t, actuateFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRetryConfig(nil, 100, 10, 0))
+	_, errs = newActuator("test", t, actuatorFn, NewTimeoutConfig(time.Millisecond*1500, 0), NewRetryConfig(nil, 100, 10, 0))
 	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
 
-	_, errs = newActuator("test", t, actuateFn, NewTimeoutConfig(0, 0))
+	_, errs = newActuator("test", t, actuatorFn, NewTimeoutConfig(0, 0))
 	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
 
-	_, errs = newActuator("test", t, actuateFn, NewTimeoutConfig(10, 0), NewFailoverConfig(nil))
+	_, errs = newActuator("test", t, actuatorFn, NewTimeoutConfig(10, 0), NewFailoverConfig(nil))
 	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
 
-	_, errs = newActuator("test", t, actuateFn, NewRateLimiterConfig(-1, 10, 504))
+	_, errs = newActuator("test", t, actuatorFn, NewRateLimiterConfig(-1, 10, 504))
 	fmt.Printf("test: newActuator() -> [errs:%v]\n", errs)
 
 	//Output:
