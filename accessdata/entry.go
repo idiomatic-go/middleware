@@ -115,6 +115,12 @@ func (l *Entry) AddRequest(req *http.Request) {
 	}
 }
 
+func (l *Entry) SetActuatorState(m map[string]string) {
+	if m != nil {
+		l.ActState = m
+	}
+
+}
 func (l *Entry) Value(value string) string {
 	if !strings.HasPrefix(value, OperatorPrefix) {
 		return value

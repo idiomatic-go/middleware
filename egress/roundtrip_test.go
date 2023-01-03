@@ -71,8 +71,8 @@ func init() {
 	actuator.EgressTable.Add(rateLimitRoute, nil, actuator.NewRateLimiterConfig(2000, 0, 503))
 	actuator.EgressTable.Add(retryRoute, nil, actuator.NewTimeoutConfig(time.Millisecond, 504), actuator.NewRetryConfig([]int{503, 504}, 0, 0, 0))
 
-	actuator.SetLoggerAccess(func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) {
-		accesslog.Log(traffic, start, duration, actState, req, resp, statusFlags)
+	actuator.SetLoggerAccess(func(entry *accessdata.Entry) {
+		accesslog.Log(entry)
 	},
 	)
 }

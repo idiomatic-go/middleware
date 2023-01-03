@@ -1,11 +1,10 @@
 package actuator
 
 import (
-	"net/http"
-	"time"
+	"github.com/idiomatic-go/middleware/accessdata"
 )
 
-type LogAccess func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string)
+type LogAccess func(entry *accessdata.Entry)
 
 func SetLoggerAccess(fn LogAccess) {
 	if fn != nil {

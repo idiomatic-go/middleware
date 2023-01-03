@@ -1,19 +1,20 @@
 package actuator
 
 import (
+	"github.com/idiomatic-go/middleware/accessdata"
 	"log"
-	"net/http"
-	"time"
 )
 
 var defaultLogger = newLogger(NewLoggerConfig(defaultAccess))
 
-var defaultAccess LogAccess = func(traffic string, start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) {
-	log.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"statusFlags\":\"%v\"}\n", traffic, start, duration, req, resp, statusFlags)
+var defaultAccess LogAccess = func(entry *accessdata.Entry) {
+	if entry != nil {
+		log.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"statusFlags\":\"%v\"}\n", entry.Traffic, entry.Start, entry.Duration, nil, nil, entry.StatusFlags)
+	}
 }
 
 type LoggingController interface {
-	LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retry bool, req *http.Request, resp *http.Response, statusFlags string)
+	LogAccess(entry *accessdata.Entry, act Actuator, retry bool)
 }
 
 type LoggerConfig struct {
@@ -38,8 +39,8 @@ func newLogger(config *LoggerConfig) *logger {
 	return &logger{config: *config}
 }
 
-func (l *logger) LogAccess(traffic string, start time.Time, duration time.Duration, act Actuator, retry bool, req *http.Request, resp *http.Response, statusFlags string) {
-	if l.config.accessInvoke == nil {
+func (l *logger) LogAccess(entry *accessdata.Entry, act Actuator, retry bool) {
+	if l.config.accessInvoke == nil || entry == nil {
 		return
 	}
 	state := make(map[string]string, 12)
@@ -48,7 +49,8 @@ func (l *logger) LogAccess(traffic string, start time.Time, duration time.Durati
 	rateLimiterState(state, rateLimiterController(act))
 	failoverState(state, failoverController(act))
 	retryState(state, retryController(act), retry)
-	l.config.accessInvoke(traffic, start, duration, state, req, resp, statusFlags)
+	entry.SetActuatorState(state)
+	l.config.accessInvoke(entry)
 }
 
 func timeoutController(act Actuator) TimeoutController {
