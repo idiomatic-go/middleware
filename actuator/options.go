@@ -11,3 +11,23 @@ func SetLoggerAccess(fn LogAccess) {
 		defaultLogger.config.accessInvoke = fn
 	}
 }
+
+// Extract - optionally allows extraction of log data
+type Extract func(l *accessdata.Entry)
+
+func EnableExtract(fn Extract) {
+	if fn != nil {
+		defaultExtract = fn
+	}
+
+}
+
+/*
+func callExtract(l *accessdata.Entry) {
+	if IsExtract() {
+		opt.extractFn(l)
+	}
+}
+
+
+*/

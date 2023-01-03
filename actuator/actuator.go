@@ -3,7 +3,9 @@ package actuator
 import (
 	"errors"
 	"fmt"
+	"github.com/idiomatic-go/middleware/accessdata"
 	"net/http"
+	"time"
 )
 
 const (
@@ -32,10 +34,13 @@ type Actuate func(act Actuator, events []Event) error
 type Actuator interface {
 	Name() string
 	Logger() LoggingController
+	Extract() ExtractController
 	Timeout() (TimeoutController, bool)
 	RateLimiter() (RateLimiterController, bool)
 	Retry() (RetryController, bool)
 	Failover() (FailoverController, bool)
+	LogIngress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string)
+	LogEgress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string, retry bool)
 	Actuate(events []Event) error
 	t() *actuator
 }
@@ -70,6 +75,7 @@ type actuator struct {
 	rateLimiter *rateLimiter
 	failover    *failover
 	retry       *retry
+	extract     *extract
 	actuate     Actuate
 }
 
@@ -97,6 +103,7 @@ func newActuator(name string, t *table, fn Actuate, config ...any) (*actuator, [
 	act.name = name
 	act.actuate = fn
 	act.logger = defaultLogger
+	act.extract = newExtract()
 	for _, cfg := range config {
 		err = nil
 		switch c := cfg.(type) {
@@ -146,6 +153,10 @@ func (a *actuator) Logger() LoggingController {
 	return a.logger
 }
 
+func (a *actuator) Extract() ExtractController {
+	return a.extract
+}
+
 func (a *actuator) Timeout() (TimeoutController, bool) {
 	if a.timeout == nil {
 		return nil, false
@@ -183,4 +194,27 @@ func (a *actuator) Actuate(events []Event) error {
 
 func (a *actuator) t() *actuator {
 	return a
+}
+
+func (a *actuator) state() map[string]string {
+	state := make(map[string]string, 12)
+	state[ActName] = a.Name()
+	timeoutState(state, a.timeout)
+	rateLimiterState(state, a.rateLimiter)
+	return state
+}
+
+func (a *actuator) LogIngress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string) {
+	entry := accessdata.NewIngressEntry(start, duration, a.state(), req, resp, statusFlags)
+	a.Extract().Extract(entry)
+	a.Logger().LogAccess(entry)
+}
+
+func (a *actuator) LogEgress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string, retry bool) {
+	state := a.state()
+	failoverState(state, a.failover)
+	retryState(state, a.retry, retry)
+	entry := accessdata.NewEgressEntry(start, duration, state, req, resp, statusFlags)
+	a.Extract().Extract(entry)
+	a.Logger().LogAccess(entry)
 }

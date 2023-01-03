@@ -14,7 +14,7 @@ var defaultAccess LogAccess = func(entry *accessdata.Entry) {
 }
 
 type LoggingController interface {
-	LogAccess(entry *accessdata.Entry, act Actuator, retry bool)
+	LogAccess(entry *accessdata.Entry)
 }
 
 type LoggerConfig struct {
@@ -39,17 +39,17 @@ func newLogger(config *LoggerConfig) *logger {
 	return &logger{config: *config}
 }
 
-func (l *logger) LogAccess(entry *accessdata.Entry, act Actuator, retry bool) {
+func (l *logger) LogAccess(entry *accessdata.Entry) {
 	if l.config.accessInvoke == nil || entry == nil {
 		return
 	}
-	state := make(map[string]string, 12)
-	state[ActName] = act.Name()
-	timeoutState(state, timeoutController(act))
-	rateLimiterState(state, rateLimiterController(act))
-	failoverState(state, failoverController(act))
-	retryState(state, retryController(act), retry)
-	entry.SetActuatorState(state)
+	//state := make(map[string]string, 12)
+	//state[ActName] = act.Name()
+	//timeoutState(state, timeoutController(act))
+	//rateLimiterState(state, rateLimiterController(act))
+	//failoverState(state, failoverController(act))
+	//retryState(state, retryController(act), retry)
+	//entry.SetActuatorState(state)
 	l.config.accessInvoke(entry)
 }
 

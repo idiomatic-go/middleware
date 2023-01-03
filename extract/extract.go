@@ -3,7 +3,6 @@ package extract
 import (
 	"errors"
 	"github.com/idiomatic-go/middleware/accessdata"
-	"github.com/idiomatic-go/middleware/accesslog"
 	"net/http"
 	urlpkg "net/url"
 	"strings"
@@ -12,9 +11,8 @@ import (
 type messageHandler func(l *accessdata.Entry) bool
 
 var (
-	url string
-	c   chan *accessdata.Entry
-	//entries []accessdata.Operator
+	url       string
+	c         chan *accessdata.Entry
 	client                   = http.DefaultClient
 	handler   messageHandler = do
 	operators                = []accessdata.Operator{
@@ -54,7 +52,7 @@ var (
 func Initialize(uri string, newClient *http.Client, fn ErrorHandler) error {
 	//var err error
 
-	if accesslog.IsEmpty(uri) {
+	if uri == "" {
 		return errors.New("invalid argument : uri is empty")
 	}
 	u, err1 := urlpkg.Parse(uri)
@@ -62,18 +60,12 @@ func Initialize(uri string, newClient *http.Client, fn ErrorHandler) error {
 		return err1
 	}
 	url = u.String()
-	//entries = []accessdata.Operator{}
-	//err = accesslog.CreateOperators(&entries, config)
-	//if err != nil {
-	//	return err
-	//}
 	c = make(chan *accessdata.Entry, 100)
 	go receive()
 	if newClient != nil {
 		client = newClient
 	}
 	SetErrorHandler(fn)
-	//accesslog.SetExtract(extract)
 	return nil
 }
 

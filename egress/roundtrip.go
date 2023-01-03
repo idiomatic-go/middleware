@@ -3,7 +3,6 @@ package egress
 import (
 	"context"
 	"errors"
-	"github.com/idiomatic-go/middleware/accessdata"
 	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
 	"time"
@@ -17,14 +16,14 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	var start = time.Now()
 	var retry = false
 
-	// No panic
+	// !panic
 	if w == nil || w.rt == nil {
 		return nil, errors.New("invalid egress round tripper configuration : http.RoundTripper is nil")
 	}
 	act := actuator.EgressTable.Lookup(req)
 	if rlc, ok := act.RateLimiter(); ok && !rlc.Allow() {
 		resp := &http.Response{Request: req, StatusCode: rlc.StatusCode()}
-		act.Logger().LogAccess(accessdata.NewEgressEntry(start, time.Since(start), nil, req, resp, actuator.RateLimitFlag), act, false)
+		act.LogEgress(start, time.Since(start), req, resp, actuator.RateLimitFlag, false)
 		return resp, nil
 	}
 	tc, _ := act.Timeout()
@@ -36,12 +35,12 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		prevFlags := statusFlags
 		retry, statusFlags = rc.IsRetryable(resp.StatusCode)
 		if retry {
-			act.Logger().LogAccess(accessdata.NewEgressEntry(start, time.Since(start), nil, req, resp, prevFlags), act, false)
+			act.LogEgress(start, time.Since(start), req, resp, prevFlags, false)
 			start = time.Now()
 			resp, err, statusFlags = w.exchange(tc, req)
 		}
 	}
-	act.Logger().LogAccess(accessdata.NewEgressEntry(start, time.Since(start), nil, req, resp, statusFlags), act, retry)
+	act.LogEgress(start, time.Since(start), req, resp, statusFlags, retry)
 	return resp, err
 }
 
