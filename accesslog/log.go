@@ -6,22 +6,28 @@ import (
 )
 
 const (
-	errorNilEntryFmt    = "{\"error\": \"access data entry is nil\"}"
-	errorNilActuatorFmt = "{\"error\": \"actuator is nil or %v route name is empty\"}"
-	errorEmptyFmt       = "{\"error\": \"%v log entries are empty\"}"
+	errorNilEntryFmt = "{\"error\": \"access data entry is nil\"}"
+	//errorNilActuatorFmt = "{\"error\": \"actuator is nil or %v route name is empty\"}"
+	errorEmptyFmt = "{\"error\": \"%v log entries are empty\"}"
 )
+
+func ingressWrite(s string) {
+	if opt.ingressWrite != nil {
+		opt.ingressWrite(s)
+	}
+}
+
+func egressWrite(s string) {
+	if opt.egressWrite != nil {
+		opt.egressWrite(s)
+	}
+}
 
 func Log(entry *accessdata.Entry) {
 	if entry == nil {
 		egressWrite(errorNilEntryFmt)
 		return
 	}
-	//if entry.ActState == nil || entry.ActState[accessdata.ActName] == "" {
-	//	egressWrite(fmt.Sprintf(errorNilActuatorFmt, entry.Traffic))
-	//	return
-	//}
-	//data := accessdata.NewEntry(traffic, start, duration, actState, req, resp, statusFlags)
-	//callExtract(data)
 	if entry.IsIngress() {
 		if !opt.writeIngress {
 			return

@@ -8,8 +8,19 @@ import (
 	"time"
 )
 
+func setTestIngressWrite() {
+	SetIngressWrite(func(s string) {
+		fmt.Printf("test: WriteIngress() -> [%v]\n", s)
+	})
+}
+
+func setTestEgressWrite() {
+	SetEgressWrite(func(s string) {
+		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
+	})
+}
 func ExampleLog_Error() {
-	SetTestEgressWrite()
+	setTestEgressWrite()
 	start := time.Now()
 
 	Log(nil)
@@ -23,7 +34,7 @@ func ExampleLog_Error() {
 
 func ExampleLog_Origin() {
 	name := "ingress-origin-route"
-	SetTestIngressWrite()
+	setTestIngressWrite()
 	start := time.Now()
 	accessdata.SetOrigin(accessdata.Origin{Region: "us-west", Zone: "dfw", SubZone: "cluster", Service: "test-service", InstanceId: "123456-7890-1234"})
 	err := CreateIngressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Value: accessdata.DurationOperator, Name: "duration_ms"},
@@ -34,7 +45,7 @@ func ExampleLog_Origin() {
 		return
 	}
 	var start1 time.Time
-	Log(accessdata.NewIngressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: name}, nil, nil, ""))
+	Log(accessdata.NewIngressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: name}, nil, 0, 0, ""))
 
 	//Output:
 	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ingress","route_name":"ingress-origin-route","region":"us-west","zone":"dfw","sub_zone":"cluster","service":"test-service","instance_id":"123456-7890-1234"}]
@@ -43,7 +54,7 @@ func ExampleLog_Origin() {
 
 func ExampleLog_Ping() {
 	name := "ingress-ping-route"
-	SetTestIngressWrite()
+	setTestIngressWrite()
 	accessdata.SetPingRoutes([]string{name})
 	start := time.Now()
 	err := CreateIngressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Value: accessdata.DurationOperator, Name: "duration_ms"},
@@ -53,7 +64,7 @@ func ExampleLog_Ping() {
 		return
 	}
 	var start1 time.Time
-	Log(accessdata.NewIngressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: name}, nil, nil, ""))
+	Log(accessdata.NewIngressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: name}, nil, 0, 0, ""))
 
 	//Output:
 	//test: WriteIngress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"ping","route_name":"ingress-ping-route"}]
@@ -61,7 +72,7 @@ func ExampleLog_Ping() {
 }
 
 func ExampleLog_Timeout() {
-	SetTestEgressWrite()
+	setTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Name: "duration_ms", Value: accessdata.DurationOperator},
 		{Value: accessdata.TrafficOperator}, {Value: accessdata.RouteNameOperator}, {Value: accessdata.TimeoutDurationOperator}, {Name: "static", Value: "value"}})
@@ -78,7 +89,7 @@ func ExampleLog_Timeout() {
 }
 
 func ExampleLog_RateLimiter_500() {
-	SetTestEgressWrite()
+	setTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Name: "duration", Value: accessdata.DurationOperator},
 		{Value: accessdata.TrafficOperator}, {Value: accessdata.RouteNameOperator}, {Value: accessdata.RateLimitOperator}, {Value: accessdata.RateBurstOperator}, {Name: "static2", Value: "value2"}})
@@ -96,7 +107,7 @@ func ExampleLog_RateLimiter_500() {
 
 /*
 func ExampleLog_RateLimiter_Inf() {
-	SetTestEgressWrite()
+	setTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressEntries([]Reference{{Value: StartTimeOperator}, {Value: DurationOperator, Name: "duration_ms"},
 		{Value: TrafficOperator}, {Value: RouteNameOperator}, {Value: RateLimitOperator}, {Value: RateBurstOperator}, {Value: "static2", Name: "value"}})
@@ -115,7 +126,7 @@ func ExampleLog_RateLimiter_Inf() {
 */
 
 func ExampleLog_Failover() {
-	SetTestEgressWrite()
+	setTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Name: "duration", Value: accessdata.DurationOperator},
 		{Value: accessdata.TrafficOperator}, {Value: accessdata.RouteNameOperator}, {Value: accessdata.FailoverOperator}, {Name: "static2", Value: "value2"}})
@@ -132,7 +143,7 @@ func ExampleLog_Failover() {
 }
 
 func ExampleLog_Retry() {
-	SetTestEgressWrite()
+	setTestEgressWrite()
 	start := time.Now()
 	err := CreateEgressOperators([]accessdata.Operator{{Value: accessdata.StartTimeOperator}, {Value: accessdata.DurationOperator, Name: "duration_ms"},
 		{Value: accessdata.TrafficOperator}, {Value: accessdata.RouteNameOperator}, {Value: accessdata.RetryOperator},
@@ -150,7 +161,7 @@ func ExampleLog_Retry() {
 }
 
 func ExampleLog_Request() {
-	SetTestEgressWrite()
+	setTestEgressWrite()
 	req, _ := http.NewRequest("", "www.google.com/search/documents", nil)
 	req.Header.Add("customer", "Ted's Bait & Tackle")
 
@@ -171,7 +182,7 @@ func ExampleLog_Request() {
 }
 
 func ExampleLog_Response() {
-	SetTestEgressWrite()
+	setTestEgressWrite()
 	resp := &http.Response{StatusCode: 404, ContentLength: 1234}
 
 	err := CreateEgressOperators([]accessdata.Operator{{Value: accessdata.ResponseStatusCodeOperator}, {Value: accessdata.ResponseBytesReceivedOperator}, {Value: accessdata.StatusFlagsOperator}})

@@ -36,7 +36,6 @@ type Entry struct {
 	Traffic  string
 	Start    time.Time
 	Duration time.Duration
-	Origin   *Origin
 	ActState map[string]string
 
 	// Request
@@ -59,7 +58,6 @@ func newEntry(traffic string, start time.Time, duration time.Duration, actState 
 	l.Traffic = traffic
 	l.Start = start
 	l.Duration = duration
-	l.Origin = getOrigin()
 	if actState == nil {
 		actState = make(map[string]string, 1)
 	}
@@ -90,7 +88,15 @@ func (l *Entry) IsEgress() bool {
 }
 
 func (l *Entry) IsPing() bool {
-	return l.IsIngress() && IsPingTraffic(l.ActState[ActName])
+	if !l.IsIngress() {
+		return false
+	}
+	for _, n := range opt.pingRoutes {
+		if n == l.ActState[ActName] {
+			return true
+		}
+	}
+	return false
 }
 
 func (l *Entry) AddResponse(resp *http.Response) {
@@ -140,25 +146,15 @@ func (l *Entry) Value(value string) string {
 
 		// Origin
 	case OriginRegionOperator:
-		if l.Origin != nil {
-			return l.Origin.Region
-		}
+		return opt.origin.Region
 	case OriginZoneOperator:
-		if l.Origin != nil {
-			return l.Origin.Zone
-		}
+		return opt.origin.Zone
 	case OriginSubZoneOperator:
-		if l.Origin != nil {
-			return l.Origin.SubZone
-		}
+		return opt.origin.SubZone
 	case OriginServiceOperator:
-		if l.Origin != nil {
-			return l.Origin.Service
-		}
+		return opt.origin.Service
 	case OriginInstanceIdOperator:
-		if l.Origin != nil {
-			return l.Origin.InstanceId
-		}
+		return opt.origin.InstanceId
 
 		// Request
 	case RequestMethodOperator:

@@ -7,15 +7,11 @@ import (
 
 func Example_Value_Origin() {
 	op := OriginRegionOperator
-	o := Origin{"region", "zone", "", "", ""}
-	data := Entry{Origin: nil}
-	fmt.Printf("test: Value(\"region\") -> [%v]\n", data.Value(op))
-
-	data = Entry{Origin: &o}
+	SetOrigin(Origin{"region", "zone", "", "", ""})
+	data := Entry{}
 	fmt.Printf("test: Value(\"region\") -> [%v]\n", data.Value(op))
 
 	//Output:
-	//test: Value("region") -> []
 	//test: Value("region") -> [region]
 }
 

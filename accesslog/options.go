@@ -1,47 +1,24 @@
 package accesslog
 
 import (
-	"fmt"
 	"github.com/idiomatic-go/middleware/accessdata"
 	"log"
 )
 
-// Extract - optionally allows extraction of log data
-type Extract func(l *accessdata.Entry)
+// CreateIngressOperators - allows configuration of access log attributes for ingress traffic
+func CreateIngressOperators(config []accessdata.Operator) error {
+	ingressOperators = []accessdata.Operator{}
+	return CreateOperators(&ingressOperators, config)
+}
+
+// CreateEgressOperators - allows configuration of access log attributes for egress traffic
+func CreateEgressOperators(config []accessdata.Operator) error {
+	egressOperators = []accessdata.Operator{}
+	return CreateOperators(&egressOperators, config)
+}
 
 // Write - override log output disposition, default is log.Println
 type Write func(s string)
-
-type options struct {
-	writeIngress bool
-	writeEgress  bool
-	extractFn    Extract
-	ingressWrite Write
-	egressWrite  Write
-}
-
-var opt options
-
-func init() {
-	opt.writeIngress = true
-	opt.writeEgress = true
-	SetIngressWrite(nil)
-	SetEgressWrite(nil)
-}
-
-func IsExtract() bool {
-	return opt.extractFn != nil
-}
-
-func SetExtract(fn Extract) {
-	opt.extractFn = fn
-}
-
-func callExtract(l *accessdata.Entry) {
-	if IsExtract() {
-		opt.extractFn(l)
-	}
-}
 
 func SetIngressWriteStatus(enabled bool) {
 	opt.writeIngress = enabled
@@ -71,26 +48,18 @@ func SetEgressWrite(fn Write) {
 	}
 }
 
-func SetTestIngressWrite() {
-	SetIngressWrite(func(s string) {
-		fmt.Printf("test: WriteIngress() -> [%v]\n", s)
-	})
+type options struct {
+	writeIngress bool
+	writeEgress  bool
+	ingressWrite Write
+	egressWrite  Write
 }
 
-func SetTestEgressWrite() {
-	SetEgressWrite(func(s string) {
-		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
-	})
-}
+var opt options
 
-func ingressWrite(s string) {
-	if opt.ingressWrite != nil {
-		opt.ingressWrite(s)
-	}
-}
-
-func egressWrite(s string) {
-	if opt.egressWrite != nil {
-		opt.egressWrite(s)
-	}
+func init() {
+	opt.writeIngress = true
+	opt.writeEgress = true
+	SetIngressWrite(nil)
+	SetEgressWrite(nil)
 }

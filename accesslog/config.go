@@ -9,16 +9,6 @@ import (
 var ingressOperators []accessdata.Operator
 var egressOperators []accessdata.Operator
 
-func CreateIngressOperators(config []accessdata.Operator) error {
-	ingressOperators = []accessdata.Operator{}
-	return CreateOperators(&ingressOperators, config)
-}
-
-func CreateEgressOperators(config []accessdata.Operator) error {
-	egressOperators = []accessdata.Operator{}
-	return CreateOperators(&egressOperators, config)
-}
-
 func CreateOperators(items *[]accessdata.Operator, config []accessdata.Operator) error {
 	if items == nil {
 		return errors.New("invalid configuration: operators slice is nil")
