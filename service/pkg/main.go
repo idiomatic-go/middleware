@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/idiomatic-go/middleware/example/pkg/host"
+	"github.com/idiomatic-go/middleware/service/pkg/host"
 	"log"
 	"net/http"
 	"os"
@@ -30,7 +30,7 @@ func main() {
 	if !host.Startup(r) {
 		os.Exit(1)
 	}
-	
+
 	srv := http.Server{
 		Addr: addr,
 		// Good practice to set timeouts to avoid Slowloris attacks.
