@@ -21,6 +21,7 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, errors.New("invalid egress round tripper configuration : http.RoundTripper is nil")
 	}
 	act := actuator.EgressTable.Lookup(req)
+	act.UpdateHeaders(req)
 	if rlc, ok := act.RateLimiter(); ok && !rlc.Allow() {
 		resp := &http.Response{Request: req, StatusCode: rlc.StatusCode()}
 		act.LogEgress(start, time.Since(start), req, resp, actuator.RateLimitFlag, false)

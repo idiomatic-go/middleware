@@ -45,13 +45,18 @@ func Example_Value_Request() {
 	fmt.Printf("test: Value(\"method\") -> [%v]\n", data.Value(op))
 
 	req, _ := http.NewRequest("POST", "www.google.com", nil)
+	req.Header.Add(RequestIdHeaderName, "123-456-789")
+	req.Header.Add(FromRouteHeaderName, "calling-route")
 	data = &Entry{}
 	data.AddRequest(req)
 	fmt.Printf("test: Value(\"method\") -> [%v]\n", data.Value(op))
 
+	fmt.Printf("test: Value(\"headers\") -> [request-id:%v] [from-route:%v]\n", data.Value(RequestIdOperator), data.Value(RequestFromRouteOperator))
+
 	//Output:
 	//test: Value("method") -> []
 	//test: Value("method") -> [POST]
+	//test: Value("headers") -> [request-id:123-456-789] [from-route:calling-route]
 }
 
 func Example_Value_Response() {

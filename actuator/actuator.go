@@ -3,6 +3,7 @@ package actuator
 import (
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/idiomatic-go/middleware/accessdata"
 	"net/http"
 	"time"
@@ -12,8 +13,8 @@ const (
 	HostActuatorName    = "host"
 	DefaultActuatorName = "*"
 	RateLimitInfValue   = 99999
-	EgressTraffic       = "egress"
-	IngressTraffic      = "ingress"
+	FromRouteHeaderName = "from-route"
+	RequestIdHeaderName = "x-request-id"
 	RateLimitFlag       = "RL"
 	UpstreamTimeoutFlag = "UT"
 	HostTimeoutFlag     = "HT"
@@ -39,7 +40,8 @@ type Actuator interface {
 	RateLimiter() (RateLimiterController, bool)
 	Retry() (RetryController, bool)
 	Failover() (FailoverController, bool)
-	LogIngress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string)
+	UpdateHeaders(req *http.Request)
+	LogIngress(start time.Time, duration time.Duration, req *http.Request, statusCode int, written int, statusFlags string)
 	LogEgress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string, retry bool)
 	Actuate(events []Event) error
 	t() *actuator
@@ -204,8 +206,18 @@ func (a *actuator) state() map[string]string {
 	return state
 }
 
-func (a *actuator) LogIngress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string) {
-	entry := accessdata.NewIngressEntry(start, duration, a.state(), req, resp, statusFlags)
+func (a *actuator) UpdateHeaders(req *http.Request) {
+	if req == nil || req.Header == nil {
+		return
+	}
+	req.Header.Add(FromRouteHeaderName, a.name)
+	if req.Header.Get(RequestIdHeaderName) == "" {
+		req.Header.Add(RequestIdHeaderName, uuid.New().String())
+	}
+}
+
+func (a *actuator) LogIngress(start time.Time, duration time.Duration, req *http.Request, statusCode int, written int, statusFlags string) {
+	entry := accessdata.NewIngressEntry(start, duration, a.state(), req, statusCode, written, statusFlags)
 	a.Extract().Extract(entry)
 	a.Logger().LogAccess(entry)
 }

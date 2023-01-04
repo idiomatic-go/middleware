@@ -69,8 +69,11 @@ func newEntry(traffic string, start time.Time, duration time.Duration, actState 
 	return l
 }
 
-func NewIngressEntry(start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Entry {
-	return newEntry(IngressTraffic, start, duration, actState, req, resp, statusFlags)
+func NewIngressEntry(start time.Time, duration time.Duration, actState map[string]string, req *http.Request, statusCode int, written int, statusFlags string) *Entry {
+	e := newEntry(IngressTraffic, start, duration, actState, req, nil, statusFlags)
+	e.StatusCode = statusCode
+	e.BytesSent = written
+	return e
 }
 
 func NewEgressEntry(start time.Time, duration time.Duration, actState map[string]string, req *http.Request, resp *http.Response, statusFlags string) *Entry {
@@ -122,13 +125,6 @@ func (l *Entry) SetActuatorState(m map[string]string) {
 
 }
 func (l *Entry) Value(value string) string {
-	if !strings.HasPrefix(value, OperatorPrefix) {
-		return value
-	}
-	if strings.HasPrefix(value, RequestReferencePrefix) {
-		name := requestOperatorHeaderName(value)
-		return l.Header.Get(name)
-	}
 	switch value {
 	case TrafficOperator:
 		if l.IsPing() {
@@ -176,6 +172,8 @@ func (l *Entry) Value(value string) string {
 		return l.Host
 	case RequestIdOperator:
 		return l.Header.Get(RequestIdHeaderName)
+	case RequestFromRouteOperator:
+		return l.Header.Get(FromRouteHeaderName)
 	case RequestUserAgentOperator:
 		return l.Header.Get(UserAgentHeaderName)
 	case RequestAuthorityOperator:
@@ -211,5 +209,13 @@ func (l *Entry) Value(value string) string {
 	case RetryRateBurstOperator:
 		return l.ActState[RetryRateBurstName]
 	}
+	if strings.HasPrefix(value, RequestReferencePrefix) {
+		name := requestOperatorHeaderName(value)
+		return l.Header.Get(name)
+	}
+	if !strings.HasPrefix(value, OperatorPrefix) {
+		return value
+	}
+
 	return ""
 }

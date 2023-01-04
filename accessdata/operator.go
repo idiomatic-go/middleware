@@ -11,6 +11,7 @@ const (
 	RequestReferencePrefix = "%REQ("
 
 	RequestIdHeaderName     = "X-REQUEST-ID"
+	FromRouteHeaderName     = "FROM-ROUTE"
 	UserAgentHeaderName     = "USER-AGENT"
 	FordwardedForHeaderName = "X-FORWARDED-FOR"
 
@@ -46,6 +47,7 @@ const (
 	RequestHostOperator     = "%HOST%"
 
 	RequestIdOperator           = "%X-REQUEST-ID%"    // X-REQUEST-ID request header value
+	RequestFromRouteOperator    = "%FROM-ROUTE%"      // request from route name
 	RequestUserAgentOperator    = "%USER-AGENT%"      // user agent request header value
 	RequestAuthorityOperator    = "%AUTHORITY%"       // authority request header value
 	RequestForwardedForOperator = "%X-FORWARDED-FOR%" // client IP address (X-FORWARDED-FOR request header value)
@@ -133,6 +135,7 @@ var Operators = map[string]*Operator{
 	RequestHostOperator:     {"host", RequestHostOperator},
 
 	RequestIdOperator:           {"request_id", RequestIdOperator},
+	RequestFromRouteOperator:    {"request_id", RequestIdOperator},
 	RequestUserAgentOperator:    {"user_agent", RequestUserAgentOperator},
 	RequestAuthorityOperator:    {"authority", RequestAuthorityOperator},
 	RequestForwardedForOperator: {"forwarded", RequestForwardedForOperator},
