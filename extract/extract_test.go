@@ -7,6 +7,15 @@ import (
 	"time"
 )
 
+/*
+func setTestErrorHandler() {
+	opt.handler = func(err error) {
+		fmt.Printf("test: extract(logd) -> [err:%v]\n", err)
+	}
+}
+
+*/
+
 func Example_Initialize_Url() {
 	err := Initialize("", nil, nil)
 	fmt.Printf("test: initialize(\"\") -> [%v] [url:%v]\n", err, url)

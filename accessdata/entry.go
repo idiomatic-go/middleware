@@ -36,6 +36,7 @@ type Entry struct {
 	Traffic  string
 	Start    time.Time
 	Duration time.Duration
+	Origin   *Origin
 	ActState map[string]string
 
 	// Request
@@ -58,6 +59,7 @@ func newEntry(traffic string, start time.Time, duration time.Duration, actState 
 	l.Traffic = traffic
 	l.Start = start
 	l.Duration = duration
+	l.Origin = &opt.origin
 	if actState == nil {
 		actState = make(map[string]string, 1)
 	}
@@ -146,15 +148,30 @@ func (l *Entry) Value(value string) string {
 
 		// Origin
 	case OriginRegionOperator:
-		return opt.origin.Region
+		if l.Origin != nil {
+			return l.Origin.Region
+		}
+		//return opt.origin.Region
 	case OriginZoneOperator:
-		return opt.origin.Zone
+		if l.Origin != nil {
+			return l.Origin.Zone
+		}
+		//return opt.origin.Zone
 	case OriginSubZoneOperator:
-		return opt.origin.SubZone
+		if l.Origin != nil {
+			return l.Origin.SubZone
+		}
+		//return opt.origin.SubZone
 	case OriginServiceOperator:
-		return opt.origin.Service
+		if l.Origin != nil {
+			return l.Origin.Service
+		}
+		//return opt.origin.Service
 	case OriginInstanceIdOperator:
-		return opt.origin.InstanceId
+		if l.Origin != nil {
+			return l.Origin.InstanceId
+		}
+		//return opt.origin.InstanceId
 
 		// Request
 	case RequestMethodOperator:
