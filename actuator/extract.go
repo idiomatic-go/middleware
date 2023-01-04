@@ -16,14 +16,13 @@ type ExtractController interface {
 	Extract(entry *accessdata.Entry)
 }
 
-type extract struct {
-}
+type extract struct{}
 
 func newExtract() *extract {
 	return new(extract)
 }
 
-func (e *extract) Extract(entry *accessdata.Entry) {
+func (extract) Extract(entry *accessdata.Entry) {
 	if defaultExtract != nil {
 		defaultExtract(entry)
 	}
