@@ -19,15 +19,4 @@ func EnableExtract(fn Extract) {
 	if fn != nil {
 		defaultExtract = fn
 	}
-
 }
-
-/*
-func callExtract(l *accessdata.Entry) {
-	if IsExtract() {
-		opt.extractFn(l)
-	}
-}
-
-
-*/

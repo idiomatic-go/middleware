@@ -1,6 +1,7 @@
 package accessdata
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -48,7 +49,7 @@ type Entry struct {
 
 	// Response
 	StatusCode    int
-	BytesSent     int   // ingress response
+	BytesSent     int64 // ingress response
 	BytesReceived int64 // egress response content length
 	StatusFlags   string
 }
@@ -69,7 +70,7 @@ func newEntry(traffic string, start time.Time, duration time.Duration, actState 
 	return l
 }
 
-func NewIngressEntry(start time.Time, duration time.Duration, actState map[string]string, req *http.Request, statusCode int, written int, statusFlags string) *Entry {
+func NewIngressEntry(start time.Time, duration time.Duration, actState map[string]string, req *http.Request, statusCode int, written int64, statusFlags string) *Entry {
 	e := newEntry(IngressTraffic, start, duration, actState, req, nil, statusFlags)
 	e.StatusCode = statusCode
 	e.BytesSent = written
@@ -187,7 +188,7 @@ func (l *Entry) Value(value string) string {
 	case ResponseBytesReceivedOperator:
 		return strconv.Itoa(int(l.BytesReceived))
 	case ResponseBytesSentOperator:
-		return strconv.Itoa(l.BytesSent)
+		return fmt.Sprintf("%v", l.BytesSent)
 	case ResponseStatusCodeOperator:
 		return strconv.Itoa(l.StatusCode)
 

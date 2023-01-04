@@ -41,7 +41,7 @@ type Actuator interface {
 	Retry() (RetryController, bool)
 	Failover() (FailoverController, bool)
 	UpdateHeaders(req *http.Request)
-	LogIngress(start time.Time, duration time.Duration, req *http.Request, statusCode int, written int, statusFlags string)
+	LogIngress(start time.Time, duration time.Duration, req *http.Request, statusCode int, written int64, statusFlags string)
 	LogEgress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string, retry bool)
 	Actuate(events []Event) error
 	t() *actuator
@@ -216,7 +216,7 @@ func (a *actuator) UpdateHeaders(req *http.Request) {
 	}
 }
 
-func (a *actuator) LogIngress(start time.Time, duration time.Duration, req *http.Request, statusCode int, written int, statusFlags string) {
+func (a *actuator) LogIngress(start time.Time, duration time.Duration, req *http.Request, statusCode int, written int64, statusFlags string) {
 	entry := accessdata.NewIngressEntry(start, duration, a.state(), req, statusCode, written, statusFlags)
 	a.Extract().Extract(entry)
 	a.Logger().LogAccess(entry)
