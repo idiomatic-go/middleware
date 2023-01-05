@@ -18,9 +18,13 @@ func newMux() *mux {
 	return m
 }
 
+func (m *mux) count() int {
+	return len(m.m)
+}
+
 func (m *mux) add(pattern, name string) error {
 	if pattern == "" || name == "" {
-		return errors.New("invalid configuration: pattern or name is empty")
+		return errors.New(fmt.Sprintf("invalid configuration: pattern or name is empty [pattern:%v] [name:%v]", pattern, name))
 	}
 	u, err := url.Parse(pattern)
 	if err != nil {
