@@ -47,10 +47,7 @@ type Actuator interface {
 	t() *actuator
 }
 
-type Matcher func(req *http.Request) (routeName string)
-
 type Configuration interface {
-	SetMatcher(fn Matcher)
 	SetDefaultActuator(name string, fn Actuate, config ...any) []error
 	SetHostActuator(fn Actuate, config ...any) []error
 	Add(name, pattern string, fn Actuate, config ...any) []error
@@ -134,14 +131,23 @@ func newDefaultActuator(name string) *actuator {
 }
 
 func (a *actuator) validate(egress bool) error {
-	if egress {
-
-	} else {
+	if !egress {
 		if a.failover != nil {
 			return errors.New("invalid configuration: FailoverController is not valid for ingress traffic")
 		}
 		if a.retry != nil {
 			return errors.New("invalid configuration: RetryController is not valid for ingress traffic")
+		}
+		if a.name == HostActuatorName {
+			if a.timeout != nil {
+				return errors.New("invalid configuration: TimeoutController is not valid for host ingress traffic")
+
+			} else {
+				if a.rateLimiter != nil {
+					return errors.New("invalid configuration: RateLimiterController is not valid for ingress traffic")
+
+				}
+			}
 		}
 	}
 	return nil

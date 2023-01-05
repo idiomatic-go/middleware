@@ -9,7 +9,6 @@ import (
 type table struct {
 	egress     bool
 	mu         sync.RWMutex
-	match      Matcher
 	mux        *mux
 	hostAct    *actuator
 	defaultAct *actuator
@@ -31,9 +30,6 @@ func newTable(egress bool) *table {
 	t.actuators = make(map[string]*actuator, 100)
 	t.hostAct = newDefaultActuator(HostActuatorName)
 	t.defaultAct = newDefaultActuator(DefaultActuatorName)
-	t.match = func(req *http.Request) (name string) {
-		return ""
-	}
 	t.mux = newMux()
 	return t
 }
@@ -71,15 +67,6 @@ func (t *table) SetDefaultActuator(name string, fn Actuate, config ...any) []err
 	}
 	t.defaultAct = act
 	return nil
-}
-
-func (t *table) SetMatcher(fn Matcher) {
-	if fn == nil {
-		return
-	}
-	t.mu.Lock()
-	t.match = fn
-	t.mu.Unlock()
 }
 
 func (t *table) Host() Actuator {

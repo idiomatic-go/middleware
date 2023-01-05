@@ -8,16 +8,12 @@ var eventingFn Actuate = func(act Actuator, events []Event) error {
 	if len(events) == 0 {
 		return nil
 	}
-	if events[0].SLOAlertStatus == "watch" {
-		if c, ok := act.RateLimiter(); ok {
-			c.AdjustRateLimiter(-10)
-		}
+	if events[0].IsWatch() {
+		AdjustRateLimiter(act, -10)
 		return nil
 	}
-	if events[0].SLOAlertStatus == "cancel" {
-		if c, ok := act.RateLimiter(); ok {
-			c.AdjustRateLimiter(10)
-		}
+	if events[0].IsCancel() {
+		AdjustRateLimiter(act, 10)
 		return nil
 	}
 	return nil

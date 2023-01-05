@@ -83,10 +83,6 @@ func ExampleTable_Lookup() {
 	ok := t.Add(name, "http://localhost:8080/accesslog", nil, NewTimeoutConfig(100, 503), nil, nil, nil)
 	fmt.Printf("test: Add(actuator) -> [actuator:%v] [count:%v] [exists:%v]\n", ok, t.count(), t.exists(name))
 
-	t.SetMatcher(func(req *http.Request) string {
-		return name
-	},
-	)
 	r = t.Lookup(req)
 	fmt.Printf("test: Lookup(req) ->  [actuator:%v]\n", r.Name())
 
