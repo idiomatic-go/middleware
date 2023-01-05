@@ -10,6 +10,15 @@ func SetPingRoutes(routes []string) {
 	opt.pingRoutes = routes
 }
 
+func IsPingRoute(name string) bool {
+	for _, n := range opt.pingRoutes {
+		if n == name {
+			return true
+		}
+	}
+	return false
+}
+
 type options struct {
 	origin     Origin
 	pingRoutes []string

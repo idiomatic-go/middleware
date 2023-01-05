@@ -90,15 +90,7 @@ func (l *Entry) IsEgress() bool {
 }
 
 func (l *Entry) IsPing() bool {
-	if !l.IsIngress() {
-		return false
-	}
-	for _, n := range opt.pingRoutes {
-		if n == l.ActState[ActName] {
-			return true
-		}
-	}
-	return false
+	return l.IsIngress() && IsPingRoute(l.ActState[ActName])
 }
 
 func (l *Entry) AddResponse(resp *http.Response) {
