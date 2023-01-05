@@ -50,7 +50,7 @@ func Example_Timeout_SetTimeout() {
 	config := NewTimeoutConfig(time.Millisecond*1500, 0)
 	t := newTable(true)
 
-	ok := t.Add(name, nil, config)
+	ok := t.Add(name, "/timeout", nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", ok, t.count())
 
 	act := t.LookupByName(name)

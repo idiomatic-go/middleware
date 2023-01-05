@@ -47,10 +47,10 @@ func ExampleTable_Add_Exists_LookupByName() {
 	t := newTable(true)
 	fmt.Printf("test: empty() -> [%v]\n", t.isEmpty())
 
-	err := t.Add("", nil, nil, nil, nil)
+	err := t.Add("", "/table", nil, nil, nil, nil)
 	fmt.Printf("test: Add(nil) -> [err:%v] [count:%v] [exists:%v] [lookup:%v]\n", err, t.count(), t.exists(name), t.LookupByName(name))
 
-	err = t.Add(name, nil, nil, nil, nil)
+	err = t.Add(name, "/table", nil, nil, nil, nil)
 	fmt.Printf("test: Add(actuator) -> [err:%v] [count:%v] [exists:%v] [lookup:%v]\n", err, t.count(), t.exists(name), t.LookupByName(name) != nil)
 
 	t.remove("")
@@ -80,7 +80,7 @@ func ExampleTable_Lookup() {
 	r = t.Lookup(req)
 	fmt.Printf("test: Lookup(req) -> [actuator:%v]\n", r.Name())
 
-	ok := t.Add(name, nil, NewTimeoutConfig(100, 503), nil, nil, nil)
+	ok := t.Add(name, "/table", nil, NewTimeoutConfig(100, 503), nil, nil, nil)
 	fmt.Printf("test: Add(actuator) -> [actuator:%v] [count:%v] [exists:%v]\n", ok, t.count(), t.exists(name))
 
 	t.SetMatcher(func(req *http.Request) string {

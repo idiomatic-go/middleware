@@ -43,7 +43,7 @@ func Example_Failover_Status() {
 	name := "failover-test"
 	t := newTable(true)
 
-	err := t.Add(name, nil, NewFailoverConfig(failoverFn))
+	err := t.Add(name, "/failover", nil, NewFailoverConfig(failoverFn))
 	fmt.Printf("test: Add() -> [error:%v] [count:%v]\n", err, t.count())
 
 	f := t.LookupByName(name)
@@ -82,7 +82,7 @@ func Example_Failover_Status() {
 func Example_Failover_Invoke() {
 	name := "failover-test"
 	t := newTable(true)
-	err := t.Add(name, nil, NewFailoverConfig(failoverFn))
+	err := t.Add(name, "/failover", nil, NewFailoverConfig(failoverFn))
 	fmt.Printf("test: Add() -> [error:%v] [count:%v]\n", err, t.count())
 
 	f := t.LookupByName(name)

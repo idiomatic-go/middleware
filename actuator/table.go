@@ -10,6 +10,7 @@ type table struct {
 	egress     bool
 	mu         sync.RWMutex
 	match      Matcher
+	mux        *mux
 	hostAct    *actuator
 	defaultAct *actuator
 	actuators  map[string]*actuator
@@ -33,6 +34,7 @@ func newTable(egress bool) *table {
 	t.match = func(req *http.Request) (name string) {
 		return ""
 	}
+	t.mux = newMux()
 	return t
 }
 
@@ -85,14 +87,14 @@ func (t *table) Host() Actuator {
 }
 
 func (t *table) Lookup(req *http.Request) Actuator {
-	name := t.match(req)
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	name, _ := t.mux.lookup(req)
 	if name != "" {
 		if r := t.LookupByName(name); r != nil {
 			return r
 		}
 	}
-	t.mu.RLock()
-	defer t.mu.RUnlock()
 	return t.defaultAct
 }
 
@@ -108,9 +110,12 @@ func (t *table) LookupByName(name string) Actuator {
 	return nil
 }
 
-func (t *table) Add(name string, fn Actuate, config ...any) []error {
+func (t *table) Add(name, pattern string, fn Actuate, config ...any) []error {
 	if IsEmpty(name) {
 		return []error{errors.New("invalid argument: name is empty")}
+	}
+	if IsEmpty(pattern) {
+		return []error{errors.New("invalid argument: pattern is empty")}
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
