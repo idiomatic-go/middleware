@@ -52,24 +52,27 @@ func init() {
 		fmt.Printf("init() -> [:%v]\n", err)
 	}
 	accesslog.SetTestEgressWrite()
-	actuator.EgressTable.SetMatcher(func(req *http.Request) string {
-		if req == nil {
+	/*
+		actuator.EgressTable.SetMatcher(func(req *http.Request) string {
+			if req == nil {
+				return ""
+			}
+			if req.URL.String() == twitterUrl {
+				return rateLimitRoute
+			}
+			if req.URL.String() == googleUrl {
+				return timeoutRoute
+			}
+			if req.URL.String() == facebookUrl {
+				return retryRoute
+			}
 			return ""
-		}
-		if req.URL.String() == twitterUrl {
-			return rateLimitRoute
-		}
-		if req.URL.String() == googleUrl {
-			return timeoutRoute
-		}
-		if req.URL.String() == facebookUrl {
-			return retryRoute
-		}
-		return ""
-	})
-	actuator.EgressTable.Add(timeoutRoute, nil, actuator.NewTimeoutConfig(time.Millisecond, 504))
-	actuator.EgressTable.Add(rateLimitRoute, nil, actuator.NewRateLimiterConfig(2000, 0, 503))
-	actuator.EgressTable.Add(retryRoute, nil, actuator.NewTimeoutConfig(time.Millisecond, 504), actuator.NewRetryConfig([]int{503, 504}, 0, 0, 0))
+		})
+
+	*/
+	actuator.EgressTable.Add(timeoutRoute, googleUrl, nil, actuator.NewTimeoutConfig(time.Millisecond, 504))
+	actuator.EgressTable.Add(rateLimitRoute, twitterUrl, nil, actuator.NewRateLimiterConfig(2000, 0, 503))
+	actuator.EgressTable.Add(retryRoute, facebookUrl, nil, actuator.NewTimeoutConfig(time.Millisecond, 504), actuator.NewRetryConfig([]int{503, 504}, 0, 0, 0))
 
 	actuator.SetLoggerAccess(func(entry *accessdata.Entry) {
 		accesslog.Log(entry)

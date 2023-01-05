@@ -1,6 +1,7 @@
 package accesslog
 
 import (
+	"fmt"
 	"github.com/idiomatic-go/middleware/accessdata"
 	"log"
 )
@@ -46,6 +47,18 @@ func SetEgressWrite(fn Write) {
 			log.Println(s)
 		}
 	}
+}
+
+func SetTestIngressWrite() {
+	SetIngressWrite(func(s string) {
+		fmt.Printf("test: WriteIngress() -> [%v]\n", s)
+	})
+}
+
+func SetTestEgressWrite() {
+	SetEgressWrite(func(s string) {
+		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
+	})
 }
 
 type options struct {

@@ -224,8 +224,12 @@ func (a *actuator) UpdateHeaders(req *http.Request) {
 
 func (a *actuator) LogIngress(start time.Time, duration time.Duration, req *http.Request, statusCode int, written int64, statusFlags string) {
 	entry := accessdata.NewIngressEntry(start, duration, a.state(), req, statusCode, written, statusFlags)
-	a.Extract().Extract(entry)
-	a.Logger().LogAccess(entry)
+	if a.extract != nil {
+		a.extract.Extract(entry)
+	}
+	if a.logger != nil {
+		a.logger.LogAccess(entry)
+	}
 }
 
 func (a *actuator) LogEgress(start time.Time, duration time.Duration, req *http.Request, resp *http.Response, statusFlags string, retry bool) {
@@ -233,6 +237,10 @@ func (a *actuator) LogEgress(start time.Time, duration time.Duration, req *http.
 	failoverState(state, a.failover)
 	retryState(state, a.retry, retry)
 	entry := accessdata.NewEgressEntry(start, duration, state, req, resp, statusFlags)
-	a.Extract().Extract(entry)
-	a.Logger().LogAccess(entry)
+	if a.extract != nil {
+		a.extract.Extract(entry)
+	}
+	if a.logger != nil {
+		a.logger.LogAccess(entry)
+	}
 }
