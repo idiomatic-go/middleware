@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 type mux struct {
@@ -21,13 +22,20 @@ func (m *mux) add(pattern, name string) error {
 	if pattern == "" || name == "" {
 		return errors.New("invalid configuration: pattern or name is empty")
 	}
+	u, err := url.Parse(pattern)
+	if err != nil {
+		return err
+	}
+	if u.Host != "" {
+		m.hosts = true
+		pattern = u.Host + u.Path
+	} else {
+		pattern = u.Path
+	}
 	if _, exist := m.m[pattern]; exist {
 		return errors.New(fmt.Sprintf("invalid configuration: pattern already exists [%v]", pattern))
 	}
 	m.m[pattern] = name
-	if pattern[0] != '/' {
-		m.hosts = true
-	}
 	return nil
 }
 

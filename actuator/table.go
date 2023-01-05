@@ -127,6 +127,10 @@ func (t *table) Add(name, pattern string, fn Actuate, config ...any) []error {
 	if err != nil {
 		return []error{err}
 	}
+	err = t.mux.add(pattern, name)
+	if err != nil {
+		return []error{err}
+	}
 	t.actuators[name] = act
 	return nil
 }
