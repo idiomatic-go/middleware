@@ -18,61 +18,61 @@ func CreateEgressOperators(config []accessdata.Operator) error {
 	return CreateOperators(&egressOperators, config)
 }
 
-// Write - override log output disposition, default is log.Println
-type Write func(s string)
+// LogFn - override log output disposition, default is log.Println
+type LogFn func(s string)
 
-func SetIngressWriteStatus(enabled bool) {
-	opt.writeIngress = enabled
+func SetIngressLogStatus(enabled bool) {
+	opt.ingress = enabled
 }
 
-func SetIngressWrite(fn Write) {
+func SetIngressLogFn(fn LogFn) {
 	if fn != nil {
-		opt.ingressWrite = fn
+		opt.ingressFn = fn
 	} else {
-		opt.ingressWrite = func(s string) {
+		opt.ingressFn = func(s string) {
 			log.Println(s)
 		}
 	}
 }
 
-func SetEgressWriteStatus(enabled bool) {
-	opt.writeEgress = enabled
+func SetEgressLogStatus(enabled bool) {
+	opt.egress = enabled
 }
 
-func SetEgressWrite(fn Write) {
+func SetEgressLogFn(fn LogFn) {
 	if fn != nil {
-		opt.egressWrite = fn
+		opt.egressFn = fn
 	} else {
-		opt.egressWrite = func(s string) {
+		opt.egressFn = func(s string) {
 			log.Println(s)
 		}
 	}
 }
 
-func SetTestIngressWrite() {
-	SetIngressWrite(func(s string) {
+func SetTestIngressLogFn() {
+	SetIngressLogFn(func(s string) {
 		fmt.Printf("test: WriteIngress() -> [%v]\n", s)
 	})
 }
 
-func SetTestEgressWrite() {
-	SetEgressWrite(func(s string) {
+func SetTestEgressLogFn() {
+	SetEgressLogFn(func(s string) {
 		fmt.Printf("test: WriteEgress() -> [%v]\n", s)
 	})
 }
 
 type options struct {
-	writeIngress bool
-	writeEgress  bool
-	ingressWrite Write
-	egressWrite  Write
+	ingress   bool
+	egress    bool
+	ingressFn LogFn
+	egressFn  LogFn
 }
 
 var opt options
 
 func init() {
-	opt.writeIngress = true
-	opt.writeEgress = true
-	SetIngressWrite(nil)
-	SetEgressWrite(nil)
+	opt.ingress = true
+	opt.egress = true
+	SetIngressLogFn(nil)
+	SetEgressLogFn(nil)
 }

@@ -11,42 +11,42 @@ const (
 	errorEmptyFmt = "{\"error\": \"%v log entries are empty\"}"
 )
 
-func ingressWrite(s string) {
-	if opt.ingressWrite != nil {
-		opt.ingressWrite(s)
+func ingressLog(s string) {
+	if opt.ingressFn != nil {
+		opt.ingressFn(s)
 	}
 }
 
-func egressWrite(s string) {
-	if opt.egressWrite != nil {
-		opt.egressWrite(s)
+func egressLog(s string) {
+	if opt.egressFn != nil {
+		opt.egressFn(s)
 	}
 }
 
 func Log(entry *accessdata.Entry) {
 	if entry == nil {
-		egressWrite(errorNilEntryFmt)
+		egressLog(errorNilEntryFmt)
 		return
 	}
 	if entry.IsIngress() {
-		if !opt.writeIngress {
+		if !opt.ingress {
 			return
 		}
 		if len(ingressOperators) == 0 {
-			ingressWrite(fmt.Sprintf(errorEmptyFmt, entry.Traffic))
+			ingressLog(fmt.Sprintf(errorEmptyFmt, entry.Traffic))
 			return
 		}
 		s := accessdata.WriteJson(ingressOperators, entry)
-		ingressWrite(s)
+		ingressLog(s)
 	} else {
-		if !opt.writeEgress {
+		if !opt.egress {
 			return
 		}
 		if len(egressOperators) == 0 {
-			egressWrite(fmt.Sprintf(errorEmptyFmt, entry.Traffic))
+			egressLog(fmt.Sprintf(errorEmptyFmt, entry.Traffic))
 			return
 		}
 		s := accessdata.WriteJson(egressOperators, entry)
-		egressWrite(s)
+		egressLog(s)
 	}
 }

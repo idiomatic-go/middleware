@@ -51,7 +51,7 @@ func init() {
 	if err != nil {
 		fmt.Printf("init() -> [:%v]\n", err)
 	}
-	accesslog.SetTestEgressWrite()
+	accesslog.SetTestEgressLogFn()
 	/*
 		actuator.EgressTable.SetMatcher(func(req *http.Request) string {
 			if req == nil {
