@@ -1,38 +1,27 @@
 package host
 
 import (
+	"github.com/idiomatic-go/middleware/actuator"
 	"net/http"
-	"net/http/pprof"
+	"time"
 )
 
-const (
-	IndexPattern   = "/debug/pprof/"
-	CmdLinePattern = "/debug/pprof/cmdline"
-	ProfilePattern = "/debug/pprof/profile" // ?seconds=30
-	SymbolPattern  = "/debug/pprof/symbol"
-	TracePattern   = "/debug/pprof/trace"
-
-	IndexRouteName   = "index"
-	CmdLineRouteName = "cmdline"
-	ProfileRouteName = "profile"
-	SymbolRouteName  = "symbol"
-	TraceRouteName   = "trace"
-)
-
-func initIngress(r *http.ServeMux) {
-	addRoutes(r)
+func initIngress() {
+	actuator.IngressTable.SetHostActuator(hostActuate, actuator.NewRateLimiterConfig(100, 10, http.StatusTooManyRequests))
+	actuator.IngressTable.SetDefaultActuator(actuator.DefaultActuatorName, nil, actuator.NewTimeoutConfig(time.Second*4, http.StatusGatewayTimeout))
 }
 
-func addRoutes(r *http.ServeMux) {
-	r.Handle(IndexPattern, http.HandlerFunc(pprof.Index))
-	r.Handle(CmdLinePattern, http.HandlerFunc(pprof.Cmdline))
-	r.Handle(ProfilePattern, http.HandlerFunc(pprof.Profile))
-	r.Handle(SymbolPattern, http.HandlerFunc(pprof.Symbol))
-	r.Handle(TracePattern, http.HandlerFunc(pprof.Trace))
-
-	//r.HandleFunc(indexPattern, pprof.Index)
-	//r.HandleFunc(cmdLinePattern, pprof.Cmdline)
-	//r.HandleFunc(profilePattern, pprof.Profile)
-	//r.HandleFunc(symbolPattern, pprof.Symbol)
-	//r.HandleFunc(tracePattern, pprof.Trace)
+func hostActuate(act actuator.Actuator, events []actuator.Event) error {
+	if len(events) == 0 {
+		return nil
+	}
+	if events[0].IsWatch() {
+		actuator.AdjustRateLimiter(act, -10)
+		return nil
+	}
+	if events[0].IsCancel() {
+		actuator.AdjustRateLimiter(act, 10)
+		return nil
+	}
+	return nil
 }

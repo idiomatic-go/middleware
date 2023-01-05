@@ -19,11 +19,11 @@ func initLogging() {
 	// Used to determine which routes are health liveness so that the traffic can be labeled as "ping"
 	accessdata.SetPingRoutes(nil)
 
-	// Options that are defaulted to true for the statuses, and log.Printf() for the write functions
-	//accesslog.SetIngressWriteStatus(true)
-	//accesslog.SetEgressWriteStatus(true)
-	//accesslog.SetIngressWrite(nil)
-	//accesslog.SetEgressWrite(nil)
+	// Options that are defaulted to true for the statuses, and log.Printf() for the log functions
+	//accesslog.SetIngressLogStatus(true)
+	//accesslog.SetEgressLogStatus(true)
+	//accesslog.SetIngressLogFn(nil)
+	//accesslog.SetEgressLogFn(nil)
 
 	// Access log attributes for ingress and egress
 	accesslog.CreateIngressOperators([]accessdata.Operator{
