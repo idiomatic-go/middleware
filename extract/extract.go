@@ -51,8 +51,6 @@ var (
 )
 
 func Initialize(uri string, newClient *http.Client, fn ErrorHandler) error {
-	//var err error
-
 	if uri == "" {
 		return errors.New("invalid argument : uri is empty")
 	}

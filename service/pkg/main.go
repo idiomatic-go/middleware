@@ -21,15 +21,11 @@ const (
 
 func main() {
 	displayRuntime()
-	//if !host.Startup() {
-	//	os.Exit(1)
-	//}
-	//defer host.Shutdown()
-
-	r := http.NewServeMux()
-	if !host.Startup(r) {
+	handler, ok := host.Startup(http.NewServeMux())
+	if !ok {
 		os.Exit(1)
 	}
+	defer host.Shutdown()
 
 	srv := http.Server{
 		Addr: addr,
@@ -37,7 +33,7 @@ func main() {
 		WriteTimeout: writeTimeout,
 		ReadTimeout:  readTimeout,
 		IdleTimeout:  idleTimeout,
-		Handler:      r,
+		Handler:      handler,
 	}
 
 	idleConnsClosed := make(chan struct{})
