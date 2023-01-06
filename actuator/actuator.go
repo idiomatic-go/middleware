@@ -34,8 +34,6 @@ type Actuate func(act Actuator, events []Event) error
 
 type Actuator interface {
 	Name() string
-	Logger() LoggingController
-	Extract() ExtractController
 	Timeout() (TimeoutController, bool)
 	RateLimiter() (RateLimiterController, bool)
 	Retry() (RetryController, bool)

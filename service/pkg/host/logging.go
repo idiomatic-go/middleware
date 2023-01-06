@@ -25,6 +25,9 @@ func initLogging() {
 	//accesslog.SetIngressLogFn(nil)
 	//accesslog.SetEgressLogFn(nil)
 
+	// Enable logging for actuator
+	//actuator.SetLoggerAccess(accesslog.Log)
+
 	// Access log attributes for ingress and egress
 	accesslog.CreateIngressOperators([]accessdata.Operator{
 		{Name: "", Value: accessdata.StartTimeOperator},

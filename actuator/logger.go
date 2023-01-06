@@ -8,9 +8,7 @@ import (
 var defaultLogger = newLogger(NewLoggerConfig(defaultAccess))
 
 var defaultAccess LogAccess = func(entry *accessdata.Entry) {
-	if entry != nil {
-		log.Printf("{\"traffic\":\"%v\",\"start_time\":\"%v\",\"duration_ms\":%v,\"request\":\"%v\",\"response\":\"%v\",\"statusFlags\":\"%v\"}\n", entry.Traffic, entry.Start, entry.Duration, nil, nil, entry.StatusFlags)
-	}
+	log.Printf(accessdata.WriteJson(operators, entry))
 }
 
 type LoggingController interface {
@@ -43,32 +41,33 @@ func (l *logger) LogAccess(entry *accessdata.Entry) {
 	if l.config.accessInvoke == nil || entry == nil {
 		return
 	}
-	//state := make(map[string]string, 12)
-	//state[ActName] = act.Name()
-	//timeoutState(state, timeoutController(act))
-	//rateLimiterState(state, rateLimiterController(act))
-	//failoverState(state, failoverController(act))
-	//retryState(state, retryController(act), retry)
-	//entry.SetActuatorState(state)
 	l.config.accessInvoke(entry)
 }
 
-func timeoutController(act Actuator) TimeoutController {
-	c, _ := act.Timeout()
-	return c
-}
+var operators = []accessdata.Operator{
+	{Name: "", Value: accessdata.StartTimeOperator},
+	{Name: "", Value: accessdata.DurationOperator},
+	{Name: "", Value: accessdata.TrafficOperator},
+	{Name: "", Value: accessdata.RouteNameOperator},
 
-func rateLimiterController(act Actuator) RateLimiterController {
-	c, _ := act.RateLimiter()
-	return c
-}
+	{Name: "", Value: accessdata.OriginRegionOperator},
+	{Name: "", Value: accessdata.OriginZoneOperator},
+	{Name: "", Value: accessdata.OriginSubZoneOperator},
+	{Name: "", Value: accessdata.OriginServiceOperator},
+	{Name: "", Value: accessdata.OriginInstanceIdOperator},
 
-func failoverController(act Actuator) FailoverController {
-	c, _ := act.Failover()
-	return c
-}
+	{Name: "", Value: accessdata.RequestMethodOperator},
+	{Name: "", Value: accessdata.RequestHostOperator},
+	{Name: "", Value: accessdata.RequestPathOperator},
 
-func retryController(act Actuator) RetryController {
-	c, _ := act.Retry()
-	return c
+	{Name: "", Value: accessdata.ResponseStatusCodeOperator},
+	{Name: "", Value: accessdata.StatusFlagsOperator},
+
+	{Name: "", Value: accessdata.TimeoutDurationOperator},
+	{Name: "", Value: accessdata.RateLimitOperator},
+	{Name: "", Value: accessdata.RateBurstOperator},
+	{Name: "", Value: accessdata.RetryOperator},
+	{Name: "", Value: accessdata.RetryRateLimitOperator},
+	{Name: "", Value: accessdata.RetryRateBurstOperator},
+	{Name: "", Value: accessdata.FailoverOperator},
 }
