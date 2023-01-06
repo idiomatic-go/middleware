@@ -6,47 +6,40 @@ import (
 )
 
 type ErrorHandler interface {
-	New(location string, errs ...error) *Status
+	Handle(location string, errs ...error) *Status
 }
 
-var PassThrough ErrorHandler
-var Log ErrorHandler
-var Debug ErrorHandler
+/*
+type ErrorHandlerFn func(location string, errs ...error) *Status
 
-func init() {
-	PassThrough = newPassThrough()
-	Log = newLogger()
-	Debug = newLogger()
+func (ErrorHandlerFn)Handle(string,...error) *Status {
+    return nil
 }
 
-type passThrough struct{}
 
-func newPassThrough() ErrorHandler {
-	return new(passThrough)
-}
+*/
+type NoOpHandler struct{}
 
-func (p *passThrough) New(location string, errs ...error) *Status {
+func (NoOpHandler) Handle(location string, errs ...error) *Status {
 	return NewStatusError(location, errs...)
 }
 
-type logger struct{}
+type DebugHandler struct{}
 
-func newLogger() ErrorHandler {
-	return new(logger)
-}
-
-func (p *logger) New(location string, errs ...error) *Status {
-	log.Println(errs)
+func (DebugHandler) Handle(location string, errs ...error) *Status {
+	if location == "" {
+		location = "<empty>"
+	}
+	fmt.Printf("[%v %v]\n", location, errs)
 	return NewStatus(StatusInternal, location, nil)
 }
 
-type debugger struct{}
+type LogHandler struct{}
 
-func newDebugger() ErrorHandler {
-	return new(debugger)
-}
-
-func (p *debugger) New(location string, errs ...error) *Status {
-	fmt.Printf("%v\n", errs)
+func (LogHandler) Handle(location string, errs ...error) *Status {
+	if location == "" {
+		location = "<empty>"
+	}
+	log.Println(location, errs)
 	return NewStatus(StatusInternal, location, nil)
 }

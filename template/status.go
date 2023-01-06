@@ -53,28 +53,14 @@ func NewStatusError(location string, errs ...error) *Status {
 	return NewStatus(StatusInternal, location, errs...)
 }
 
-/*
-func NewStatusErrorCode(code int32,location string,errs ...error) *Status {
-	if len(errs) == 0 {
-		return NewStatusOk()
-	}
-	s := new(Status)
-	s.location = location
-	s.AddErrors(errs...)
-	s.code = code
-	return s
-}
-
-
-*/
+func (s *Status) Code() int32      { return s.code }
+func (s *Status) Location() string { return s.location }
 func (s *Status) SetCode(code int32) *Status {
 	s.code = code
 	return s
 }
 
-func (s *Status) String() string {
-	return fmt.Sprintf("%v", *s)
-}
+func (s *Status) String() string { return fmt.Sprintf("%v", *s) }
 
 func (s *Status) IsErrors() bool  { return len(s.errs) != 0 }
 func (s *Status) Errors() []error { return s.errs }

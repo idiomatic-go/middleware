@@ -27,10 +27,33 @@ type address2 struct {
 	Zip   string
 }
 
+func ExampleProcessContext_ErrorHandlers() {
+	err := errors.New("this is a test error")
+	ctx := ContextWithContent(context.Background(), err)
+	if ctx != nil {
+	}
+
+	_, s := ProcessContextContent[address, NoOpHandler](nil)
+	fmt.Printf("test: ProcessContextContent() -> %v\n", s.Errors())
+
+	_, s = ProcessContextContent[address, DebugHandler](nil)
+	fmt.Printf("test: ProcessContextContent() -> %v\n", s.Errors())
+
+	_, s = ProcessContextContent[address, LogHandler](nil)
+	fmt.Printf("test: ProcessContextContent() -> %v\n", s.Errors())
+
+	//Output:
+	//test: ProcessContextContent() -> [invalid configuration: context is nil]
+	//[github.com/idiomatic-go/middleware/template/ProcessContextContent [invalid configuration: context is nil]]
+	//test: ProcessContextContent() -> []
+	//test: ProcessContextContent() -> []
+
+}
+
 func ExampleProcessContextContentStatus() {
 	status := NewStatusOk()
 	ctx := ContextWithContent(context.Background(), status)
-	t, s := ProcessContextContent[address](ctx)
+	t, s := ProcessContextContent[address, NoOpHandler](ctx)
 	if t.Cell != "" {
 	}
 	fmt.Printf("Status : %v\n", s.Ok())
@@ -42,7 +65,7 @@ func ExampleProcessContextContentStatus() {
 func ExampleProcessContextContentError() {
 	err := errors.New("this is a test error")
 	ctx := ContextWithContent(context.Background(), err)
-	_, s := ProcessContextContent[address](ctx)
+	_, s := ProcessContextContent[address, DebugHandler](ctx)
 	fmt.Printf("Error : %v\n", s.Errors())
 
 	//Output:
@@ -52,7 +75,7 @@ func ExampleProcessContextContentError() {
 func ExampleProcessContextContentType() {
 	addr := address{Name: "Mark", Email: "mark@gmail.com", Cell: "123-456-7891"}
 	ctx := ContextWithContent(context.Background(), addr)
-	t, s := ProcessContextContent[address](ctx)
+	t, s := ProcessContextContent[address, NoOpHandler](ctx)
 	if t.Cell != "" {
 	}
 	fmt.Printf("Address : %v\n", t)
@@ -68,7 +91,7 @@ func ExampleProcessContentInterface() {
 	var loc location = &addr
 
 	ctx := ContextWithContent(context.Background(), loc)
-	l, s := ProcessContent[location](ContextContent(ctx))
+	l, s := ProcessContent[location, NoOpHandler](ContextContent(ctx))
 	fmt.Printf("Address : %v\n", l.Location())
 	fmt.Printf("Status  : %v\n", s.Ok())
 
@@ -81,12 +104,12 @@ func ExampleProcessContentErrors() {
 	addr := address2{Name: "Mark", Email: "mark@gmail.com", Cell: "123-456-7891", Zip: "50436"}
 
 	ContextWithContent(context.Background(), addr)
-	l, s := ProcessContent[address](nil)
+	l, s := ProcessContent[address, NoOpHandler](nil)
 	fmt.Printf("Address : %v\n", l)
 	fmt.Printf("Ok      : %v\n", s.Ok())
 
 	ctx := ContextWithContent(context.Background(), addr)
-	l, s = ProcessContent[address](ctx)
+	l, s = ProcessContent[address, NoOpHandler](ctx)
 	fmt.Printf("Address : %v\n", l)
 	fmt.Printf("Ok      : %v\n", s.Ok())
 
