@@ -32,9 +32,12 @@ type Status struct {
 	content  any
 }
 
-func NewStatus(code int32, location string, err error) *Status {
+func NewStatus(code int32, location string, errs ...error) *Status {
 	s := &Status{code: code, location: location}
-	s.AddErrors(err)
+	s.AddErrors(errs...)
+	if len(errs) == 0 {
+		s.code = StatusOk
+	}
 	return s
 }
 
@@ -42,17 +45,30 @@ func NewStatusOk() *Status {
 	return NewStatus(StatusOk, "", nil)
 }
 
-func NewStatusInvalidArgument(err error) *Status {
-	return NewStatus(StatusInvalidArgument, "", err)
+func NewStatusInvalidArgument(location string, err error) *Status {
+	return NewStatus(StatusInvalidArgument, location, err)
 }
 
-func NewStatusError(errs ...error) *Status {
+func NewStatusError(location string, errs ...error) *Status {
+	return NewStatus(StatusInternal, location, errs...)
+}
+
+/*
+func NewStatusErrorCode(code int32,location string,errs ...error) *Status {
 	if len(errs) == 0 {
 		return NewStatusOk()
 	}
 	s := new(Status)
+	s.location = location
 	s.AddErrors(errs...)
-	s.code = StatusInternal
+	s.code = code
+	return s
+}
+
+
+*/
+func (s *Status) SetCode(code int32) *Status {
+	s.code = code
 	return s
 }
 
@@ -62,18 +78,22 @@ func (s *Status) String() string {
 
 func (s *Status) IsErrors() bool  { return len(s.errs) != 0 }
 func (s *Status) Errors() []error { return s.errs }
-func (s *Status) AddErrors(errs ...error) {
+func (s *Status) AddErrors(errs ...error) *Status {
 	for _, e := range errs {
 		if e == nil {
 			continue
 		}
 		s.errs = append(s.errs, e)
 	}
+	return s
 }
 
-func (s *Status) IsContent() bool        { return s.content != nil }
-func (s *Status) Content() any           { return s.content }
-func (s *Status) AddContent(content any) { s.content = content }
+func (s *Status) IsContent() bool { return s.content != nil }
+func (s *Status) Content() any    { return s.content }
+func (s *Status) AddContent(content any) *Status {
+	s.content = content
+	return s
+}
 
 func (s *Status) Ok() bool               { return s.code == StatusOk }
 func (s *Status) InvalidArgument() bool  { return s.code == StatusInvalidArgument }
