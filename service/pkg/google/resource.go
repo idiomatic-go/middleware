@@ -1,32 +1,40 @@
 package google
 
 import (
+	"errors"
+	"github.com/idiomatic-go/middleware/template"
 	"io"
-	"log"
 	"net/http"
+	"reflect"
 )
 
 const (
-	uri = "https://www.google.com/search?q=test"
+	uri    = "https://www.google.com/search?q=test"
+	search = "/Search"
 )
 
-func Search() []byte {
+type pkg struct{}
+
+var pkgPath = reflect.TypeOf(any(pkg{})).PkgPath()
+
+func Search[E template.ErrorHandler](req *http.Request) ([]byte, *template.Status) {
+	var e E
+
+	if req == nil {
+		return nil, e.Handle(pkgPath+search, errors.New("request is nil")).SetCode(template.StatusInvalidArgument)
+	}
+	if template.IsContextContent(req.Context()) {
+		return template.ProcessContextContent[[]byte, template.NoOpHandler](req.Context())
+	}
 	newReq, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		log.Printf("error: %v\n", err)
-		return nil
+		return nil, e.Handle(pkgPath+search, err)
 	}
 	resp, err2 := http.DefaultClient.Do(newReq)
 	if err2 != nil {
-		log.Printf("error: %v\n", err2)
-		return nil
+		return nil, e.Handle(pkgPath+search, err)
 	}
-	return ReadBody(resp)
-}
-
-func ReadBody(resp *http.Response) []byte {
 	defer resp.Body.Close()
-	var bytes []byte
-	bytes, _ = io.ReadAll(resp.Body)
-	return bytes
+	bytes, err3 := io.ReadAll(resp.Body)
+	return bytes, e.Handle(pkgPath+search, err3)
 }

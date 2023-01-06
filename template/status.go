@@ -38,9 +38,10 @@ type Status struct {
 
 func NewStatus(code int32, location string, errs ...error) *Status {
 	s := &Status{code: code, location: location}
-	s.AddErrors(errs...)
 	if len(errs) == 0 {
 		s.code = StatusOk
+	} else {
+		s.AddErrors(errs...)
 	}
 	return s
 }
@@ -92,7 +93,7 @@ func (s *Status) PermissionDenied() bool { return s.code == StatusPermissionDeni
 func (s *Status) NotFound() bool         { return s.code == StatusNotFound }
 func (s *Status) Internal() bool         { return s.code == StatusInternal }
 
-func (s *Status) HttpStatus() int32 {
+func (s *Status) Http() int32 {
 	code := s.code
 	switch s.code {
 	case StatusOk:

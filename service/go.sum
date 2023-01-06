@@ -6,5 +6,7 @@ github.com/idiomatic-go/middleware v0.0.0-20230105124136-4f5a56c64117 h1:MuItxgs
 github.com/idiomatic-go/middleware v0.0.0-20230105124136-4f5a56c64117/go.mod h1:nXwk79cGo561cIk3wYhvSqSl0fPe4p4XIIPT5CIPIII=
 github.com/idiomatic-go/middleware v0.0.0-20230105204545-04aa43a3d540 h1:xBYpbSMv3v4c9SeMGhSKz8jlwi/TXnWT0xPpWE2SIUQ=
 github.com/idiomatic-go/middleware v0.0.0-20230105204545-04aa43a3d540/go.mod h1:nXwk79cGo561cIk3wYhvSqSl0fPe4p4XIIPT5CIPIII=
+github.com/idiomatic-go/middleware v0.0.0-20230106173736-be7709bb0036 h1:uG63h/gdfH0fCob7xTuKtAGgXhtx5S9K4eqYOUUZBo8=
+github.com/idiomatic-go/middleware v0.0.0-20230106173736-be7709bb0036/go.mod h1:nXwk79cGo561cIk3wYhvSqSl0fPe4p4XIIPT5CIPIII=
 golang.org/x/time v0.3.0 h1:rg5rLMjNzMS1RkNLzCG38eapWhnYLFYXDXj2gOlr8j4=
 golang.org/x/time v0.3.0/go.mod h1:tRJNPiyCQ0inRvYxbN9jk5I+vvW/OXSQhTDSoE431IQ=

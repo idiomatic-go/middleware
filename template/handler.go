@@ -27,19 +27,23 @@ func (NoOpHandler) Handle(location string, errs ...error) *Status {
 type DebugHandler struct{}
 
 func (DebugHandler) Handle(location string, errs ...error) *Status {
-	if location == "" {
-		location = "[]"
+	if len(errs) > 0 {
+		if location == "" {
+			location = "[]"
+		}
+		fmt.Printf("[%v %v]\n", location, errs)
 	}
-	fmt.Printf("[%v %v]\n", location, errs)
-	return NewStatus(StatusInternal, location, nil)
+	return NewStatus(StatusInternal, location, errs...)
 }
 
 type LogHandler struct{}
 
 func (LogHandler) Handle(location string, errs ...error) *Status {
-	if location == "" {
-		location = "[]"
+	if len(errs) > 0 {
+		if location == "" {
+			location = "[]"
+		}
+		log.Println(location, errs)
 	}
-	log.Println(location, errs)
-	return NewStatus(StatusInternal, location, nil)
+	return NewStatus(StatusInternal, location, errs...)
 }
