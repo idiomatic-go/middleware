@@ -1,11 +1,15 @@
 package template
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
+
+// https://grpc.github.io/grpc/core/md_doc_statuscodes.html
 
 const (
-	// gRPC status codes
-	// https://grpc.github.io/grpc/core/md_doc_statuscodes.html
-	StatusInvalidContent     = int32(-1) // Content is not available or is of the wrong type, usually found via unmarshalling
+	StatusInvalidContent = int32(-1) // Content is not available or is of the wrong type, usually found via unmarshalling
+
 	StatusOk                 = int32(0)  // Not an error; returned on success.
 	StatusCancelled          = int32(1)  // The operation was cancelled, typically by the caller.
 	StatusUnknown            = int32(2)  // Unknown error. For example, this error may be returned when a Status value received from another address space belongs to an error space that is not known in this address space. Also errors raised by APIs that do not return enough error information may be converted to this error.
@@ -87,3 +91,37 @@ func (s *Status) Unauthenticated() bool  { return s.code == StatusUnauthenticate
 func (s *Status) PermissionDenied() bool { return s.code == StatusPermissionDenied }
 func (s *Status) NotFound() bool         { return s.code == StatusNotFound }
 func (s *Status) Internal() bool         { return s.code == StatusInternal }
+
+func (s *Status) HttpStatus() int32 {
+	code := s.code
+	switch s.code {
+	case StatusOk:
+		code = http.StatusOK
+	case StatusInvalidArgument:
+		code = http.StatusBadRequest
+	case StatusUnauthenticated:
+		code = http.StatusUnauthorized
+	case StatusPermissionDenied:
+		code = http.StatusForbidden
+	case StatusNotFound:
+		code = http.StatusNotFound
+
+	case StatusInternal:
+		code = http.StatusInternalServerError
+	case StatusUnavailable:
+		code = http.StatusServiceUnavailable
+	case StatusDeadlineExceeded:
+		code = http.StatusGatewayTimeout
+	case StatusInvalidContent,
+		StatusCancelled,
+		StatusUnknown,
+		StatusAlreadyExists,
+		StatusResourceExhausted,
+		StatusFailedPrecondition,
+		StatusAborted,
+		StatusOutOfRange,
+		StatusUnimplemented,
+		StatusDataLoss:
+	}
+	return code
+}

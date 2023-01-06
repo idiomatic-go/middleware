@@ -28,7 +28,7 @@ type DebugHandler struct{}
 
 func (DebugHandler) Handle(location string, errs ...error) *Status {
 	if location == "" {
-		location = "<empty>"
+		location = "[]"
 	}
 	fmt.Printf("[%v %v]\n", location, errs)
 	return NewStatus(StatusInternal, location, nil)
@@ -38,7 +38,7 @@ type LogHandler struct{}
 
 func (LogHandler) Handle(location string, errs ...error) *Status {
 	if location == "" {
-		location = "<empty>"
+		location = "[]"
 	}
 	log.Println(location, errs)
 	return NewStatus(StatusInternal, location, nil)
