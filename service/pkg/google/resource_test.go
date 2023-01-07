@@ -20,5 +20,5 @@ func ExampleSearch_Success() {
 	fmt.Printf("test: Search() -> [%v]\n", status)
 
 	//Output:
-	//test: Search() -> [0 The operation was successful []]
+	//test: Search() -> [0 The operation was successful]
 }

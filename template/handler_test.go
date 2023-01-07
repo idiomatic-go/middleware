@@ -52,7 +52,7 @@ func ExampleDebugHandler_Handle() {
 	//test: HandleStatus(s) -> [0 The operation was successful] [errors:false]
 	//[/test [test error]]
 	//test: HandleStatus(s) -> [prev:13 Internal errors] [prev-errors:true] [curr:13 Internal errors] [curr-errors:false]
-	
+
 }
 
 func ExampleLogHandler_Handle() {

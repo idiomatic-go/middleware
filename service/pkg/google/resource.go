@@ -27,9 +27,9 @@ func Search[E template.ErrorHandler](req *http.Request) ([]byte, *template.Statu
 	if err != nil {
 		return nil, e.Handle(searchLocation, err)
 	}
-	resp, err2 := http.DefaultClient.Do(newReq)
-	if err2 != nil {
-		return nil, e.Handle(searchLocation, err)
+	resp, status := template.Do(newReq)
+	if status.IsErrors() {
+		return nil, e.HandleStatus(status)
 	}
 	defer resp.Body.Close()
 	bytes, err3 := io.ReadAll(resp.Body)
