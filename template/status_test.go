@@ -13,6 +13,6 @@ func ExampleStatus_String() {
 	fmt.Printf("test: NewStatus() -> [%v]\n", s)
 
 	//Output:
-	//test: NewStatus() -> [0 The operation was successful]
+	//test: NewStatus() -> [0 Successful]
 	//test: NewStatus() -> [11 The operation was attempted past the valid range [error - 1 error - 2]]
 }

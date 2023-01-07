@@ -13,5 +13,5 @@ func ExampleContent() {
 	}
 
 	//Output:
-	//Status : {0  [] <nil>}
+	//Status : 0 Successful
 }

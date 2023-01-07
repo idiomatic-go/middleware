@@ -20,10 +20,10 @@ func ExampleNoOpHandler_Handle() {
 	fmt.Printf("test: HandleStatus(s) -> [prev:%v] [curr:%v]\n", s, h.HandleStatus(s))
 
 	//Output:
-	//test: Handle(location,nil) -> [0 The operation was successful]
-	//test: Handle(location,err) -> [13 Internal errors [test error]]
-	//test: HandleStatus(s) -> [0 The operation was successful]
-	//test: HandleStatus(s) -> [prev:13 Internal errors [test error]] [curr:13 Internal errors [test error]]
+	//test: Handle(location,nil) -> [0 Successful]
+	//test: Handle(location,err) -> [13 Internal Error [test error]]
+	//test: HandleStatus(s) -> [0 Successful]
+	//test: HandleStatus(s) -> [prev:13 Internal Error [test error]] [curr:13 Internal Error [test error]]
 
 }
 
@@ -46,12 +46,12 @@ func ExampleDebugHandler_Handle() {
 	fmt.Printf("test: HandleStatus(s) -> [prev:%v] [prev-errors:%v] [curr:%v] [curr-errors:%v]\n", s, errors, s1, s1.IsErrors())
 
 	//Output:
-	//test: Handle(location,nil) -> [0 The operation was successful] [errors:false]
+	//test: Handle(location,nil) -> [0 Successful] [errors:false]
 	//[/test [test error]]
-	//test: Handle(location,err) -> [13 Internal errors] [errors:false]
-	//test: HandleStatus(s) -> [0 The operation was successful] [errors:false]
+	//test: Handle(location,err) -> [13 Internal Error] [errors:false]
+	//test: HandleStatus(s) -> [0 Successful] [errors:false]
 	//[/test [test error]]
-	//test: HandleStatus(s) -> [prev:13 Internal errors] [prev-errors:true] [curr:13 Internal errors] [curr-errors:false]
+	//test: HandleStatus(s) -> [prev:13 Internal Error] [prev-errors:true] [curr:13 Internal Error] [curr-errors:false]
 
 }
 
@@ -74,9 +74,9 @@ func ExampleLogHandler_Handle() {
 	fmt.Printf("test: HandleStatus(s) -> [prev:%v] [prev-errors:%v] [curr:%v] [curr-errors:%v]\n", s, errors, s1, s1.IsErrors())
 
 	//Output:
-	//test: Handle(location,nil) -> [0 The operation was successful] [errors:false]
-	//test: Handle(location,err) -> [13 Internal errors] [errors:false]
-	//test: HandleStatus(s) -> [0 The operation was successful] [errors:false]
-	//test: HandleStatus(s) -> [prev:13 Internal errors] [prev-errors:true] [curr:13 Internal errors] [curr-errors:false]
+	//test: Handle(location,nil) -> [0 Successful] [errors:false]
+	//test: Handle(location,err) -> [13 Internal Error] [errors:false]
+	//test: HandleStatus(s) -> [0 Successful] [errors:false]
+	//test: HandleStatus(s) -> [prev:13 Internal Error] [prev-errors:true] [curr:13 Internal Error] [curr-errors:false]
 
 }
