@@ -77,7 +77,7 @@ func (s *Status) String() string {
 	}
 }
 
-func (s *Status) IsErrors() bool  { return len(s.errs) != 0 }
+func (s *Status) IsErrors() bool  { return s.errs != nil && len(s.errs) > 0 }
 func (s *Status) Errors() []error { return s.errs }
 func (s *Status) AddErrors(errs ...error) *Status {
 	for _, e := range errs {
