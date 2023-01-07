@@ -30,7 +30,7 @@ func ExampleNoOpHandler_Handle() {
 func ExampleDebugHandler_Handle() {
 	location := "/test"
 	err := errors.New("test error")
-	var h LogHandler
+	var h DebugHandler
 
 	s := h.Handle(location, nil)
 	fmt.Printf("test: Handle(location,nil) -> [%v] [errors:%v]\n", s, s.IsErrors())
@@ -47,10 +47,12 @@ func ExampleDebugHandler_Handle() {
 
 	//Output:
 	//test: Handle(location,nil) -> [0 The operation was successful] [errors:false]
+	//[/test [test error]]
 	//test: Handle(location,err) -> [13 Internal errors] [errors:false]
 	//test: HandleStatus(s) -> [0 The operation was successful] [errors:false]
+	//[/test [test error]]
 	//test: HandleStatus(s) -> [prev:13 Internal errors] [prev-errors:true] [curr:13 Internal errors] [curr-errors:false]
-
+	
 }
 
 func ExampleLogHandler_Handle() {
