@@ -21,10 +21,10 @@ func Do(req *http.Request) (resp *http.Response, status *Status) {
 
 func DoClient(req *http.Request, client *http.Client) (resp *http.Response, status *Status) {
 	if req == nil {
-		return nil, NewStatusError(doLocation, errors.New("invalid argument: Request is nil"))
+		return nil, NewStatusError(doLocation, errors.New("invalid argument: request is nil"))
 	}
 	if client == nil {
-		return nil, NewStatusError(doLocation, errors.New("invalid argument: Client is nil"))
+		return nil, NewStatusError(doLocation, errors.New("invalid argument: client is nil"))
 	}
 	var err error
 	switch req.URL.Scheme {
@@ -33,7 +33,7 @@ func DoClient(req *http.Request, client *http.Client) (resp *http.Response, stat
 	default:
 		resp, err = client.Do(req)
 	}
-	return resp, NewStatusError(pkgPath+"/Do", err)
+	return resp, NewStatusError(doLocation, err)
 }
 
 func createEchoResponse(req *http.Request) (*http.Response, error) {

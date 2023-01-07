@@ -69,7 +69,13 @@ func (s *Status) SetCode(code int32) *Status {
 	return s
 }
 
-func (s *Status) String() string { return fmt.Sprintf("%v %v %v", s.code, s.Description(), s.errs) }
+func (s *Status) String() string {
+	if s.IsErrors() {
+		return fmt.Sprintf("%v %v %v", s.code, s.Description(), s.errs)
+	} else {
+		return fmt.Sprintf("%v %v", s.code, s.Description())
+	}
+}
 
 func (s *Status) IsErrors() bool  { return len(s.errs) != 0 }
 func (s *Status) Errors() []error { return s.errs }
