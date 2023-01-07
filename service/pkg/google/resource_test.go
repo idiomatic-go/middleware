@@ -15,10 +15,10 @@ func init() {
 	actuator.EgressTable.Add("google:search", "https://www.google.com/search", nil)
 }
 
-func ExampleSearch() {
-	bytes, status := Search[template.DebugHandler](nil)
-	fmt.Printf("test: Search() -> [%v] [%v]\n", len(bytes), status)
+func ExampleSearch_Success() {
+	_, status := Search[template.DebugHandler](nil)
+	fmt.Printf("test: Search() -> [%v]\n", status)
 
 	//Output:
-	//test: Search() -> [165067]
+	//test: Search() -> [0 The operation was successful []]
 }

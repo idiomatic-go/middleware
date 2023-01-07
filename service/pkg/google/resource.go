@@ -15,22 +15,23 @@ const (
 type pkg struct{}
 
 var pkgPath = reflect.TypeOf(any(pkg{})).PkgPath()
+var searchLocation = pkgPath + search
 
 func Search[E template.ErrorHandler](req *http.Request) ([]byte, *template.Status) {
 	var e E
 
 	if req != nil && template.IsContextContent(req.Context()) {
-		return template.ProcessContextContent[[]byte, template.NoOpHandler](req.Context())
+		return template.ProcessContextContent[[]byte, E](req.Context())
 	}
 	newReq, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		return nil, e.Handle(pkgPath+search, err)
+		return nil, e.Handle(searchLocation, err)
 	}
 	resp, err2 := http.DefaultClient.Do(newReq)
 	if err2 != nil {
-		return nil, e.Handle(pkgPath+search, err)
+		return nil, e.Handle(searchLocation, err)
 	}
 	defer resp.Body.Close()
 	bytes, err3 := io.ReadAll(resp.Body)
-	return bytes, e.Handle(pkgPath+search, err3)
+	return bytes, e.Handle(searchLocation, err3)
 }
