@@ -38,7 +38,7 @@ type Status struct {
 
 func NewStatus(code int32, location string, errs ...error) *Status {
 	s := &Status{code: code, location: location}
-	if len(errs) == 0 {
+	if len(errs) == 0 || (len(errs) == 1 && errs[0] == nil) {
 		s.code = StatusOk
 	} else {
 		s.AddErrors(errs...)

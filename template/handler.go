@@ -27,7 +27,8 @@ func (NoOpHandler) Handle(location string, errs ...error) *Status {
 type DebugHandler struct{}
 
 func (DebugHandler) Handle(location string, errs ...error) *Status {
-	if len(errs) > 0 {
+	if len(errs) == 0 || (len(errs) == 1 && errs[0] == nil) {
+	} else {
 		if location == "" {
 			location = "[]"
 		}
@@ -39,7 +40,8 @@ func (DebugHandler) Handle(location string, errs ...error) *Status {
 type LogHandler struct{}
 
 func (LogHandler) Handle(location string, errs ...error) *Status {
-	if len(errs) > 0 {
+	if len(errs) == 0 || (len(errs) == 1 && errs[0] == nil) {
+	} else {
 		if location == "" {
 			location = "[]"
 		}
