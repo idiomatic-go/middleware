@@ -34,7 +34,7 @@ func DoClient[E ErrorHandler](req *http.Request, client *http.Client) (resp *htt
 	default:
 		resp, err = client.Do(req)
 	}
-	return resp, e.Handle(doLocation, err)
+	return resp, e.HandleStatus(NewHttpStatus(resp, doLocation, err))
 }
 
 func createEchoResponse(req *http.Request) (*http.Response, error) {

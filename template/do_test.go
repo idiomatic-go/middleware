@@ -28,7 +28,7 @@ func ExampleDo_HttpError() {
 
 	//Output:
 	//[github.com/idiomatic-go/middleware/template/Do [http: connection has been hijacked]]
-	//test: Do(req) -> [13 Internal Error] [response:<nil>]
+	//test: Do(req) -> [500 Internal Error] [response:<nil>]
 
 }
 
@@ -42,7 +42,7 @@ func ExampleDo_IOError() {
 	fmt.Printf("test: io.ReadAll(resp.Body) : [%v] [body:%v]\n", s2, string(buf))
 
 	//Output:
-	//test: Do(req) -> [0 Successful] [resp:true] [statusCode:200] [body:true]
+	//test: Do(req) -> [200 Successful] [resp:true] [statusCode:200] [body:true]
 	//test: io.ReadAll(resp.Body) : [unexpected EOF] [body:]
 
 }
@@ -65,7 +65,7 @@ func ExampleDo_Success() {
 	fmt.Printf("test: io.ReadAll(resp.Body) : [err:%v] [body:%v]\n", ioError, string(buf))
 
 	//Output:
-	//test: Do(req) -> [0 Successful] [resp:true] [statusCode:200] [content-type:text/html] [content-length:1234] [body:true]
+	//test: Do(req) -> [200 Successful] [resp:true] [statusCode:200] [content-type:text/html] [content-length:1234] [body:true]
 	//test: io.ReadAll(resp.Body) : [err:<nil>] [body:<html><body><h1>Hello, World</h1></body></html>]
 
 }

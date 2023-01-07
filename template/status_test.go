@@ -3,6 +3,7 @@ package template
 import (
 	"errors"
 	"fmt"
+	"net/http"
 )
 
 func ExampleStatus_String() {
@@ -15,4 +16,22 @@ func ExampleStatus_String() {
 	//Output:
 	//test: NewStatus() -> [0 Successful]
 	//test: NewStatus() -> [11 The operation was attempted past the valid range [error - 1 error - 2]]
+}
+
+func ExampleStatus_Http() {
+	location := "test"
+	err := errors.New("http error")
+	fmt.Printf("test: NewHttpStatus(nil) -> [%v]\n", NewHttpStatus(nil, location, nil))
+	fmt.Printf("test: NewHttpStatus(nil) -> [%v]\n", NewHttpStatus(nil, location, err))
+
+	resp := http.Response{StatusCode: http.StatusBadRequest}
+	fmt.Printf("test: NewHttpStatus(resp) -> [%v]\n", NewHttpStatus(&resp, location, nil))
+	fmt.Printf("test: NewHttpStatus(resp) -> [%v]\n", NewHttpStatus(&resp, location, err))
+
+	//Output:
+	//test: NewHttpStatus(nil) -> [-1 Invalid Content]
+	//test: NewHttpStatus(nil) -> [500 Internal Error [http error]]
+	//test: NewHttpStatus(resp) -> [400 Bad Request]
+	//test: NewHttpStatus(resp) -> [500 Internal Error [http error]]
+
 }

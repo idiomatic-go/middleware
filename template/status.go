@@ -8,7 +8,7 @@ import (
 // https://grpc.github.io/grpc/core/md_doc_statuscodes.html
 
 const (
-	StatusInvalidContent = int(-1) // Content is not available or is of the wrong type, usually found via unmarshalling
+	StatusInvalidContent = int(-1) // Content is not available, is nil, or is of the wrong type, usually found via unmarshalling
 
 	StatusOk                 = int(0)  // Not an error; returned on success.
 	StatusCancelled          = int(1)  // The operation was cancelled, typically by the caller.
@@ -50,13 +50,13 @@ func NewHttpStatus(resp *http.Response, location string, errs ...error) *Status 
 	s := new(Status)
 	s.location = location
 	if resp == nil {
-		s.code = StatusInternal
+		s.code = StatusInvalidContent
 	} else {
 		s.code = resp.StatusCode
 	}
 	if isErrors(errs) {
 		s.addErrors(errs...)
-		s.code = StatusInternal
+		s.code = http.StatusInternalServerError
 	}
 	return s
 }
@@ -158,6 +158,8 @@ func (s *Status) Http() int {
 func (s *Status) Description() string {
 	switch s.code {
 	// Mapped
+	case StatusInvalidContent:
+		return "Invalid Content"
 	case StatusOk, http.StatusOK:
 		return "Successful"
 	case StatusInvalidArgument, http.StatusBadRequest:
@@ -176,8 +178,6 @@ func (s *Status) Description() string {
 		return "Unauthorized"
 
 	// Unmapped
-	case StatusInvalidContent:
-		return "Content is not available or is of the wrong type, usually found via unmarshalling"
 	case StatusCancelled:
 		return "The operation was cancelled, typically by the caller"
 	case StatusUnknown:
