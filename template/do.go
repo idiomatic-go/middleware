@@ -15,17 +15,16 @@ const (
 
 var doLocation = pkgPath + "/Do"
 
-func Do[E ErrorHandler](req *http.Request) (resp *http.Response, status *Status) {
-	return DoClient[E](req, http.DefaultClient)
+func Do(req *http.Request) (resp *http.Response, status *Status) {
+	return DoClient(req, http.DefaultClient)
 }
 
-func DoClient[E ErrorHandler](req *http.Request, client *http.Client) (resp *http.Response, status *Status) {
-	var e E
+func DoClient(req *http.Request, client *http.Client) (resp *http.Response, status *Status) {
 	if req == nil {
-		return nil, e.Handle(doLocation, errors.New("invalid argument: request is nil"))
+		return nil, NewStatus(StatusInvalidArgument, doLocation, errors.New("request is nil"))
 	}
 	if client == nil {
-		return nil, e.Handle(doLocation, errors.New("invalid argument: client is nil"))
+		return nil, NewStatus(StatusInvalidArgument, doLocation, errors.New("client is nil"))
 	}
 	var err error
 	switch req.URL.Scheme {
@@ -34,7 +33,7 @@ func DoClient[E ErrorHandler](req *http.Request, client *http.Client) (resp *htt
 	default:
 		resp, err = client.Do(req)
 	}
-	return resp, e.HandleStatus(NewHttpStatus(resp, doLocation, err))
+	return resp, NewHttpStatus(resp, doLocation, err)
 }
 
 func createEchoResponse(req *http.Request) (*http.Response, error) {

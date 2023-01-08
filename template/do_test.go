@@ -7,34 +7,32 @@ import (
 )
 
 func ExampleDo_InvalidArgument() {
-	_, s := Do[NoOpHandler](nil)
+	_, s := Do(nil)
 	fmt.Printf("test: Do(nil) -> [%v]\n", s)
 
 	req, _ := http.NewRequest("", "http://www.google.com", nil)
-	_, s = DoClient[DebugHandler](req, nil)
+	_, s = DoClient(req, nil)
 	fmt.Printf("test: DoClient(req,nil) -> [%v]\n", s)
 
 	//Output:
-	//test: Do(nil) -> [13 Internal Error [invalid argument: request is nil]]
-	//[github.com/idiomatic-go/middleware/template/Do [invalid argument: client is nil]]
-	//test: DoClient(req,nil) -> [13 Internal Error]
+	//test: Do(nil) -> [3 Bad Request [request is nil]]
+	//test: DoClient(req,nil) -> [3 Bad Request [client is nil]]
 
 }
 
 func ExampleDo_HttpError() {
 	req, _ := http.NewRequest(http.MethodGet, "echo://www.somestupidname.com?httpError=true", nil)
-	resp, status := Do[DebugHandler](req)
+	resp, status := Do(req)
 	fmt.Printf("test: Do(req) -> [%v] [response:%v]\n", status, resp)
 
 	//Output:
-	//[github.com/idiomatic-go/middleware/template/Do [http: connection has been hijacked]]
-	//test: Do(req) -> [500 Internal Error] [response:<nil>]
-
+	//test: Do(req) -> [500 Internal Error [http: connection has been hijacked]] [response:<nil>]
+	
 }
 
 func ExampleDo_IOError() {
 	req, _ := http.NewRequest(http.MethodGet, "echo://www.somestupidname.com?ioError=true", nil)
-	resp, s := Do[DebugHandler](req)
+	resp, s := Do(req)
 	fmt.Printf("test: Do(req) -> [%v] [resp:%v] [statusCode:%v] [body:%v]\n", s, resp != nil, resp.StatusCode, resp.Body != nil)
 
 	defer resp.Body.Close()
@@ -56,7 +54,7 @@ func ExampleDo_Success() {
 	if err0 != nil {
 		fmt.Println("test: init() -> failure")
 	}
-	resp, status := Do[DebugHandler](req)
+	resp, status := Do(req)
 	fmt.Printf("test: Do(req) -> [%v] [resp:%v] [statusCode:%v] [content-type:%v] [content-length:%v] [body:%v]\n",
 		status, resp != nil, resp.StatusCode, resp.Header.Get("content-type"), resp.Header.Get("content-length"), resp.Body != nil)
 
