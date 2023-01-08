@@ -16,8 +16,8 @@ func init() {
 }
 
 func ExampleSearch_Success() {
-	_, status := Search[template.DebugHandler](nil)
-	fmt.Printf("test: Search() -> [%v]\n", status)
+	buff, status := Search[template.DebugHandler](nil)
+	fmt.Printf("test: Search() -> [%v] [content:%v]\n", status, buff != nil)
 
 	//Output:
 	//test: Search() -> [0 The operation was successful]

@@ -116,12 +116,24 @@ func (s *Status) SetContent(content []byte) *Status {
 	return s
 }
 
-func (s *Status) Ok() bool               { return s.code == StatusOk }
-func (s *Status) InvalidArgument() bool  { return s.code == StatusInvalidArgument }
-func (s *Status) Unauthenticated() bool  { return s.code == StatusUnauthenticated }
-func (s *Status) PermissionDenied() bool { return s.code == StatusPermissionDenied }
-func (s *Status) NotFound() bool         { return s.code == StatusNotFound }
-func (s *Status) Internal() bool         { return s.code == StatusInternal }
+func (s *Status) Ok() bool              { return s.code == StatusOk || s.code == http.StatusOK }
+func (s *Status) InvalidArgument() bool { return s.code == StatusInvalidArgument }
+func (s *Status) Unauthenticated() bool {
+	return s.code == StatusUnauthenticated || s.code == http.StatusUnauthorized
+}
+func (s *Status) PermissionDenied() bool {
+	return s.code == StatusPermissionDenied || s.code == http.StatusForbidden
+}
+func (s *Status) NotFound() bool { return s.code == StatusNotFound || s.code == http.StatusNotFound }
+func (s *Status) Internal() bool {
+	return s.code == StatusInternal || s.code == http.StatusInternalServerError
+}
+func (s *Status) Timeout() bool {
+	return s.code == StatusDeadlineExceeded || s.code == http.StatusGatewayTimeout
+}
+func (s *Status) ServiceUnavailable() bool {
+	return s.code == StatusUnavailable || s.code == http.StatusServiceUnavailable
+}
 
 func (s *Status) Http() int {
 	code := s.code

@@ -2,7 +2,6 @@ package google
 
 import (
 	"github.com/idiomatic-go/middleware/template"
-	"io"
 	"net/http"
 	"reflect"
 )
@@ -31,7 +30,8 @@ func Search[E template.ErrorHandler](req *http.Request) ([]byte, *template.Statu
 	if status.IsErrors() {
 		return nil, e.HandleStatus(status)
 	}
-	defer resp.Body.Close()
-	bytes, err3 := io.ReadAll(resp.Body)
-	return bytes, e.Handle(searchLocation, err3)
+	if !status.Ok() {
+		return nil, status
+	}
+	return template.Unmarshal[[]byte, E](resp)
 }
