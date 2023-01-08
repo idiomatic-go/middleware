@@ -1,4 +1,4 @@
-package got
+package template
 
 import (
 	"fmt"

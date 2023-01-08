@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/idiomatic-go/middleware/actuator"
 	"github.com/idiomatic-go/middleware/egress"
-	"github.com/idiomatic-go/middleware/template"
+	"github.com/idiomatic-go/middleware/got"
 	"net/http"
 	"time"
 )
@@ -16,9 +16,10 @@ func init() {
 }
 
 func ExampleSearch_Success() {
-	buff, status := Search[template.DebugHandler](nil)
+	buff, status := Search[got.DebugHandler](nil)
 	fmt.Printf("test: Search() -> [%v] [content:%v]\n", status, buff != nil)
 
 	//Output:
-	//test: Search() -> [0 The operation was successful]
+	//test: Search() -> [0 Successful] [content:true]
+
 }

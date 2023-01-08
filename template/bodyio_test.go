@@ -1,10 +1,10 @@
-package got
+package template
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/idiomatic-go/middleware/got/internal"
+	"github.com/idiomatic-go/middleware/template/internal"
 	"net/http"
 	"strings"
 )
@@ -50,9 +50,9 @@ func Example_Unmarshal() {
 	fmt.Printf("test: Unmarshal[[]byte](resp) -> [%v] [status:%v]\n", string(result2), status2)
 
 	//Output:
-	//[github.com/idiomatic-go/middleware/got/unmarshal [response or response body is nil]]
+	//[github.com/idiomatic-go/middleware/template/unmarshal [response or response body is nil]]
 	//test: Unmarshal[string](nil) -> [] [status:-1 Invalid Content]
-	//[github.com/idiomatic-go/middleware/got/unmarshal [response or response body is nil]]
+	//[github.com/idiomatic-go/middleware/template/unmarshal [response or response body is nil]]
 	//test: Unmarshal[string](resp) -> [] [status:-1 Invalid Content]
 	//test: Unmarshal[string](resp) -> [Hello World String] [status:0 Successful]
 	//test: Unmarshal[[]byte](resp) -> [Hello World []byte] [status:0 Successful]
@@ -96,9 +96,9 @@ func Example_Decode() {
 	fmt.Printf("test: Decode[[]byte](resp) -> [%v] [status:%v]\n", string(result2), status2)
 
 	//Output:
-	//[github.com/idiomatic-go/middleware/got/decode [response or response body is nil]]
+	//[github.com/idiomatic-go/middleware/template/decode [response or response body is nil]]
 	//test: Decode[string](nil) -> [] [status:-1 Invalid Content]
-	//[github.com/idiomatic-go/middleware/got/decode [response or response body is nil]]
+	//[github.com/idiomatic-go/middleware/template/decode [response or response body is nil]]
 	//test: Decode[string](resp) -> [] [status:-1 Invalid Content]
 	//test: Decode[string](resp) -> [Hello World String] [status:0 Successful]
 	//test: Decode[[]byte](resp) -> [Hello World []byte] [status:0 Successful]
