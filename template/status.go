@@ -8,7 +8,9 @@ import (
 // https://grpc.github.io/grpc/core/md_doc_statuscodes.html
 
 const (
-	StatusInvalidContent = int(-1) // Content is not available, is nil, or is of the wrong type, usually found via unmarshalling
+	StatusInvalidContent  = int(-1) // Content is not available, is nil, or is of the wrong type, usually found via unmarshalling
+	StatusIOError         = int(-2) // I/O operation failed
+	StatusJsonDecodeError = int(-3) // Json decoding failed
 
 	StatusOk                 = int(0)  // Not an error; returned on success.
 	StatusCancelled          = int(1)  // The operation was cancelled, typically by the caller.
@@ -160,6 +162,10 @@ func (s *Status) Description() string {
 	// Mapped
 	case StatusInvalidContent:
 		return "Invalid Content"
+	case StatusIOError:
+		return "I/O Failure"
+	case StatusJsonDecodeError:
+		return "Json Decode Failure"
 	case StatusOk, http.StatusOK:
 		return "Successful"
 	case StatusInvalidArgument, http.StatusBadRequest:
