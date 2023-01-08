@@ -1,8 +1,8 @@
-package gotp
+package got
 
 import (
 	"errors"
-	"github.com/idiomatic-go/middleware/gotp/internal"
+	"github.com/idiomatic-go/middleware/got/internal"
 	"io"
 	"net/http"
 	"strconv"

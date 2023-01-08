@@ -1,4 +1,4 @@
-package gotp
+package got
 
 import (
 	"context"
@@ -44,7 +44,7 @@ func ExampleProcessContext_ErrorHandlers() {
 
 	//Output:
 	//test: ProcessContextContent() -> [invalid configuration: context is nil]
-	//[github.com/idiomatic-go/middleware/gotp/ProcessContextContent [invalid configuration: context is nil]]
+	//[github.com/idiomatic-go/middleware/got/ProcessContextContent [invalid configuration: context is nil]]
 	//test: ProcessContextContent() -> []
 	//test: ProcessContextContent() -> []
 

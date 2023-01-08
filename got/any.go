@@ -1,4 +1,4 @@
-package gotp
+package got
 
 import "reflect"
 
