@@ -109,7 +109,7 @@ func (s *Status) addErrors(errs ...error) *Status {
 
 func (s *Status) IsContent() bool { return s.content != nil }
 func (s *Status) Content() any    { return s.content }
-func (s *Status) AddContent(content any) *Status {
+func (s *Status) SetContent(content any) *Status {
 	s.content = content
 	return s
 }
