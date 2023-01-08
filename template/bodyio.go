@@ -10,55 +10,35 @@ import (
 var unmarshalLoc = pkgPath + "/unmarshal"
 var decodeLoc = pkgPath + "/decode"
 
-/*
-
-if decode {
-
-			}
-func (r *ResponseStatus) DecodeJson(i interface{}) error {
-	if i == nil {
-		return errors.New("invalid argument: interface{} is nil")
-	}
-	if !r.IsContent() {
-		return nil
-	}
-	r.UnmarshalErr = json.NewDecoder(r.Response.Body).Decode(i)
-	return nil
-}
-
-*/
-
-//func Unmarshal[T any](resp *http.Response) (T, *Status) {
-//	return unmarshal[T](resp, false)
-//}
-
-func Decode[T any](resp *http.Response) (T, *Status) {
+func Decode[T any, E ErrorHandler](resp *http.Response) (T, *Status) {
 	var t T
+	var e E
+
 	if resp == nil || resp.Body == nil {
-		return t, NewStatus(StatusInvalidContent, decodeLoc, errors.New("response or response body is nil"))
+		return t, e.Handle(decodeLoc, errors.New("response or response body is nil")).SetCode(StatusInvalidContent)
 	}
 	switch any(t).(type) {
 	case []byte, string:
-		return Unmarshal[T](resp)
+		return Unmarshal[T, E](resp)
 	default:
 		err := json.NewDecoder(resp.Body).Decode(&t)
 		if err != nil {
-			return t, NewStatus(StatusJsonDecodeError, decodeLoc, err)
+			return t, e.Handle(decodeLoc, err).SetCode(StatusJsonDecodeError)
 		}
 		return t, NewStatusOk()
 	}
 }
 
-func Unmarshal[T any](resp *http.Response) (T, *Status) {
+func Unmarshal[T any, E ErrorHandler](resp *http.Response) (T, *Status) {
 	var t T
-	//var e E
+	var e E
 
 	if resp == nil || resp.Body == nil {
-		return t, NewStatus(StatusInvalidContent, unmarshalLoc, errors.New("response or response body is nil"))
+		return t, e.Handle(unmarshalLoc, errors.New("response or response body is nil")).SetCode(StatusInvalidContent)
 	}
 	buf, err := readAll(resp.Body)
 	if err != nil {
-		return t, NewStatus(StatusIOError, unmarshalLoc, err)
+		return t, e.Handle(unmarshalLoc, err).SetCode(StatusIOError)
 	}
 	switch any(t).(type) {
 	case []byte:
@@ -70,7 +50,7 @@ func Unmarshal[T any](resp *http.Response) (T, *Status) {
 	default:
 		err := json.Unmarshal(buf, &t)
 		if err != nil {
-			return t, NewStatus(StatusInvalidContent, unmarshalLoc, err).SetContent(buf)
+			return t, e.Handle(unmarshalLoc, err).SetContent(buf).SetCode(StatusInvalidContent)
 		}
 		return t, NewStatusOk()
 	}

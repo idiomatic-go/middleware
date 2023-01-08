@@ -35,7 +35,7 @@ type Status struct {
 	code     int
 	location string
 	errs     []error
-	content  any
+	content  []byte
 }
 
 func NewStatus(code int, location string, errs ...error) *Status {
@@ -111,7 +111,7 @@ func (s *Status) addErrors(errs ...error) *Status {
 
 func (s *Status) IsContent() bool { return s.content != nil }
 func (s *Status) Content() any    { return s.content }
-func (s *Status) SetContent(content any) *Status {
+func (s *Status) SetContent(content []byte) *Status {
 	s.content = content
 	return s
 }
