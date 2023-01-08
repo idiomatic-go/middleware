@@ -1,4 +1,4 @@
-package template
+package gotp
 
 import (
 	"fmt"
@@ -27,7 +27,7 @@ func ExampleDo_HttpError() {
 
 	//Output:
 	//test: Do(req) -> [500 Internal Error [http: connection has been hijacked]] [response:<nil>]
-	
+
 }
 
 func ExampleDo_IOError() {

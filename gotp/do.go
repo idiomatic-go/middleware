@@ -1,8 +1,8 @@
-package template
+package gotp
 
 import (
 	"errors"
-	"github.com/idiomatic-go/middleware/template/internal"
+	"github.com/idiomatic-go/middleware/gotp/internal"
 	"io"
 	"net/http"
 	"strconv"
