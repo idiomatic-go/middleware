@@ -66,14 +66,14 @@ func (w *wrapper) deadlineExceeded(err error) bool {
 	return err != nil && errors.As(err, &context.DeadlineExceeded)
 }
 
-func EnableDefaultHttpClient() {
+func WrapDefaultTransport() {
 	if http.DefaultClient.Transport == nil {
 		http.DefaultClient.Transport = &wrapper{http.DefaultTransport}
 	} else {
-		http.DefaultClient.Transport = EnableRoundTrip(http.DefaultClient.Transport)
+		http.DefaultClient.Transport = WrapRoundTripper(http.DefaultClient.Transport)
 	}
 }
 
-func EnableRoundTrip(rt http.RoundTripper) http.RoundTripper {
+func WrapRoundTripper(rt http.RoundTripper) http.RoundTripper {
 	return &wrapper{rt}
 }

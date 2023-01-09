@@ -111,7 +111,7 @@ func Example_Default() {
 
 	if !isEnabled {
 		isEnabled = true
-		EnableDefaultHttpClient()
+		WrapDefaultTransport()
 	}
 	resp, err := http.DefaultClient.Do(req)
 	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
@@ -127,7 +127,7 @@ func Example_Default_Timeout() {
 
 	if !isEnabled {
 		isEnabled = true
-		EnableDefaultHttpClient()
+		WrapDefaultTransport()
 	}
 	resp, err := http.DefaultClient.Do(req)
 	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
@@ -143,7 +143,7 @@ func Example_Default_RateLimit() {
 
 	if !isEnabled {
 		isEnabled = true
-		EnableDefaultHttpClient()
+		WrapDefaultTransport()
 	}
 	resp, err := http.DefaultClient.Do(req)
 	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
@@ -159,7 +159,7 @@ func Example_Default_Retry_NotEnabled() {
 
 	if !isEnabled {
 		isEnabled = true
-		EnableDefaultHttpClient()
+		WrapDefaultTransport()
 	}
 	act := actuator.EgressTable.LookupByName(retryRoute)
 	if act != nil {
@@ -181,7 +181,7 @@ func Example_Default_Retry_RateLimited() {
 
 	if !isEnabled {
 		isEnabled = true
-		EnableDefaultHttpClient()
+		WrapDefaultTransport()
 	}
 	act := actuator.EgressTable.LookupByName(retryRoute)
 	if act != nil {
@@ -203,7 +203,7 @@ func Example_Default_Retry() {
 
 	if !isEnabled {
 		isEnabled = true
-		EnableDefaultHttpClient()
+		WrapDefaultTransport()
 	}
 	act := actuator.EgressTable.LookupByName(retryRoute)
 	if act != nil {
