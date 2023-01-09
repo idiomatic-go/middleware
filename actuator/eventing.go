@@ -9,7 +9,7 @@ const (
 type Event struct {
 	SLOName        string
 	ActuatorName   string
-	Traffic        string // ingress, egress
+	Traffic        string // ingress, handler
 	SLOCategory    string // latency, status codes, traffic, saturation
 	SLOAlertStatus string // watch, warning, canceled
 }

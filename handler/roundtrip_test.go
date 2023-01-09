@@ -1,4 +1,4 @@
-package egress
+package handler
 
 import (
 	"fmt"
@@ -98,11 +98,11 @@ func Example_No_Wrapper() {
 
 	// Testing - no wrapper, calling Google search
 	resp, err = http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(egress:false) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+	fmt.Printf("test: RoundTrip(handler:false) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: RoundTrip(wrapper:nil) -> [resp:<nil>] [err:invalid egress round tripper configuration : http.RoundTripper is nil]
-	//test: RoundTrip(egress:false) -> [status_code:200] [err:<nil>]
+	//test: RoundTrip(wrapper:nil) -> [resp:<nil>] [err:invalid handler round tripper configuration : http.RoundTripper is nil]
+	//test: RoundTrip(handler:false) -> [status_code:200] [err:<nil>]
 
 }
 
@@ -114,11 +114,11 @@ func Example_Default() {
 		EnableDefaultHttpClient()
 	}
 	resp, err := http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: WriteEgress() -> [{"traffic":"egress","route_name":"*","method":"GET","host":"www.instagram.com","path":null,"protocol":"HTTP/1.1","status_code":"200","status_flags":null,"bytes_received":"-1","bytes_sent":"0","timeout_ms":-1,"rate_limit":-1,"rate_burst":-1,"retry":null,"retry_rate_limit":-1,"retry_rate_burst":-1,"failover":null}]
-	//test: RoundTrip(egress:true) -> [status_code:200] [err:<nil>]
+	//test: WriteEgress() -> [{"traffic":"handler","route_name":"*","method":"GET","host":"www.instagram.com","path":null,"protocol":"HTTP/1.1","status_code":"200","status_flags":null,"bytes_received":"-1","bytes_sent":"0","timeout_ms":-1,"rate_limit":-1,"rate_burst":-1,"retry":null,"retry_rate_limit":-1,"retry_rate_burst":-1,"failover":null}]
+	//test: RoundTrip(handler:true) -> [status_code:200] [err:<nil>]
 
 }
 
@@ -130,11 +130,11 @@ func Example_Default_Timeout() {
 		EnableDefaultHttpClient()
 	}
 	resp, err := http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: WriteEgress() -> [{"traffic":"egress","route_name":"timeout-route","method":"GET","host":"www.google.com","path":"/search","protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":null,"retry_rate_limit":-1,"retry_rate_burst":-1,"failover":null}]
-	//test: RoundTrip(egress:true) -> [status_code:504] [err:<nil>]
+	//test: WriteEgress() -> [{"traffic":"handler","route_name":"timeout-route","method":"GET","host":"www.google.com","path":"/search","protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":null,"retry_rate_limit":-1,"retry_rate_burst":-1,"failover":null}]
+	//test: RoundTrip(handler:true) -> [status_code:504] [err:<nil>]
 
 }
 
@@ -146,11 +146,11 @@ func Example_Default_RateLimit() {
 		EnableDefaultHttpClient()
 	}
 	resp, err := http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: WriteEgress() -> [{"traffic":"egress","route_name":"rate-limit-route","method":"GET","host":"www.twitter.com","path":null,"protocol":"HTTP/1.1","status_code":"503","status_flags":"RL","bytes_received":"0","bytes_sent":"0","timeout_ms":-1,"rate_limit":2000,"rate_burst":0,"retry":null,"retry_rate_limit":-1,"retry_rate_burst":-1,"failover":null}]
-	//test: RoundTrip(egress:true) -> [status_code:503] [err:<nil>]
+	//test: WriteEgress() -> [{"traffic":"handler","route_name":"rate-limit-route","method":"GET","host":"www.twitter.com","path":null,"protocol":"HTTP/1.1","status_code":"503","status_flags":"RL","bytes_received":"0","bytes_sent":"0","timeout_ms":-1,"rate_limit":2000,"rate_burst":0,"retry":null,"retry_rate_limit":-1,"retry_rate_burst":-1,"failover":null}]
+	//test: RoundTrip(handler:true) -> [status_code:503] [err:<nil>]
 
 }
 
@@ -168,11 +168,11 @@ func Example_Default_Retry_NotEnabled() {
 		}
 	}
 	resp, err := http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"NE","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":false,"retry_rate_limit":0,"retry_rate_burst":0,"failover":null}]
-	//test: RoundTrip(egress:true) -> [status_code:504] [err:<nil>]
+	//test: WriteEgress() -> [{"traffic":"handler","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"NE","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":false,"retry_rate_limit":0,"retry_rate_burst":0,"failover":null}]
+	//test: RoundTrip(handler:true) -> [status_code:504] [err:<nil>]
 
 }
 
@@ -190,11 +190,11 @@ func Example_Default_Retry_RateLimited() {
 		}
 	}
 	resp, err := http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"RL","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":false,"retry_rate_limit":0,"retry_rate_burst":0,"failover":null}]
-	//test: RoundTrip(egress:true) -> [status_code:504] [err:<nil>]
+	//test: WriteEgress() -> [{"traffic":"handler","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"RL","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":false,"retry_rate_limit":0,"retry_rate_burst":0,"failover":null}]
+	//test: RoundTrip(handler:true) -> [status_code:504] [err:<nil>]
 
 }
 
@@ -216,11 +216,11 @@ func Example_Default_Retry() {
 	}
 
 	resp, err := http.DefaultClient.Do(req)
-	fmt.Printf("test: RoundTrip(egress:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
+	fmt.Printf("test: RoundTrip(handler:true) -> [status_code:%v] [err:%v]\n", resp.StatusCode, err)
 
 	//Output:
-	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":false,"retry_rate_limit":100,"retry_rate_burst":10,"failover":null}]
-	//test: WriteEgress() -> [{"traffic":"egress","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":true,"retry_rate_limit":100,"retry_rate_burst":10,"failover":null}]
-	//test: RoundTrip(egress:true) -> [status_code:504] [err:<nil>]
+	//test: WriteEgress() -> [{"traffic":"handler","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":false,"retry_rate_limit":100,"retry_rate_burst":10,"failover":null}]
+	//test: WriteEgress() -> [{"traffic":"handler","route_name":"retry-route","method":"GET","host":"www.facebook.com","path":null,"protocol":"HTTP/1.1","status_code":"504","status_flags":"UT","bytes_received":"0","bytes_sent":"0","timeout_ms":1,"rate_limit":-1,"rate_burst":-1,"retry":true,"retry_rate_limit":100,"retry_rate_burst":10,"failover":null}]
+	//test: RoundTrip(handler:true) -> [status_code:504] [err:<nil>]
 
 }

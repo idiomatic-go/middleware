@@ -1,4 +1,4 @@
-package ingress
+package handler
 
 import (
 	"github.com/felixge/httpsnoop"

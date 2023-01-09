@@ -45,10 +45,10 @@ func _Example_LogAccess() {
 	time.Sleep(time.Second * 1)
 	start = time.Now()
 	l := newLogger(NewLoggerConfig(fn))
-	l.LogAccess(nil, "egress", start, time.Since(start), nil, nil, "new-flags")
+	l.LogAccess(nil, "handler", start, time.Since(start), nil, nil, "new-flags")
 
 	//Output:
-	//{"traffic":"egress","start_time":"2022-12-19 07:53:31.9875524 -0600 CST m=+0.006632001","duration_ms":0s,"request":"<nil>","response":"<nil>","responseFlags":"flags"}
+	//{"traffic":"handler","start_time":"2022-12-19 07:53:31.9875524 -0600 CST m=+0.006632001","duration_ms":0s,"request":"<nil>","response":"<nil>","responseFlags":"flags"}
 
 }
 

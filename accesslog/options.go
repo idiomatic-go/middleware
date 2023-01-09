@@ -12,7 +12,7 @@ func CreateIngressOperators(config []accessdata.Operator) error {
 	return CreateOperators(&ingressOperators, config)
 }
 
-// CreateEgressOperators - allows configuration of access log attributes for egress traffic
+// CreateEgressOperators - allows configuration of access log attributes for handler traffic
 func CreateEgressOperators(config []accessdata.Operator) error {
 	egressOperators = []accessdata.Operator{}
 	return CreateOperators(&egressOperators, config)

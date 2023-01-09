@@ -1,4 +1,4 @@
-package ingress
+package handler
 
 import (
 	"fmt"
@@ -32,4 +32,3 @@ func _ExampleMiddleware() {
 	//Output:
 	//fail
 }
-

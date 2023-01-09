@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	EgressTraffic      = "egress"
+	EgressTraffic      = "handler"
 	IngressTraffic     = "ingress"
 	PingTraffic        = "ping"
 	TimeoutName        = "timeout"
@@ -50,7 +50,7 @@ type Entry struct {
 	// Response
 	StatusCode    int
 	BytesSent     int64 // ingress response
-	BytesReceived int64 // egress response content length
+	BytesReceived int64 // handler response content length
 	StatusFlags   string
 }
 

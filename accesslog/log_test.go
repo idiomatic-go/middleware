@@ -13,11 +13,11 @@ func ExampleLog_Error() {
 	start := time.Now()
 
 	Log(nil)
-	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "egress-route"}, nil, nil, ""))
+	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "handler-route"}, nil, nil, ""))
 
 	//Output:
 	//test: WriteEgress() -> [{"error": "access data entry is nil"}]
-	//test: WriteEgress() -> [{"error": "egress log entries are empty"}]
+	//test: WriteEgress() -> [{"error": "handler log entries are empty"}]
 
 }
 
@@ -70,10 +70,10 @@ func ExampleLog_Timeout() {
 		return
 	}
 	var start1 time.Time
-	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "egress-route", accessdata.TimeoutName: "5000"}, nil, nil, ""))
+	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "handler-route", accessdata.TimeoutName: "5000"}, nil, nil, ""))
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","timeout_ms":5000,"static":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"handler","route_name":"handler-route","timeout_ms":5000,"static":"value"}]
 
 }
 
@@ -87,10 +87,10 @@ func ExampleLog_RateLimiter_500() {
 		return
 	}
 	var start1 time.Time
-	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "egress-route", accessdata.RateLimitName: "500", accessdata.RateBurstName: "10"}, nil, nil, ""))
+	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "handler-route", accessdata.RateLimitName: "500", accessdata.RateBurstName: "10"}, nil, nil, ""))
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration":0,"traffic":"egress","route_name":"egress-route","rate_limit":500,"rate_burst":10,"static2":"value2"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration":0,"traffic":"handler","route_name":"handler-route","rate_limit":500,"rate_burst":10,"static2":"value2"}]
 
 }
 
@@ -105,10 +105,10 @@ func ExampleLog_RateLimiter_Inf() {
 		return
 	}
 	var start1 time.Time
-	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "egress-route", RateLimitName: "1000", RateBurstName: "10"}, nil, nil, "")
+	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "handler-route", RateLimitName: "1000", RateBurstName: "10"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","rate_limit":1000,"rate_burst":10,"static2":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"handler","route_name":"handler-route","rate_limit":1000,"rate_burst":10,"static2":"value"}]
 
 }
 
@@ -124,10 +124,10 @@ func ExampleLog_Failover() {
 		return
 	}
 	var start1 time.Time
-	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "egress-route", accessdata.FailoverName: "true"}, nil, nil, ""))
+	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "handler-route", accessdata.FailoverName: "true"}, nil, nil, ""))
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration":0,"traffic":"egress","route_name":"egress-route","failover":true,"static2":"value2"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration":0,"traffic":"handler","route_name":"handler-route","failover":true,"static2":"value2"}]
 
 }
 
@@ -142,10 +142,10 @@ func ExampleLog_Retry() {
 		return
 	}
 	var start1 time.Time
-	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "egress-route", accessdata.RetryName: "true", accessdata.RetryRateLimitName: "123", accessdata.RetryRateBurstName: "67"}, nil, nil, ""))
+	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "handler-route", accessdata.RetryName: "true", accessdata.RetryRateLimitName: "123", accessdata.RetryRateBurstName: "67"}, nil, nil, ""))
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"egress-route","retry":true,"retry_rate_limit":123,"retry_rate_burst":67}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"handler","route_name":"handler-route","retry":true,"retry_rate_limit":123,"retry_rate_burst":67}]
 
 }
 
@@ -161,8 +161,8 @@ func ExampleLog_Request() {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "egress-route"}, nil, nil, ""))
-	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "egress-route"}, req, nil, ""))
+	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "handler-route"}, nil, nil, ""))
+	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "handler-route"}, req, nil, ""))
 
 	//Output:
 	//test: WriteEgress() -> [{"protocol":null,"method":null,"url":null,"path":null,"host":null,"customer":null}]
@@ -180,8 +180,8 @@ func ExampleLog_Response() {
 		return
 	}
 	var start time.Time
-	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "egress-route"}, nil, nil, "UT"))
-	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "egress-route"}, nil, resp, "UT"))
+	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "handler-route"}, nil, nil, "UT"))
+	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "handler-route"}, nil, resp, "UT"))
 
 	//Output:
 	//test: WriteEgress() -> [{"status_code":"0","bytes_received":"0","status_flags":"UT"}]

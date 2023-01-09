@@ -15,7 +15,7 @@ const (
 	UserAgentHeaderName     = "USER-AGENT"
 	FordwardedForHeaderName = "X-FORWARDED-FOR"
 
-	TrafficOperator   = "%TRAFFIC%"    //  ingress, egress, ping
+	TrafficOperator   = "%TRAFFIC%"    //  ingress, handler, ping
 	StartTimeOperator = "%START_TIME%" // start time
 	DurationOperator  = "%DURATION%"   // Total duration in milliseconds of the request from the start time to the last byte out.
 

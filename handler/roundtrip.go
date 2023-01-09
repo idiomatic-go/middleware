@@ -1,4 +1,4 @@
-package egress
+package handler
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func (w *wrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	// !panic
 	if w == nil || w.rt == nil {
-		return nil, errors.New("invalid egress round tripper configuration : http.RoundTripper is nil")
+		return nil, errors.New("invalid handler round tripper configuration : http.RoundTripper is nil")
 	}
 	act := actuator.EgressTable.Lookup(req)
 	act.UpdateHeaders(req)

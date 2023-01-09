@@ -28,7 +28,7 @@ func initLogging() {
 	// Enable logging for actuator
 	//actuator.SetLoggerAccess(accesslog.Log)
 
-	// Access log attributes for ingress and egress
+	// Access log attributes for ingress and handler
 	accesslog.CreateIngressOperators([]accessdata.Operator{
 		{Name: "", Value: accessdata.StartTimeOperator},
 		{Name: "", Value: accessdata.DurationOperator},
