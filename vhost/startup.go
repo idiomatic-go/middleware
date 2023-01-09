@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var directory = entryMap{m: make(map[string]*entry)}
+var directory = newEntryMap()
 
 // RegisterResource - function to register a package uri
 func RegisterResource(uri string, c chan Message) error {
@@ -35,20 +35,27 @@ func Startup(ticks, iterations int, init MessageMap) error {
 		return nil
 	}
 	resp := newEntryResponse()
-	count := 0
-	toSend := createToSend(init, nil)
+	count := 1
+	toSend := createToSend(init, func(msg Message) {
+		resp.add(msg)
+	})
 	sendMessages(toSend)
 	for {
 		if count > iterations {
 			Shutdown()
-			return errors.New(fmt.Sprintf("vhost startup failure %v, max iterations exceeded: %v", "", count))
+			return errors.New(fmt.Sprintf("startup failure: response counts < directory entries [%v] [%v]", resp.count(), directory.count()))
 		}
 		time.Sleep(time.Second * time.Duration(ticks))
 		count++
+		if resp.count() < directory.count() {
+			continue
+		}
 		failures := resp.compare(StartupEvent, 0)
-		if len(failures) == 0 && resp.count() == directory.count() {
+		if len(failures) == 0 {
 			return nil
 		}
+		Shutdown()
+		return errors.New(fmt.Sprintf("startup failure: status failures %v", failures))
 	}
 	return nil
 }
@@ -75,6 +82,5 @@ func createToSend(msgs MessageMap, fn MessageHandler) MessageMap {
 func sendMessages(msgs MessageMap) {
 	for k := range msgs {
 		directory.send(msgs[k])
-		//eventing.Directory.Add(k, eventing.CreateMessage(eventing.VirtualHost, eventing.VirtualHost, eventing.StartupEvent, eventing.StatusInProgress, nil))
 	}
 }

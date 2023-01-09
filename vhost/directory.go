@@ -16,11 +16,9 @@ type entryMap struct {
 	mu sync.RWMutex
 }
 
-//var directory = entryMap{m: make(map[string]*entry)}
-
-//func init() {
-//	directory
-//}
+func newEntryMap() entryMap {
+	return entryMap{m: make(map[string]*entry)}
+}
 
 func (e entryMap) add(uri string, c chan Message) {
 	e.mu.Lock()
