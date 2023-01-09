@@ -1,4 +1,4 @@
-package vhost
+package resource
 
 import (
 	"bufio"

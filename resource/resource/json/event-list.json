@@ -1,0 +1,36 @@
+[
+    {
+    "CustomerId": "C1",
+    "Events": [
+      {
+        "Transaction": "invoice",
+        "Status": "created",
+        "CreateDate": "2022-08-25",
+        "LogEventId": "0001"
+      },
+      {
+        "Transaction": "payment",
+        "Status": "created",
+        "CreateDate": "2022-08-26",
+        "LogEventId": "0002"
+      }
+    ]
+  },
+    {
+      "CustomerId": "C0002",
+      "Events": [
+        {
+          "Transaction": "return",
+          "Status": "created",
+          "CreateDate": "2022-10-25",
+          "LogEventId": "99990001"
+        },
+        {
+          "Transaction": "credit",
+          "Status": "created",
+          "CreateDate": "2022-11-01",
+          "LogEventId": "0002333"
+        }
+      ]
+    }
+]

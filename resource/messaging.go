@@ -1,4 +1,4 @@
-package vhost
+package resource
 
 const (
 	StartupEvent   = "event:startup"
@@ -11,7 +11,7 @@ const (
 	FailbackEvent  = "event:failback"
 	PingEvent      = "event:ping"
 	ProfileEvent   = "event:profile"
-	VirtualHost    = "vhost"
+	VirtualHost    = "host"
 
 	StatusInProgress  = -100
 	StatusNotProvided = -101

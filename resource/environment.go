@@ -1,4 +1,4 @@
-package vhost
+package resource
 
 import (
 	"os"
@@ -12,6 +12,13 @@ const (
 
 // FuncBool - type for niladic functions, functions with no parameters
 type FuncBool func() bool
+
+func OverrideIsDevEnv(fn FuncBool) {
+	if fn != nil {
+		isDevEnv = fn
+		dev = IsDevEnv()
+	}
+}
 
 var runtimeKey = runtimeEnvKey
 var isDevEnv FuncBool
@@ -36,7 +43,7 @@ func IsDevEnv() bool {
 	return isDevEnv()
 }
 
-// GetEnv - function to get the vhost runtime environment
+// GetEnv - function to get the resource runtime environment
 func GetEnv() string {
 	s := os.Getenv(runtimeKey)
 	if s == "" {
@@ -45,7 +52,7 @@ func GetEnv() string {
 	return s
 }
 
-// SetEnv - function to set the vhost runtime environment
+// SetEnv - function to set the resource runtime environment
 func SetEnv(s string) {
 	os.Setenv(runtimeKey, s)
 }

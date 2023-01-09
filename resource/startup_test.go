@@ -1,4 +1,4 @@
-package vhost
+package resource
 
 import (
 	"fmt"
@@ -19,8 +19,8 @@ func ExampleCreateToSend() {
 	fmt.Printf("Test {one override messages} : %v\n", m)
 
 	//Output:
-	// Test {no override messages} : map[package:none:{package:none event:startup vhost 0 []} package:one:{package:one event:startup vhost 0 []}]
-	// Test {one override messages} : map[package:none:{package:none event:startup vhost 0 []} package:one:{package:one event:startup vhost 0 []}]
+	// Test {no override messages} : map[package:none:{package:none event:startup resource 0 []} package:one:{package:one event:startup resource 0 []}]
+	// Test {one override messages} : map[package:none:{package:none event:startup resource 0 []} package:one:{package:one event:startup resource 0 []}]
 }
 
 /*
