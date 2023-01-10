@@ -15,5 +15,7 @@ func ExampleAccessCredentials() {
 	fmt.Printf("test: AccessCredentials(msg) -> %v\n", AccessCredentials(&msg) != nil)
 
 	//Output:
-	//
+	//test: AccessCredentials(nil) -> false
+	//test: AccessCredentials(mdg) -> false
+	//test: AccessCredentials(msg) -> true
 }
