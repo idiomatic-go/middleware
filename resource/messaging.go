@@ -17,8 +17,6 @@ const (
 	StatusNotProvided = -101
 )
 
-type ContentMap map[string]any
-
 type MessageHandler func(msg Message)
 
 type Message struct {
@@ -26,7 +24,7 @@ type Message struct {
 	From    string
 	Event   string
 	Status  int
-	Content any
+	Content []any
 	ReplyTo MessageHandler
 }
 

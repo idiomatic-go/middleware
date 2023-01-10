@@ -12,15 +12,15 @@ func ExampleCreateToSend() {
 	registerResourceUnchecked(one, nil)
 
 	m := createToSend(nil, nil)
-	fmt.Printf("test: registerResourceUncheckde(nil,nil) -> %v\n", m)
+	fmt.Printf("test: registerResourceUnchecked(nil,nil) -> %v\n", m)
 
-	cm := ContentMap{one: "test content"}
+	cm := ContentMap{one: []any{"test content", "additional content"}}
 	m = createToSend(cm, nil)
-	fmt.Printf("test: registerResourceUncheckde(map,nil) -> %v\n", m)
+	fmt.Printf("test: registerResourceUnchecked(map,nil) -> %v\n", m)
 
 	//Output:
-	//test: registerResourceUncheckde(nil,nil) -> map[/resource/none:{/resource/none host event:startup -101 <nil> <nil>} /resource/one:{/resource/one host event:startup -101 <nil> <nil>}]
-	//test: registerResourceUncheckde(map,nil) -> map[/resource/none:{/resource/none host event:startup -101 <nil> <nil>} /resource/one:{/resource/one host event:startup -101 test content <nil>}]
+	//test: registerResourceUnchecked(nil,nil) -> map[/resource/none:{/resource/none host event:startup -101 [] <nil>} /resource/one:{/resource/one host event:startup -101 [] <nil>}]
+	//test: registerResourceUnchecked(map,nil) -> map[/resource/none:{/resource/none host event:startup -101 [] <nil>} /resource/one:{/resource/one host event:startup -101 [test content additional content] <nil>}]
 
 }
 

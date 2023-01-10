@@ -71,13 +71,13 @@ func Startup[E template.ErrorHandler](duration time.Duration, content ContentMap
 	return e.Handle(startupLocation, errors.New(fmt.Sprintf("response counts < directory entries [%v] [%v]", resp.count(), directory.count()))).SetCode(template.StatusDeadlineExceeded)
 }
 
-func createToSend(content ContentMap, fn MessageHandler) messageMap {
+func createToSend(cm ContentMap, fn MessageHandler) messageMap {
 	m := make(messageMap)
 	for _, k := range directory.uri() {
 		msg := Message{To: k, From: VirtualHost, Event: StartupEvent, Status: StatusNotProvided, ReplyTo: fn}
-		if content != nil {
-			if body, ok := content[k]; ok {
-				msg.Content = body
+		if cm != nil {
+			if content, ok := cm[k]; ok {
+				msg.Content = append(msg.Content, content...)
 			}
 		}
 		m[k] = msg
