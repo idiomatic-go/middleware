@@ -35,7 +35,7 @@ func ExampleReader() {
 	// Look at http-503.txt, which ends with a blank line and no body. The last blank line is required
 }
 
-func ExampleDirectory() {
+func ExampleReadDir() {
 	var dirs []fs.DirEntry
 	var err error
 
@@ -57,7 +57,7 @@ func ExampleDirectory() {
 	// text
 }
 
-func ExampleHttp504Response() {
+func ExampleReadFile_Http504Response() {
 	buf, err := readFile(fsysTest, "resource/http/http-504.txt")
 	if err != nil {
 		fmt.Println("failure")
@@ -78,7 +78,7 @@ func ExampleHttp504Response() {
 	// Status Code : 504
 }
 
-func ExampleHtmlResponse() {
+func ExampleReadFile_HtmlResponse() {
 	buf, err := readFile(fsysTest, "resource/http/html-response.html")
 	if err != nil {
 		fmt.Println("failure")
@@ -113,7 +113,7 @@ func ExampleHtmlResponse() {
 	// </html>
 }
 
-func _ExampleReadMap() {
+func ExampleReadMap() {
 	_, err0 := readMap(fsysTest, "")
 	fmt.Printf("Error : %v\n", err0)
 

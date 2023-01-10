@@ -15,9 +15,9 @@ type pkg struct{}
 var pkgPath = reflect.TypeOf(any(pkg{})).PkgPath()
 var startupLocation = pkgPath + "/startup"
 
-var directory = newEntryMap()
+var directory = newEntryDirectory()
 
-// RegisterResource - function to register a package uri
+// RegisterResource - function to register a resource uri
 func RegisterResource(uri string, c chan Message) error {
 	if uri == "" {
 		return errors.New("invalid argument: uri is empty")
