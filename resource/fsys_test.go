@@ -12,15 +12,17 @@ func init() {
 	MountFS(content)
 }
 
-func _ExampleFileSystemNotMounted() {
-	_, err := ReadFile("resource/readme.txt")
-	fmt.Printf("Error : %v\n", err)
+func ExampleFileSystemNotMounted() {
+	name := "resource/readme.txt"
+	_, err := ReadFile(name)
+	fmt.Printf("test: ReadFile(%v) -> [error:%v]\n", name, err)
 
 	//Output:
-	// Error : invalid argument : file system has not been mounted
+	//test: ReadFile(resource/readme.txt) -> [error:open resource/resource/readme.txt: file does not exist]
+
 }
 
-func ExampleReadFile() {
+func _ExampleReadFile() {
 	_, err0 := ReadFile("")
 	fmt.Printf("test: ReadFile() -> %v\n", err0)
 

@@ -74,7 +74,7 @@ func Startup[E template.ErrorHandler](duration time.Duration, content ContentMap
 func createToSend(cm ContentMap, fn MessageHandler) messageMap {
 	m := make(messageMap)
 	for _, k := range directory.uri() {
-		msg := Message{To: k, From: VirtualHost, Event: StartupEvent, Status: StatusNotProvided, ReplyTo: fn}
+		msg := Message{To: k, From: VirtualHost, Event: StartupEvent, Status: template.StatusNotProvided, ReplyTo: fn}
 		if cm != nil {
 			if content, ok := cm[k]; ok {
 				msg.Content = append(msg.Content, content...)

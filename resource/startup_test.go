@@ -19,8 +19,8 @@ func ExampleCreateToSend() {
 	fmt.Printf("test: registerResourceUnchecked(map,nil) -> %v\n", m)
 
 	//Output:
-	//test: registerResourceUnchecked(nil,nil) -> map[/resource/none:{/resource/none host event:startup -101 [] <nil>} /resource/one:{/resource/one host event:startup -101 [] <nil>}]
-	//test: registerResourceUnchecked(map,nil) -> map[/resource/none:{/resource/none host event:startup -101 [] <nil>} /resource/one:{/resource/one host event:startup -101 [test content additional content] <nil>}]
+	//test: registerResourceUnchecked(nil,nil) -> map[/resource/none:{/resource/none host event:startup -4 [] <nil>} /resource/one:{/resource/one host event:startup -4 [] <nil>}]
+	//test: registerResourceUnchecked(map,nil) -> map[/resource/none:{/resource/none host event:startup -4 [] <nil>} /resource/one:{/resource/one host event:startup -4 [test content additional content] <nil>}]
 
 }
 

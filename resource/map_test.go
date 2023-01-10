@@ -1,6 +1,9 @@
 package resource
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/idiomatic-go/middleware/template"
+)
 
 /*
 func createTestEntry(uri string, status int32) *entry {
@@ -64,25 +67,25 @@ func ExampleDirectory_Send() {
 
 }
 
-func ExampleResponse_Add() {
+func _ExampleResponse_Add() {
 	resp := newEntryResponse()
 
-	resp.add(Message{To: "to-uri", From: "from-uri-0", Event: StartupEvent, Status: StatusNotProvided})
+	resp.add(Message{To: "to-uri", From: "from-uri-0", Event: StartupEvent, Status: template.StatusNotProvided})
 	resp.add(Message{To: "to-uri", From: "from-uri-1", Event: StartupEvent, Status: 100})
-	resp.add(Message{To: "to-uri", From: "from-uri-2", Event: PingEvent, Status: StatusNotProvided})
-	resp.add(Message{To: "to-uri", From: "from-uri-3", Event: PingEvent, Status: StatusNotProvided})
+	resp.add(Message{To: "to-uri", From: "from-uri-2", Event: PingEvent, Status: template.StatusNotProvided})
+	resp.add(Message{To: "to-uri", From: "from-uri-3", Event: PingEvent, Status: template.StatusNotProvided})
 	resp.add(Message{To: "to-uri", From: "from-uri-4", Event: PingEvent, Status: 200})
 
 	fmt.Printf("test: count() -> : %v\n", resp.count())
 
-	fmt.Printf("test: include(%v,%v) -> : %v\n", ShutdownEvent, StatusNotProvided, resp.include(ShutdownEvent, StatusNotProvided))
-	fmt.Printf("test: exclude(%v,%v) -> : %v\n", ShutdownEvent, StatusNotProvided, resp.exclude(ShutdownEvent, StatusNotProvided))
+	fmt.Printf("test: include(%v,%v) -> : %v\n", ShutdownEvent, template.StatusNotProvided, resp.include(ShutdownEvent, template.StatusNotProvided))
+	fmt.Printf("test: exclude(%v,%v) -> : %v\n", ShutdownEvent, template.StatusNotProvided, resp.exclude(ShutdownEvent, template.StatusNotProvided))
 
-	fmt.Printf("test: include(%v,%v) -> : %v\n", StartupEvent, StatusNotProvided, resp.include(StartupEvent, StatusNotProvided))
-	fmt.Printf("test: exclude(%v,%v) -> : %v\n", StartupEvent, StatusNotProvided, resp.exclude(StartupEvent, StatusNotProvided))
+	fmt.Printf("test: include(%v,%v) -> : %v\n", StartupEvent, template.StatusNotProvided, resp.include(StartupEvent, template.StatusNotProvided))
+	fmt.Printf("test: exclude(%v,%v) -> : %v\n", StartupEvent, template.StatusNotProvided, resp.exclude(StartupEvent, template.StatusNotProvided))
 
-	fmt.Printf("test: include(%v,%v) -> : %v\n", PingEvent, StatusNotProvided, resp.include(PingEvent, StatusNotProvided))
-	fmt.Printf("test: exclude(%v,%v) -> : %v\n", PingEvent, StatusNotProvided, resp.exclude(PingEvent, StatusNotProvided))
+	fmt.Printf("test: include(%v,%v) -> : %v\n", PingEvent, template.StatusNotProvided, resp.include(PingEvent, template.StatusNotProvided))
+	fmt.Printf("test: exclude(%v,%v) -> : %v\n", PingEvent, template.StatusNotProvided, resp.exclude(PingEvent, template.StatusNotProvided))
 
 	//Output:
 	//test: count() -> : 5

@@ -12,9 +12,6 @@ const (
 	PingEvent      = "event:ping"
 	ProfileEvent   = "event:profile"
 	VirtualHost    = "host"
-
-	StatusInProgress  = -100
-	StatusNotProvided = -101
 )
 
 type MessageHandler func(msg Message)

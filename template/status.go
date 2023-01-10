@@ -11,6 +11,7 @@ const (
 	StatusInvalidContent  = int(-1) // Content is not available, is nil, or is of the wrong type, usually found via unmarshalling
 	StatusIOError         = int(-2) // I/O operation failed
 	StatusJsonDecodeError = int(-3) // Json decoding failed
+	StatusNotProvided     = int(-4) // No status is available
 
 	StatusOk                 = int(0)  // Not an error; returned on success.
 	StatusCancelled          = int(1)  // The operation was cancelled, typically by the caller.
