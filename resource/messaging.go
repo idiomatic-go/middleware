@@ -17,7 +17,7 @@ const (
 	StatusNotProvided = -101
 )
 
-type MessageMap map[string]Message
+type ContentMap map[string]any
 
 type MessageHandler func(msg Message)
 

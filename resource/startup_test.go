@@ -5,22 +5,23 @@ import (
 )
 
 func ExampleCreateToSend() {
-	uriNone := "package:none"
-	uriOne := "package:one"
+	none := "/resource/none"
+	one := "/resource/one"
 
-	registerResourceUnchecked(uriNone, nil)
-	registerResourceUnchecked(uriOne, nil)
+	registerResourceUnchecked(none, nil)
+	registerResourceUnchecked(one, nil)
 
 	m := createToSend(nil, nil)
-	fmt.Printf("Test {no override messages} : %v\n", m)
+	fmt.Printf("test: registerResourceUncheckde(nil,nil) -> %v\n", m)
 
-	em := MessageMap{"package:one": {To: "package:one", From: "fromUri", Event: StartupEvent}}
-	m = createToSend(em, nil)
-	fmt.Printf("Test {one override messages} : %v\n", m)
+	cm := ContentMap{one: "test content"}
+	m = createToSend(cm, nil)
+	fmt.Printf("test: registerResourceUncheckde(map,nil) -> %v\n", m)
 
 	//Output:
-	// Test {no override messages} : map[package:none:{package:none event:startup resource 0 []} package:one:{package:one event:startup resource 0 []}]
-	// Test {one override messages} : map[package:none:{package:none event:startup resource 0 []} package:one:{package:one event:startup resource 0 []}]
+	//test: registerResourceUncheckde(nil,nil) -> map[/resource/none:{/resource/none host event:startup -101 <nil> <nil>} /resource/one:{/resource/one host event:startup -101 <nil> <nil>}]
+	//test: registerResourceUncheckde(map,nil) -> map[/resource/none:{/resource/none host event:startup -101 <nil> <nil>} /resource/one:{/resource/one host event:startup -101 test content <nil>}]
+
 }
 
 /*

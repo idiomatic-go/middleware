@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+type messageMap map[string]Message
+
 type pkg struct{}
 
 var pkgPath = reflect.TypeOf(any(pkg{})).PkgPath()
@@ -37,7 +39,7 @@ func Shutdown() {
 	directory.shutdown()
 }
 
-func Startup[E template.ErrorHandler](duration time.Duration, init MessageMap) (status *template.Status) {
+func Startup[E template.ErrorHandler](duration time.Duration, content ContentMap) (status *template.Status) {
 	var e E
 	var failures []string
 
@@ -45,12 +47,11 @@ func Startup[E template.ErrorHandler](duration time.Duration, init MessageMap) (
 		return nil
 	}
 	resp := newEntryResponse()
-	toSend := createToSend(init, func(msg Message) {
+	toSend := createToSend(content, func(msg Message) {
 		resp.add(msg)
 	})
 	sendMessages(toSend)
-	wait := time.Duration(float64(duration) * 0.6)
-	for ; duration > 0; duration -= wait {
+	for wait := time.Duration(float64(duration) * 0.6); duration > 0; duration -= wait {
 		time.Sleep(wait)
 		// Check for completion
 		if resp.count() < directory.count() {
@@ -70,26 +71,21 @@ func Startup[E template.ErrorHandler](duration time.Duration, init MessageMap) (
 	return e.Handle(startupLocation, errors.New(fmt.Sprintf("response counts < directory entries [%v] [%v]", resp.count(), directory.count()))).SetCode(template.StatusDeadlineExceeded)
 }
 
-func createToSend(msgs MessageMap, fn MessageHandler) MessageMap {
-	m := make(MessageMap)
+func createToSend(content ContentMap, fn MessageHandler) messageMap {
+	m := make(messageMap)
 	for _, k := range directory.uri() {
-		if msgs != nil {
-			message, ok := msgs[k]
-			if ok {
-				message.Event = StartupEvent
-				message.From = VirtualHost
-				message.Status = StatusNotProvided
-				message.ReplyTo = fn
-				m[k] = message
-				continue
+		msg := Message{To: k, From: VirtualHost, Event: StartupEvent, Status: StatusNotProvided, ReplyTo: fn}
+		if content != nil {
+			if body, ok := content[k]; ok {
+				msg.Content = body
 			}
 		}
-		m[k] = Message{To: k, From: VirtualHost, Event: StartupEvent, Status: StatusNotProvided, ReplyTo: fn}
+		m[k] = msg
 	}
 	return m
 }
 
-func sendMessages(msgs MessageMap) {
+func sendMessages(msgs messageMap) {
 	for k := range msgs {
 		directory.send(msgs[k])
 	}
