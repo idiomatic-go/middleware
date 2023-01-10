@@ -8,12 +8,13 @@ func createTestEntry(uri string, status int32) *entry {
 	entry.msgs.add(CreateMessage(VirtualHost, VirtualHost, StartupEvent, status, nil))
 	return entry
 }
-
-
 */
+
 func ExampleDirectory_Add() {
 	uri := "urn:test"
 	uri2 := "urn:test:two"
+
+	directory.empty()
 
 	fmt.Printf("test: count() -> : %v\n", directory.count())
 	d2 := directory.get(uri)
@@ -43,5 +44,53 @@ func ExampleDirectory_Add() {
 	//test: count() -> : 2
 	//test: get(urn:test:two) -> : &{urn:test:two <nil>}
 	//test: uri() -> : [urn:test urn:test:two]
-	
+
+}
+
+func ExampleDirectory_Send() {
+	uri := "urn:test"
+	directory.empty()
+
+	fmt.Printf("test: send(%v) -> : %v\n", uri, directory.send(Message{To: uri}))
+
+	directory.add(uri, nil)
+	fmt.Printf("test: add(%v) -> : ok\n", uri)
+	fmt.Printf("test: send(%v) -> : %v\n", uri, directory.send(Message{To: uri}))
+
+	//Output:
+	//test: send(urn:test) -> : entry not found: [urn:test]
+	//test: add(urn:test) -> : ok
+	//test: send(urn:test) -> : entry channel is nil: [urn:test]
+
+}
+
+func ExampleResponse_Add() {
+	resp := newEntryResponse()
+
+	resp.add(Message{To: "to-uri", From: "from-uri-0", Event: StartupEvent, Status: StatusNotProvided})
+	resp.add(Message{To: "to-uri", From: "from-uri-1", Event: StartupEvent, Status: 100})
+	resp.add(Message{To: "to-uri", From: "from-uri-2", Event: PingEvent, Status: StatusNotProvided})
+	resp.add(Message{To: "to-uri", From: "from-uri-3", Event: PingEvent, Status: StatusNotProvided})
+	resp.add(Message{To: "to-uri", From: "from-uri-4", Event: PingEvent, Status: 200})
+
+	fmt.Printf("test: count() -> : %v\n", resp.count())
+
+	fmt.Printf("test: include(%v,%v) -> : %v\n", ShutdownEvent, StatusNotProvided, resp.include(ShutdownEvent, StatusNotProvided))
+	fmt.Printf("test: exclude(%v,%v) -> : %v\n", ShutdownEvent, StatusNotProvided, resp.exclude(ShutdownEvent, StatusNotProvided))
+
+	fmt.Printf("test: include(%v,%v) -> : %v\n", StartupEvent, StatusNotProvided, resp.include(StartupEvent, StatusNotProvided))
+	fmt.Printf("test: exclude(%v,%v) -> : %v\n", StartupEvent, StatusNotProvided, resp.exclude(StartupEvent, StatusNotProvided))
+
+	fmt.Printf("test: include(%v,%v) -> : %v\n", PingEvent, StatusNotProvided, resp.include(PingEvent, StatusNotProvided))
+	fmt.Printf("test: exclude(%v,%v) -> : %v\n", PingEvent, StatusNotProvided, resp.exclude(PingEvent, StatusNotProvided))
+
+	//Output:
+	//test: count() -> : 5
+	//test: include(event:shutdown,-101) -> : []
+	//test: exclude(event:shutdown,-101) -> : [from-uri-0 from-uri-1 from-uri-2 from-uri-3 from-uri-4]
+	//test: include(event:startup,-101) -> : [from-uri-0]
+	//test: exclude(event:startup,-101) -> : [from-uri-1 from-uri-2 from-uri-3 from-uri-4]
+	//test: include(event:ping,-101) -> : [from-uri-2 from-uri-3]
+	//test: exclude(event:ping,-101) -> : [from-uri-0 from-uri-1 from-uri-4]
+
 }

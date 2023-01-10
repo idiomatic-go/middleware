@@ -3,6 +3,7 @@ package resource
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"sync"
 )
 
@@ -74,6 +75,17 @@ func (e *entryDirectory) shutdown() {
 	}
 }
 
+func (e *entryDirectory) empty() {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	for key, entry := range e.m {
+		if entry.c != nil {
+			close(entry.c)
+		}
+		delete(e.m, key)
+	}
+}
+
 type entryResponse struct {
 	m  map[string]Message
 	mu sync.RWMutex
@@ -89,15 +101,29 @@ func (e *entryResponse) count() int {
 	return len(e.m)
 }
 
-func (e *entryResponse) compare(event string, status int) []string {
+func (e *entryResponse) exclude(event string, status int) []string {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	var uri []string
 	for u, entry := range e.m {
-		if entry.Status != status && entry.Event != event {
+		if entry.Status != status || entry.Event != event {
 			uri = append(uri, u)
 		}
 	}
+	sort.Strings(uri)
+	return uri
+}
+
+func (e *entryResponse) include(event string, status int) []string {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	var uri []string
+	for u, entry := range e.m {
+		if entry.Status == status && entry.Event == event {
+			uri = append(uri, u)
+		}
+	}
+	sort.Strings(uri)
 	return uri
 }
 
@@ -109,4 +135,12 @@ func (e *entryResponse) add(msg Message) error {
 	defer e.mu.Unlock()
 	e.m[msg.From] = msg
 	return nil
+}
+
+func (e *entryResponse) empty() {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	for key, _ := range e.m {
+		delete(e.m, key)
+	}
 }
