@@ -46,6 +46,9 @@ func ExampleReadFile() {
 	//Output:
 	//test: ReadFile() -> invalid argument : file name is empty
 	//test: ReadFile(bad-path/config_bad.txt) -> [error:open resource/bad-path/config_bad.txt: file does not exist] [content:]
-	//test: ReadFile(postgresql/config_{env}.txt) -> [error:invalid argument : template variable is invalid: env] [content:]
+	//test: ReadFile(postgresql/config_{env}.txt) -> [error:<nil>] [content:// this is the test environment
+	//env : dev
+	//next  : second value
+	//timeout : 10020]
 
 }

@@ -12,7 +12,7 @@ const (
 )
 
 const (
-	EnvTemplateVar = "{env}"
+	EnvTemplateVar = "env"
 )
 
 // VariableLookup - type used in template.go
