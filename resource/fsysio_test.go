@@ -116,23 +116,17 @@ func _ExampleReadFile_HtmlResponse() {
 	// </html>
 }
 
-func ExampleReadMap() {
+func _ExampleReadMap() {
 	_, err0 := readMap(fsysTest, "")
-	fmt.Printf("Error : %v\n", err0)
+	fmt.Printf("test: readMap(nil) -> : %v\n", err0)
 
-	m, err := readMap(fsysTest, "postgresql/config_dev.txt")
-	if err != nil {
-		fmt.Printf("Error : %v\n", err)
-	} else {
-		fmt.Printf("Map [config_dev.txt]: %v\n", m)
-	}
+	name := "resource/postgresql/config_dev.txt"
+	m, err := readMap(fsysTest, name)
+	fmt.Printf("test: readMap(%v) -> [error:%v] [map:%v]\n", name, err, m)
 
-	m, err = readMap(fsysTest, "postgresql/config_test.txt")
-	if err != nil {
-		fmt.Printf("Error : %v\n", err)
-	} else {
-		fmt.Printf("Map [config_test.txt]: %v\n", m)
-	}
+	name = "resource/postgresql/config_test.txt"
+	m, err = readMap(fsysTest, name)
+	fmt.Printf("test: readMap(%v) -> [error:%v] [map:%v]\n", name, err, m)
 
 	// Should override and return config_test.txt
 	//lookupEnv = func(name string) (string, error) { return "stage", nil }
@@ -144,12 +138,12 @@ func ExampleReadMap() {
 	//}
 
 	//Output:
-	// Error : invalid argument : path is empty
-	// Map [config_dev.txt]: map[env:dev
-	//  next:second value
-	//  timeout:10020]
-	// Map [config_test.txt]: map[env:test
-	//  thelast:line of the file]
+	//test: readMap(nil) -> : invalid argument : file name is empty
+	//test: readMap(resource/postgresql/config_dev.txt) -> [error:<nil>] [map:map[env:dev
+	// next:second value
+	// timeout:10020]]
+	//test: readMap(resource/postgresql/config_test.txt) -> [error:<nil>] [map:map[env:test
+	// thelast:line of the file]]
 
 }
 

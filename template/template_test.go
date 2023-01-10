@@ -18,7 +18,7 @@ func lookupVariable(name string) (string, error) {
 	return "", errors.New(fmt.Sprintf("invalid argument : template variable is invalid: %v", name))
 }
 
-func ExampleExpandTemplateInvalidLookup() {
+func ExampleExpandTemplate_InvalidLookup() {
 	// Lookup function is nil
 	s := "test"
 	_, err := ExpandTemplate(s, nil)
@@ -39,7 +39,7 @@ func ExampleExpandTemplateInvalidLookup() {
 
 }
 
-func ExampleExpandTemplateInvalidDelimiters() {
+func ExampleExpandTemplate_InvalidDelimiters() {
 	var err error
 	// Mismatched delimiters - too many end delimiters
 	s := "resources/test-file-name{env}}and{next}{last}.txt"
@@ -68,27 +68,28 @@ func ExampleExpandTemplateInvalidDelimiters() {
 	//Path Output :  invalid argument : template variable is invalid:
 }
 
-func ExampleExpandTemplateValid() {
+func ExampleExpandTemplate_Valid() {
 	s := ""
 	path, err := ExpandTemplate(s, lookupVariable)
-	fmt.Printf("Path Input  : <empty> %v\n", err == nil)
+	fmt.Printf("test: ExpandTemplate() -> [error:%v] [path:%v]\n", err, path)
 	//fmt.Printf("Path Output : %v : %v\n", path, err)
 
 	s = "resources/test-file-name-and-ext.txt"
 	path, err = ExpandTemplate(s, lookupVariable)
-	fmt.Printf("Path Input  : %v\n", s)
-	fmt.Printf("Path Output : %v : %v\n", path, err)
+	fmt.Printf("test: ExpandTemplate(%v) -> [error:%v] [path:%v]\n", s, err, path)
 
 	s = "resources/test-file-name{env}and{next}{last}.txt"
 	path, err = ExpandTemplate(s, lookupVariable)
-	fmt.Printf("Path Input  : %v\n", s)
-	fmt.Printf("Path Output : %v : %v\n", path, err)
+	fmt.Printf("test: ExpandTemplate(%v) -> [error:%v] [path:%v]\n", s, err, path)
+
+	s = "resources/test-file-name_{env}.txt"
+	path, err = ExpandTemplate(s, lookupVariable)
+	fmt.Printf("test: ExpandTemplate(%v) -> [error:%v] [path:%v]\n", s, err, path)
 
 	//Output:
-	// Path Input  : <empty> true
-	// Path Input  : resources/test-file-name-and-ext.txt
-	// Path Output : resources/test-file-name-and-ext.txt : <nil>
-	// Path Input  : resources/test-file-name{env}and{next}{last}.txt
-	// Path Output : resources/test-file-name[ENV]and[NEXT][LAST].txt : <nil>
-
+	//test: ExpandTemplate() -> [error:<nil>] [path:]
+	//test: ExpandTemplate(resources/test-file-name-and-ext.txt) -> [error:<nil>] [path:resources/test-file-name-and-ext.txt]
+	//test: ExpandTemplate(resources/test-file-name{env}and{next}{last}.txt) -> [error:<nil>] [path:resources/test-file-name[ENV]and[NEXT][LAST].txt]
+	//test: ExpandTemplate(resources/test-file-name_{env}.txt) -> [error:<nil>] [path:resources/test-file-name_[ENV].txt]
+	
 }

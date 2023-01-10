@@ -22,21 +22,15 @@ func _ExampleFileSystemNotMounted() {
 
 func ExampleReadFile() {
 	_, err0 := ReadFile("")
-	fmt.Printf("Error : %v\n", err0)
+	fmt.Printf("test: ReadFile() -> %v\n", err0)
 
-	buf, err := ReadFile("bad-path/config_bad.txt")
-	if err != nil {
-		fmt.Printf("Error : %v\n", err)
-	} else {
-		fmt.Println(string(buf))
-	}
+	name := "bad-path/config_bad.txt"
+	buf, err := ReadFile(name)
+	fmt.Printf("test: ReadFile(%v) -> [error:%v] [content:%v]\n", name, err, string(buf))
 
-	buf, err = ReadFile("postgresql/config_{env}.txt")
-	if err != nil {
-		fmt.Printf("Error : %v\n", err)
-	} else {
-		fmt.Println(string(buf))
-	}
+	name = "postgresql/config_{env}.txt"
+	buf, err = ReadFile(name)
+	fmt.Printf("test: ReadFile(%v) -> [error:%v] [content:%v]\n", name, err, string(buf))
 
 	// Should override and return config_test.txt
 	/*
@@ -50,7 +44,8 @@ func ExampleReadFile() {
 	*/
 
 	//Output:
-	// Error : invalid argument : file name is empty
-	// Error : open resource/bad-path/config_bad.txt: file does not exist
-	// Error : invalid argument : template variable is invalid: env
+	//test: ReadFile() -> invalid argument : file name is empty
+	//test: ReadFile(bad-path/config_bad.txt) -> [error:open resource/bad-path/config_bad.txt: file does not exist] [content:]
+	//test: ReadFile(postgresql/config_{env}.txt) -> [error:invalid argument : template variable is invalid: env] [content:]
+
 }
