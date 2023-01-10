@@ -49,6 +49,7 @@ func (e *entryDirectory) uri() []string {
 	for key, _ := range e.m {
 		uri = append(uri, key)
 	}
+	sort.Strings(uri)
 	return uri
 }
 

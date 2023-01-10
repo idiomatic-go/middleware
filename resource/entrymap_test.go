@@ -3,6 +3,7 @@ package resource
 import (
 	"fmt"
 	"github.com/idiomatic-go/middleware/template"
+	"time"
 )
 
 /*
@@ -50,7 +51,7 @@ func ExampleDirectory_Add() {
 
 }
 
-func ExampleDirectory_Send() {
+func ExampleDirectory_SendError() {
 	uri := "urn:test"
 	directory.empty()
 
@@ -64,6 +65,32 @@ func ExampleDirectory_Send() {
 	//test: send(urn:test) -> : entry not found: [urn:test]
 	//test: add(urn:test) -> : ok
 	//test: send(urn:test) -> : entry channel is nil: [urn:test]
+
+}
+
+func ExampleDirectory_Send() {
+	uri1 := "urn:test-1"
+	uri2 := "urn:test-2"
+	uri3 := "urn:test-3"
+	c := make(chan Message, 16)
+	directory.empty()
+
+	directory.add(uri1, c)
+	directory.add(uri2, c)
+	directory.add(uri3, c)
+
+	directory.send(Message{To: uri1, From: VirtualHost, Event: StartupEvent})
+	directory.send(Message{To: uri2, From: VirtualHost, Event: StartupEvent})
+	directory.send(Message{To: uri3, From: VirtualHost, Event: StartupEvent})
+
+	time.Sleep(time.Second * 1)
+	resp1 := <-c
+	resp2 := <-c
+	resp3 := <-c
+	fmt.Printf("test: <- c -> : [%v] [%v] [%v]\n", resp1.To, resp2.To, resp3.To)
+	close(c)
+	//Output:
+	//test: <- c -> : [urn:test-1] [urn:test-2] [urn:test-3]
 
 }
 

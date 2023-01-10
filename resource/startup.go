@@ -58,7 +58,7 @@ func Startup[E template.ErrorHandler](duration time.Duration, content ContentMap
 			continue
 		}
 		// Check for failed resources
-		failures = resp.exclude(StartupEvent, 0)
+		failures = resp.exclude(StartupEvent, template.StatusOk)
 		if len(failures) == 0 {
 			return template.NewStatusOk()
 		}
