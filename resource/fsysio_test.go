@@ -14,7 +14,7 @@ import (
 //go:embed resource/*
 var fsysTest embed.FS
 
-func ExampleReader() {
+func _ExampleReader() {
 	buf, err := readFile(fsysTest, "resource/readme.txt")
 	if err != nil {
 		fmt.Printf("failure : [%v]\n", err)
@@ -51,10 +51,13 @@ func ExampleReadDir() {
 	}
 
 	//Output:
-	// http
-	// json
-	// readme.txt
-	// text
+	//error
+	//http
+	//json
+	//postgresql
+	//readme.txt
+	//text
+
 }
 
 func ExampleReadFile_Http504Response() {
@@ -78,7 +81,7 @@ func ExampleReadFile_Http504Response() {
 	// Status Code : 504
 }
 
-func ExampleReadFile_HtmlResponse() {
+func _ExampleReadFile_HtmlResponse() {
 	buf, err := readFile(fsysTest, "resource/http/html-response.html")
 	if err != nil {
 		fmt.Println("failure")

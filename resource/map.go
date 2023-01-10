@@ -136,11 +136,3 @@ func (e *entryResponse) add(msg Message) error {
 	e.m[msg.From] = msg
 	return nil
 }
-
-func (e *entryResponse) empty() {
-	e.mu.RLock()
-	defer e.mu.RUnlock()
-	for key, _ := range e.m {
-		delete(e.m, key)
-	}
-}
