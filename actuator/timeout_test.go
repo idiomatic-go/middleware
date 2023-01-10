@@ -7,19 +7,19 @@ import (
 
 func Example_newTimeout() {
 	t := newTimeout("test-route", newTable(true), NewTimeoutConfig(100, 0))
-	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v]\n", t.name, t.config.timeout)
+	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v]\n", t.name, t.config.Timeout)
 
 	t = newTimeout("test-route2", newTable(true), NewTimeoutConfig(time.Millisecond*2000, 503))
-	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v]\n", t.name, t.config.timeout)
+	fmt.Printf("test: newTimeout() -> [name:%v] [current:%v]\n", t.name, t.config.Timeout)
 
 	t2 := cloneTimeout(t)
-	t2.config.timeout = time.Millisecond * 1000
+	t2.config.Timeout = time.Millisecond * 1000
 	fmt.Printf("test: cloneTimeout() -> [prev-config:%v] [prev-name:%v] [curr-config:%v] [curr-name:%v]\n", t.config, t.name, t2.config, t2.name)
 
 	//Output:
 	//test: newTimeout() -> [name:test-route] [current:100ns]
 	//test: newTimeout() -> [name:test-route2] [current:2s]
-	//test: cloneTimeout() -> [prev-config:{503 2000000000}] [prev-name:test-route2] [curr-config:{503 1000000000}] [curr-name:test-route2]
+	//test: cloneTimeout() -> [prev-config:{503 2s}] [prev-name:test-route2] [curr-config:{503 1s}] [curr-name:test-route2]
 
 }
 

@@ -15,8 +15,8 @@ func Example_newRateLimiter() {
 	fmt.Printf("test: newRateLimiter() -> [name:%v] [limit:%v] [burst:%v] [statusCode:%v]\n", t.name, limit, burst, t.StatusCode())
 
 	t2 := cloneRateLimiter(t)
-	t2.config.limit = 123
-	fmt.Printf("test: cloneRateLimiter() -> [prev-limit:%v] [prev-name:%v] [curr-limit:%v] [curr-name:%v]\n", t.config.limit, t.name, t2.config.limit, t2.name)
+	t2.config.Limit = 123
+	fmt.Printf("test: cloneRateLimiter() -> [prev-limit:%v] [prev-name:%v] [curr-limit:%v] [curr-name:%v]\n", t.config.Limit, t.name, t2.config.Limit, t2.name)
 
 	//Output:
 	//test: newRateLimiter() -> [name:test-route] [limit:1] [burst:100] [statusCode:503]

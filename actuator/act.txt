@@ -9,3 +9,6 @@ the actuator creates specific motions depending on the purpose of the machine.
 Sometimes, to answer the question of what does an actuator do, the process is compared to the functioning of a human body.
 Like muscles in a body that enable energy to be converted to some form of motion like the movement of arms or legs, actuators
 work in a machine to perform a mechanical action.
+
+
+

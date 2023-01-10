@@ -1,0 +1,54 @@
+{
+  "list": [
+    {
+      "Package": "package-one",
+      "Config": {
+        "Name": "test-route",
+        "Timeout": {
+          "StatusCode": 504,
+          "Timeout": 20000
+        },
+        "RateLimiter": {
+          "Limit": 100,
+          "Burst": 25,
+          "StatusCode": 503
+        },
+        "Retry": {
+          "Limit": 100,
+          "Burst": 33,
+          "Wait": 500,
+          "Codes": [
+            503,
+            504
+          ]
+        },
+        "Failover": null
+      }
+    },
+    {
+      "Package": "package-two",
+      "Config": {
+        "Name": "test-route",
+        "Timeout": {
+          "StatusCode": 504,
+          "Timeout": 20000
+        },
+        "RateLimiter": {
+          "Limit": 100,
+          "Burst": 25,
+          "StatusCode": 503
+        },
+        "Retry": {
+          "Limit": 100,
+          "Burst": 33,
+          "Wait": 500,
+          "Codes": [
+            503,
+            504
+          ]
+        },
+        "Failover": null
+      }
+    }
+  ]
+}

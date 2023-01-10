@@ -25,20 +25,20 @@ type RateLimiterController interface {
 }
 
 type RateLimiterConfig struct {
-	limit      rate.Limit
-	burst      int
-	statusCode int
+	Limit      rate.Limit
+	Burst      int
+	StatusCode int
 }
 
 func NewRateLimiterConfig(limit rate.Limit, burst int, statusCode int) *RateLimiterConfig {
 	//validateLimiter(&limit, &burst)
 	c := new(RateLimiterConfig)
-	c.limit = limit
-	c.burst = burst
+	c.Limit = limit
+	c.Burst = burst
 	if statusCode <= 0 {
 		statusCode = http.StatusTooManyRequests
 	}
-	c.statusCode = statusCode
+	c.StatusCode = statusCode
 	return c
 }
 
@@ -59,11 +59,11 @@ func newRateLimiter(name string, table *table, config *RateLimiterConfig) *rateL
 	t := new(rateLimiter)
 	t.name = name
 	t.table = table
-	t.config = RateLimiterConfig{limit: rate.Inf, burst: DefaultBurst}
+	t.config = RateLimiterConfig{Limit: rate.Inf, Burst: DefaultBurst}
 	if config != nil {
 		t.config = *config
 	}
-	t.rateLimiter = rate.NewLimiter(t.config.limit, t.config.burst)
+	t.rateLimiter = rate.NewLimiter(t.config.Limit, t.config.Burst)
 	return t
 }
 
@@ -77,10 +77,10 @@ func validateLimiter(max *rate.Limit, burst *int) {
 }
 
 func (r *rateLimiter) validate() error {
-	if r.config.limit < 0 {
+	if r.config.Limit < 0 {
 		return errors.New(fmt.Sprintf("invalid configuration: RateLimiterController limit is < 0"))
 	}
-	if r.config.burst < 0 {
+	if r.config.Burst < 0 {
 		return errors.New(fmt.Sprintf("invalid configuration: RateLimiterController burst is < 0"))
 	}
 	return nil
@@ -91,11 +91,11 @@ func rateLimiterState(m map[string]string, r *rateLimiter) map[string]string {
 	var burst = -1
 
 	if r != nil {
-		limit = r.config.limit
+		limit = r.config.Limit
 		if limit == rate.Inf {
 			limit = RateLimitInfValue
 		}
-		burst = r.config.burst
+		burst = r.config.Burst
 	}
 	if m == nil {
 		m = make(map[string]string, 16)
@@ -106,25 +106,25 @@ func rateLimiterState(m map[string]string, r *rateLimiter) map[string]string {
 }
 
 func (r *rateLimiter) Allow() bool {
-	if r.config.limit == rate.Inf {
+	if r.config.Limit == rate.Inf {
 		return true
 	}
 	return r.rateLimiter.Allow()
 }
 
 func (r *rateLimiter) StatusCode() int {
-	return r.config.statusCode
+	return r.config.StatusCode
 }
 
 func (r *rateLimiter) SetLimit(limit rate.Limit) {
-	if r.config.limit == limit {
+	if r.config.Limit == limit {
 		return
 	}
 	r.table.setRateLimit(r.name, limit)
 }
 
 func (r *rateLimiter) SetBurst(burst int) {
-	if r.config.burst == burst {
+	if r.config.Burst == burst {
 		return
 	}
 	r.table.setRateBurst(r.name, burst)
@@ -132,27 +132,27 @@ func (r *rateLimiter) SetBurst(burst int) {
 
 func (r *rateLimiter) SetRateLimiter(limit rate.Limit, burst int) {
 	validateLimiter(&limit, &burst)
-	if r.config.limit == limit && r.config.burst == burst {
+	if r.config.Limit == limit && r.config.Burst == burst {
 		return
 	}
-	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: limit, burst: burst})
+	r.table.setRateLimiter(r.name, RateLimiterConfig{Limit: limit, Burst: burst})
 }
 
 func (r *rateLimiter) AdjustRateLimiter(percentage int) bool {
-	newLimit, ok := limitAdjust(float64(r.config.limit), percentage)
+	newLimit, ok := limitAdjust(float64(r.config.Limit), percentage)
 	if !ok {
 		return false
 	}
-	newBurst, ok1 := burstAdjust(r.config.burst, percentage)
+	newBurst, ok1 := burstAdjust(r.config.Burst, percentage)
 	if !ok1 {
 		return false
 	}
-	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: rate.Limit(newLimit), burst: newBurst})
+	r.table.setRateLimiter(r.name, RateLimiterConfig{Limit: rate.Limit(newLimit), Burst: newBurst})
 	return true
 }
 
 func (r *rateLimiter) LimitAndBurst() (rate.Limit, int) {
-	return r.config.limit, r.config.burst
+	return r.config.Limit, r.config.Burst
 }
 
 func limitAdjust(val float64, percentage int) (float64, bool) {

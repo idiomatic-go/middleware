@@ -62,7 +62,7 @@ func (t *table) setTimeout(name string, to time.Duration) {
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
 		c := cloneTimeout(act.timeout)
-		c.config.timeout = to
+		c.config.Timeout = to
 		t.update(name, cloneActuator[*timeout](act, c))
 	}
 }
@@ -91,7 +91,7 @@ func (t *table) setRateLimit(name string, limit rate.Limit) {
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
 		c := cloneRateLimiter(act.rateLimiter)
-		c.config.limit = limit
+		c.config.Limit = limit
 		// Not cloning the limiter as an old reference will not cause stale data when logging
 		c.rateLimiter.SetLimit(limit)
 		t.update(name, cloneActuator[*rateLimiter](act, c))
@@ -106,7 +106,7 @@ func (t *table) setRateBurst(name string, burst int) {
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
 		c := cloneRateLimiter(act.rateLimiter)
-		c.config.burst = burst
+		c.config.Burst = burst
 		// Not cloning the limiter as an old reference will not cause stale data when logging
 		c.rateLimiter.SetBurst(burst)
 		t.update(name, cloneActuator[*rateLimiter](act, c))
@@ -121,9 +121,9 @@ func (t *table) setRateLimiter(name string, config RateLimiterConfig) {
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
 		c := cloneRateLimiter(act.rateLimiter)
-		c.config.limit = config.limit
-		c.config.burst = config.burst
-		c.rateLimiter = rate.NewLimiter(c.config.limit, c.config.burst)
+		c.config.Limit = config.Limit
+		c.config.Burst = config.Burst
+		c.rateLimiter = rate.NewLimiter(c.config.Limit, c.config.Burst)
 		t.update(name, cloneActuator[*rateLimiter](act, c))
 	}
 }
@@ -149,8 +149,8 @@ func (t *table) setRetryRateLimit(name string, limit rate.Limit, burst int) {
 	defer t.mu.Unlock()
 	if act, ok := t.actuators[name]; ok {
 		c := cloneRetry(act.retry)
-		c.config.limit = limit
-		c.config.burst = burst
+		c.config.Limit = limit
+		c.config.Burst = burst
 		// Not cloning the limiter as an old reference will not cause stale data when logging
 		c.rateLimiter = rate.NewLimiter(limit, burst)
 		t.update(name, cloneActuator[*retry](act, c))

@@ -15,7 +15,7 @@ type FailoverController interface {
 }
 
 type FailoverConfig struct {
-	enabled bool
+	Enabled bool
 	invoke  FailoverInvoke
 }
 

@@ -24,18 +24,18 @@ type RetryController interface {
 }
 
 type RetryConfig struct {
-	limit rate.Limit
-	burst int
-	wait  time.Duration
-	codes []int
+	Limit rate.Limit
+	Burst int
+	Wait  time.Duration
+	Codes []int
 }
 
 func NewRetryConfig(validCodes []int, limit rate.Limit, burst int, wait time.Duration) *RetryConfig {
 	c := new(RetryConfig)
-	c.wait = wait
-	c.limit = limit
-	c.burst = burst
-	c.codes = validCodes
+	c.Wait = wait
+	c.Limit = limit
+	c.Burst = burst
+	c.Codes = validCodes
 	return c
 }
 
@@ -63,18 +63,18 @@ func newRetry(name string, table *table, config *RetryConfig) *retry {
 	if config != nil {
 		t.config = *config
 	}
-	t.rateLimiter = rate.NewLimiter(t.config.limit, t.config.burst)
+	t.rateLimiter = rate.NewLimiter(t.config.Limit, t.config.Burst)
 	return t
 }
 
 func (r *retry) validate() error {
-	if len(r.config.codes) == 0 {
+	if len(r.config.Codes) == 0 {
 		return errors.New("invalid configuration: RetryController status codes are empty")
 	}
-	if r.config.limit < 0 {
+	if r.config.Limit < 0 {
 		return errors.New("invalid configuration: RetryController limit is < 0")
 	}
-	if r.config.burst < 0 {
+	if r.config.Burst < 0 {
 		return errors.New("invalid configuration: RetryController burst is < 0")
 	}
 	return nil
@@ -86,11 +86,11 @@ func retryState(m map[string]string, r *retry, retried bool) map[string]string {
 	var name = ""
 	if r != nil {
 		name = strconv.FormatBool(retried)
-		limit = r.config.limit
+		limit = r.config.Limit
 		if limit == rate.Inf {
 			limit = RateLimitInfValue
 		}
-		burst = r.config.burst
+		burst = r.config.Burst
 	}
 	if m == nil {
 		m = make(map[string]string, 16)
@@ -119,7 +119,7 @@ func (r *retry) Enable() {
 }
 
 func (r *retry) SetRateLimiter(limit rate.Limit, burst int) {
-	if r.config.limit == limit && r.config.burst == burst {
+	if r.config.Limit == limit && r.config.Burst == burst {
 		return
 	}
 	r.table.setRetryRateLimit(r.name, limit, burst)
@@ -135,10 +135,10 @@ func (r *retry) IsRetryable(statusCode int) (bool, string) {
 	if !r.rateLimiter.Allow() {
 		return false, RateLimitFlag
 	}
-	for _, code := range r.config.codes {
+	for _, code := range r.config.Codes {
 		if code == statusCode {
 			jitter := time.Duration(r.rand.Int31n(1000))
-			time.Sleep(r.config.wait + jitter)
+			time.Sleep(r.config.Wait + jitter)
 			return true, ""
 		}
 	}
@@ -146,18 +146,18 @@ func (r *retry) IsRetryable(statusCode int) (bool, string) {
 }
 
 func (r *retry) AdjustRateLimiter(percentage int) bool {
-	newLimit, ok := limitAdjust(float64(r.config.limit), percentage)
+	newLimit, ok := limitAdjust(float64(r.config.Limit), percentage)
 	if !ok {
 		return false
 	}
-	newBurst, ok1 := burstAdjust(r.config.burst, percentage)
+	newBurst, ok1 := burstAdjust(r.config.Burst, percentage)
 	if !ok1 {
 		return false
 	}
-	r.table.setRateLimiter(r.name, RateLimiterConfig{limit: rate.Limit(newLimit), burst: newBurst})
+	r.table.setRateLimiter(r.name, RateLimiterConfig{Limit: rate.Limit(newLimit), Burst: newBurst})
 	return true
 }
 
 func (r *retry) LimitAndBurst() (rate.Limit, int) {
-	return r.config.limit, r.config.burst
+	return r.config.Limit, r.config.Burst
 }
