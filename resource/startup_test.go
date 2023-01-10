@@ -2,6 +2,8 @@ package resource
 
 import (
 	"fmt"
+	"github.com/idiomatic-go/middleware/template"
+	"time"
 )
 
 func ExampleCreateToSend() {
@@ -24,58 +26,79 @@ func ExampleCreateToSend() {
 
 }
 
-/*
-func ExampleStatusUpdate() {
-	uri := "progresql:main"
+func Example_Startup() {
+	uri1 := "urn:good"
+	uri2 := "urn:bad"
+	uri3 := "urn:ugly"
 
-	registerPackageUnchecked(uri, nil)
-	e := directory.get(uri)
-	fmt.Printf("Entry : %v %v\n", e.uri, e.msgs.) //, e.statusChangeTS.Format(time.RFC3339))
+	directory.empty()
 
-	SendStartupSuccessfulResponse(uri)
-	time.Sleep(time.Nanosecond * 1)
-	e = directory.get(uri)
-	fmt.Printf("Entry : %v %v\n", e.uri, e.startupStatus) //e.statusChangeTS.Format(time.RFC3339))
+	c := make(chan Message, 16)
+	RegisterResource(uri1, c)
+	go good(c)
 
-	//Output:
-	// Entry : progresql:main 0
-	// Entry : progresql:main 2
+	c = make(chan Message, 16)
+	RegisterResource(uri2, c)
+	go bad(c)
 
-}
+	c = make(chan Message, 16)
+	RegisterResource(uri3, c)
+	go ugly(c)
 
-func ExampleValidateToSend() {
-	uri := "package:none"
+	status := Startup[template.DebugHandler](time.Second*3, nil)
 
-	registerPackageUnchecked(uri, nil)
-
-	toSend := MessageMap{"invalid": {Event: StartupEvent, From: HostFrom}}
-	err := validateToSend(toSend)
-	fmt.Printf("Test - {invalid package uri in message} : %v\n", err)
-
-	toSend = MessageMap{uri: {Event: StartupEvent, From: HostFrom}}
-	err = validateToSend(toSend)
-	fmt.Printf("Test - {valid package uri in message} : %v\n", err)
-
-	uri2 := "package:one"
-	registerPackageUnchecked(uri2, nil, []string{"package:invalid"})
-
-	toSend = MessageMap{uri: {Event: StartupEvent, From: HostFrom}, uri2: {Event: StartupEvent, From: HostFrom}}
-	err = validateToSend(toSend)
-	fmt.Printf("Test - {invalid package uri in dependent} : %v\n", err)
-
-	unregisterPackage(uri2)
-	registerPackageUnchecked(uri2, nil, []string{"package:none"})
-
-	toSend = MessageMap{"package:none": {Event: StartupEvent, From: HostFrom}, "package:one": {Event: StartupEvent, From: HostFrom}}
-	err = validateToSend(toSend)
-	fmt.Printf("Test - {valid package uri in dependent} : %v\n", err)
+	fmt.Printf("test: Startup() -> [%v]\n", status)
 
 	//Output:
-	// Test - {invalid package uri in message} : startup failure: directory entry does not exist for package uri: invalid
-	// Test - {valid package uri in message} : <nil>
-	// Test - {invalid package uri in dependent} : <nil>
-	// Test - {valid package uri in dependent} : <nil>
+	//fail
 }
 
+func good(c chan Message) {
+	for {
+		select {
+		case msg, open := <-c:
+			// Exit on a closed channel
+			if !open {
+				return
+			}
+			if msg.ReplyTo != nil {
+				msg.ReplyTo(Message{To: msg.From, From: msg.To, Event: StartupEvent, Status: template.StatusOk})
+			}
+		default:
+		}
+	}
+}
 
-*/
+func bad(c chan Message) {
+	for {
+		select {
+		case msg, open := <-c:
+			// Exit on a closed channel
+			if !open {
+				return
+			}
+			if msg.ReplyTo != nil {
+				time.Sleep(time.Second)
+				msg.ReplyTo(Message{To: msg.From, From: msg.To, Event: StartupEvent, Status: template.StatusOk})
+			}
+		default:
+		}
+	}
+}
+
+func ugly(c chan Message) {
+	for {
+		select {
+		case msg, open := <-c:
+			// Exit on a closed channel
+			if !open {
+				return
+			}
+			if msg.ReplyTo != nil {
+				time.Sleep(time.Second)
+				msg.ReplyTo(Message{To: msg.From, From: msg.To, Event: StartupEvent, Status: template.StatusInternal})
+			}
+		default:
+		}
+	}
+}

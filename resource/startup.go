@@ -42,8 +42,9 @@ func Shutdown() {
 func Startup[E template.ErrorHandler](duration time.Duration, content ContentMap) (status *template.Status) {
 	var e E
 	var failures []string
+	var count = directory.count()
 
-	if directory.count() == 0 {
+	if count == 0 {
 		return nil
 	}
 	resp := newEntryResponse()
@@ -54,7 +55,7 @@ func Startup[E template.ErrorHandler](duration time.Duration, content ContentMap
 	for wait := time.Duration(float64(duration) * 0.6); duration > 0; duration -= wait {
 		time.Sleep(wait)
 		// Check for completion
-		if resp.count() < directory.count() {
+		if resp.count() < count {
 			continue
 		}
 		// Check for failed resources
