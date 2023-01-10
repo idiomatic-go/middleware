@@ -45,12 +45,13 @@ func Example_Startup() {
 	RegisterResource(uri3, c)
 	go ugly(c)
 
-	status := Startup[template.DebugHandler](time.Second*3, nil)
+	status := Startup[template.DebugHandler](time.Second*1, nil)
 
 	fmt.Printf("test: Startup() -> [%v]\n", status)
 
 	//Output:
-	//fail
+	//[github.com/idiomatic-go/middleware/resource/startup [status failures [urn:ugly]]]
+	//test: Startup() -> [13 Internal Error]
 }
 
 func good(c chan Message) {
@@ -78,7 +79,7 @@ func bad(c chan Message) {
 				return
 			}
 			if msg.ReplyTo != nil {
-				time.Sleep(time.Second)
+				time.Sleep(time.Second + time.Millisecond*100)
 				msg.ReplyTo(Message{To: msg.From, From: msg.To, Event: StartupEvent, Status: template.StatusOk})
 			}
 		default:
