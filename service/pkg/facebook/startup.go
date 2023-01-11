@@ -2,16 +2,19 @@ package facebook
 
 import (
 	"github.com/idiomatic-go/middleware/host"
+	"reflect"
 	"sync/atomic"
 )
 
-const (
-	Uri = "facebook"
-)
+type pkg struct{}
 
-var c = make(chan host.Message, 1)
-var envMatcher host.EnvironmentMatcher
-var started int64
+var (
+	Uri        = pkgPath
+	pkgPath    = reflect.TypeOf(any(pkg{})).PkgPath()
+	c          = make(chan host.Message, 1)
+	envMatcher host.EnvironmentMatcher
+	started    int64
+)
 
 func IsStarted() bool { return atomic.LoadInt64(&started) != 0 }
 

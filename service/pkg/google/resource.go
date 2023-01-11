@@ -3,16 +3,12 @@ package google
 import (
 	"github.com/idiomatic-go/middleware/template"
 	"net/http"
-	"reflect"
 )
 
 const (
 	uri = "https://www.google.com/search?q=test"
 )
 
-type pkg struct{}
-
-var pkgPath = reflect.TypeOf(any(pkg{})).PkgPath()
 var searchLocation = pkgPath + "/search"
 
 func Search[E template.ErrorHandler](req *http.Request) ([]byte, *template.Status) {

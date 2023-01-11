@@ -3,16 +3,12 @@ package twitter
 import (
 	"github.com/idiomatic-go/middleware/template"
 	"net/http"
-	"reflect"
 )
 
 const (
 	uri = "https://www.twitter.com"
 )
 
-type pkg struct{}
-
-var pkgPath = reflect.TypeOf(any(pkg{})).PkgPath()
 var homeLoc = pkgPath + "/home"
 
 func Search[E template.ErrorHandler](req *http.Request) ([]byte, *template.Status) {
