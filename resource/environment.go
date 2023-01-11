@@ -6,10 +6,80 @@ import (
 )
 
 const (
-	devEnv        = "dev"
-	runtimeEnvKey = "RUNTIME_ENV"
+	DevEnv = iota
+	ReviewEnv
+	TestEnv
+	StageEnv
+	ProdEnv
+	runtimeEnvKey  = "RUNTIME_ENV"
+	devEnvValue    = "dev"
+	reviewEnvValue = "review"
+	testEnvValue   = "test"
+	stageEnvValue  = "stage"
+	prodEnvValue   = "prod"
 )
 
+type EnvironmentMatcher func(env int) bool
+
+func SetRuntimeKey(s string) {
+	if s != "" {
+		runtimeKey = s
+	}
+}
+
+func SetEnvironmentMatcher(fn EnvironmentMatcher) {
+	if fn != nil {
+		envMatcher = fn
+	} else {
+		envMatcher = matchEnvironment
+	}
+}
+
+var runtimeKey = runtimeEnvKey
+var envMatcher EnvironmentMatcher
+
+func init() {
+	SetEnvironmentMatcher(nil)
+}
+
+func matchEnvironment(env int) bool {
+	s := os.Getenv(runtimeKey)
+	switch env {
+	case DevEnv:
+		return s == "" || strings.EqualFold(s, devEnvValue)
+	case ReviewEnv:
+		return strings.EqualFold(s, reviewEnvValue)
+	case TestEnv:
+		return strings.EqualFold(s, testEnvValue)
+	case StageEnv:
+		return strings.EqualFold(s, stageEnvValue)
+	case ProdEnv:
+		return strings.EqualFold(s, prodEnvValue)
+	}
+	return false
+}
+
+func IsDevEnv() bool {
+	return envMatcher(DevEnv)
+}
+
+func IsReviewEnv() bool {
+	return envMatcher(ReviewEnv)
+}
+
+func IsTestEnv() bool {
+	return envMatcher(TestEnv)
+}
+
+func IsStageEnv() bool {
+	return envMatcher(StageEnv)
+}
+
+func IsProdEnv() bool {
+	return envMatcher(ProdEnv)
+}
+
+/*
 // FuncBool - type for niladic functions, functions with no parameters
 type FuncBool func() bool
 
@@ -39,15 +109,18 @@ func init() {
 	dev = isDevEnv()
 }
 
-func IsDevEnv() bool {
-	return isDevEnv()
-}
+
+
+//func IsDevEnv() bool {
+//	return isDevEnv()
+//}
+*/
 
 // GetEnv - function to get the resource runtime environment
 func GetEnv() string {
 	s := os.Getenv(runtimeKey)
 	if s == "" {
-		return devEnv
+		return "dev"
 	}
 	return s
 }

@@ -6,30 +6,37 @@ import (
 )
 
 func ExampleDevEnv() {
-	fmt.Println(resource.IsDevEnv())
+	fmt.Printf("test: IsDevEnv() -> %v\n", resource.IsDevEnv())
+
 	resource.SetEnv("dev")
-	fmt.Println(resource.IsDevEnv())
+	fmt.Printf("test: IsDevEnv(dev) -> %v\n", resource.IsDevEnv())
+
 	resource.SetEnv("devrrr")
-	fmt.Println(resource.IsDevEnv())
+	fmt.Printf("test: IsDevEnv(devrrr) -> %v\n", resource.IsDevEnv())
 
 	// Output:
-	// true
-	// true
-	// false
+	//test: IsDevEnv() -> true
+	//test: IsDevEnv(dev) -> true
+	//test: IsDevEnv(devrrr) -> false
+
 }
 
 func ExampleDevEnvOverride() {
-	resource.OverrideIsDevEnv(func() bool { return false })
-	fmt.Println(resource.IsDevEnv())
+	resource.SetEnvironmentMatcher(func(int) bool { return false })
+
+	fmt.Printf("test: IsDevEnv() -> %v\n", resource.IsDevEnv())
+
 	resource.SetEnv("dev")
-	fmt.Println(resource.IsDevEnv())
+	fmt.Printf("test: IsDevEnv(dev) -> %v\n", resource.IsDevEnv())
+
 	resource.SetEnv("devrrr")
-	fmt.Println(resource.IsDevEnv())
+	fmt.Printf("test: IsDevEnv(devrrr) -> %v\n", resource.IsDevEnv())
 
 	// Output:
-	// false
-	// false
-	// false
+	//test: IsDevEnv() -> false
+	//test: IsDevEnv(dev) -> false
+	//test: IsDevEnv(devrrr) -> false
+
 }
 
 /*
