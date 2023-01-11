@@ -1,48 +1,15 @@
-{
-  "routes": [
-    {
-      "Name": "test-route",
-      "Host": "google.com",
-      "Timeout": {
-        "Duration": 20000,
-        "StatusCode": 504
-      },
-      "RateLimiter": {
-        "Limit": 100,
-        "Burst": 25,
-        "StatusCode": 503
-      },
-      "Retry": {
-        "Limit": 100,
-        "Burst": 33,
-        "Wait": 500,
-        "Codes": [
-          503,
-          504
-        ]
-      }
+[
+  {
+    "Name": "twitter-home",
+    "Host": "twitter.com",
+    "Timeout": {
+      "Duration": 20000,
+      "StatusCode": 504
     },
-    {
-      "Name": "test-route2",
-      "Host": "google.com",
-      "Timeout": {
-        "Duration": 20000,
-        "StatusCode": 504
-      },
-      "RateLimiter": {
-        "Limit": 100,
-        "Burst": 25,
-        "StatusCode": 503
-      },
-      "Retry": {
-        "Limit": 100,
-        "Burst": 33,
-        "Wait": 500,
-        "Codes": [
-          503,
-          504
-        ]
-      }
+    "RateLimiter": {
+      "Limit": 100,
+      "Burst": 25,
+      "StatusCode": 503
     }
-  ]
-}
+  }
+]

@@ -11,10 +11,13 @@ func Startup[E template.ErrorHandler](r *http.ServeMux) (http.Handler, *template
 	resource.ReadFile("")
 	err := initLogging()
 	if err != nil {
-		return nil, e.Handle("startup", err)
+		return nil, e.Handle("startup logging:", err)
+	}
+	err = initEgress()
+	if err != nil {
+		return nil, e.Handle("startup egress:", err)
 	}
 	initIngress()
-	initEgress()
 	initRoutes(r)
 
 	return r, template.NewStatusOk()

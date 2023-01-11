@@ -26,5 +26,16 @@ func Example_Match() {
 	//test: matchEnvironment() -> [dev:false] [review:false] [test:true] [stage:false] [prod:false]
 	//test: matchEnvironment() -> [dev:false] [review:false] [test:false] [stage:false] [prod:true]
 	//test: matchEnvironment() -> [dev:false] [review:false] [test:false] [stage:false] [prod:false]
-	
+}
+
+func Example_GetRuntime() {
+	os.Setenv(runtimeEnvKey, "")
+	fmt.Printf("test: GetRuntime() -> %v\n", GetRuntime())
+
+	os.Setenv(runtimeEnvKey, "prod")
+	fmt.Printf("test: GetRuntime() -> %v\n", GetRuntime())
+
+	//Output:
+	//test: GetRuntime() -> dev
+	//test: GetRuntime() -> prod
 }

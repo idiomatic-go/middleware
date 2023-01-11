@@ -1,6 +1,6 @@
 [
     {
-      "Name": "test-route",
+      "Name": "google-search",
       "Host": "google.com",
       "Timeout": {
         "Duration": 20000,
@@ -22,7 +22,7 @@
       }
     },
     {
-      "Name": "test-route2",
+      "Name": "google-home",
       "Host": "google.com",
       "Timeout": {
         "Duration": 20000,

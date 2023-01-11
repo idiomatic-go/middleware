@@ -103,6 +103,9 @@ func newActuator(name string, t *table, fn Actuate, config ...any) (*actuator, [
 	act.logger = defaultLogger
 	act.extract = newExtract()
 	for _, cfg := range config {
+		if cfg == nil {
+			continue
+		}
 		err = nil
 		switch c := cfg.(type) {
 		case *TimeoutConfig:

@@ -15,8 +15,16 @@ const (
 	prodEnvValue   = "prod"
 )
 
-func matchEnvironment(env int) bool {
+func GetRuntime() string {
 	s := os.Getenv(runtimeEnvKey)
+	if s == "" {
+		return devEnvValue
+	}
+	return s
+}
+
+func matchEnvironment(env int) bool {
+	s := GetRuntime()
 	switch env {
 	case host.DevEnv:
 		return s == "" || strings.EqualFold(s, devEnvValue)
