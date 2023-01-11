@@ -6,10 +6,10 @@ import (
 )
 
 func ExampleConfig_Marshal() {
-	config := Config{Name: "test-route",
+	config := Config{Name: "test-route", Host: "google.com",
 		Timeout: &TimeoutConfig{
 			StatusCode: 504,
-			Timeout:    20000,
+			Duration:   20000,
 		},
 		RateLimiter: &RateLimiterConfig{
 			Limit:      100,
@@ -36,7 +36,7 @@ func ExampleConfig_Marshal() {
 	//fmt.Printf("test: []ConfigList{} -> [error:%v] %v\n", err, string(buf))
 
 	//Output:
-	//test: Config{} -> [error:<nil>] {"Name":"test-route","Timeout":{"StatusCode":504,"Timeout":20000},"RateLimiter":{"Limit":100,"Burst":25,"StatusCode":503},"Retry":{"Limit":100,"Burst":33,"Wait":500,"Codes":[503,504]},"Failover":null}
+	//test: Config{} -> [error:<nil>] {"Name":"test-route","Host":"google.com","Timeout":{"Duration":20000,"StatusCode":504},"RateLimiter":{"Limit":100,"Burst":25,"StatusCode":503},"Retry":{"Limit":100,"Burst":33,"Wait":500,"Codes":[503,504]},"Failover":null}
 
 }
 

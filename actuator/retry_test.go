@@ -32,7 +32,7 @@ func Example_newRetry() {
 	//test: retryState(nil,false,map) -> map[retry: retryBurst:-1 retryRateLimit:-1]
 	//test: retryState(t,false,map) -> map[retry:false retryBurst:20 retryRateLimit:2]
 	//test: retryState(t2,true,map) -> map[retry:true retryBurst:10 retryRateLimit:99999]
-	
+
 }
 
 func Example_Status() {

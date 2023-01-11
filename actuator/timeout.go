@@ -14,15 +14,15 @@ type TimeoutController interface {
 }
 
 type TimeoutConfig struct {
+	Duration   time.Duration
 	StatusCode int
-	Timeout    time.Duration
 }
 
-func NewTimeoutConfig(timeout time.Duration, statusCode int) *TimeoutConfig {
+func NewTimeoutConfig(duration time.Duration, statusCode int) *TimeoutConfig {
 	if statusCode <= 0 {
 		statusCode = http.StatusGatewayTimeout
 	}
-	return &TimeoutConfig{Timeout: timeout, StatusCode: statusCode}
+	return &TimeoutConfig{Duration: duration, StatusCode: statusCode}
 }
 
 type timeout struct {
@@ -48,7 +48,7 @@ func newTimeout(name string, table *table, config *TimeoutConfig) *timeout {
 }
 
 func (t *timeout) validate() error {
-	if t.config.Timeout <= 0 {
+	if t.config.Duration <= 0 {
 		return errors.New("invalid configuration: TimeoutController duration is <= 0")
 	}
 	return nil
@@ -65,17 +65,17 @@ func timeoutState(m map[string]string, t *timeout) {
 }
 
 func (t *timeout) Duration() time.Duration {
-	if t.config.Timeout <= 0 {
+	if t.config.Duration <= 0 {
 		return 0
 	}
-	return t.config.Timeout
+	return t.config.Duration
 }
 
-func (t *timeout) SetTimeout(timeout time.Duration) {
-	if t.config.Timeout == timeout || timeout <= 0 {
+func (t *timeout) SetTimeout(duration time.Duration) {
+	if t.config.Duration == duration || duration <= 0 {
 		return
 	}
-	t.table.setTimeout(t.name, timeout)
+	t.table.setTimeout(t.name, duration)
 }
 
 func (t *timeout) StatusCode() int {
