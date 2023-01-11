@@ -50,7 +50,7 @@ func Example_Startup() {
 	fmt.Printf("test: Startup() -> [%v]\n", status)
 
 	//Output:
-	//[github.com/idiomatic-go/middleware/resource/startup [status failures [urn:ugly]]]
+	//[github.com/idiomatic-go/middleware/host/startup [status failures [urn:ugly]]]
 	//test: Startup() -> [13 Internal Error]
 }
 
@@ -63,7 +63,7 @@ func good(c chan Message) {
 				return
 			}
 			if msg.ReplyTo != nil {
-				msg.ReplyTo(Message{To: msg.From, From: msg.To, Event: StartupEvent, Status: template.StatusOk})
+				msg.ReplyTo(NewStartupSuccessfulMessage(msg))
 			}
 		default:
 		}
@@ -80,7 +80,7 @@ func bad(c chan Message) {
 			}
 			if msg.ReplyTo != nil {
 				time.Sleep(time.Second + time.Millisecond*100)
-				msg.ReplyTo(Message{To: msg.From, From: msg.To, Event: StartupEvent, Status: template.StatusOk})
+				msg.ReplyTo(NewStartupSuccessfulMessage(msg))
 			}
 		default:
 		}

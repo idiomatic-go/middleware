@@ -1,4 +1,4 @@
-package handler
+package host
 
 import (
 	"github.com/felixge/httpsnoop"
