@@ -7,14 +7,13 @@ import (
 )
 
 const (
-	uri    = "https://www.google.com/search?q=test"
-	search = "/Search"
+	uri = "https://www.google.com/search?q=test"
 )
 
 type pkg struct{}
 
 var pkgPath = reflect.TypeOf(any(pkg{})).PkgPath()
-var searchLocation = pkgPath + search
+var searchLocation = pkgPath + "/search"
 
 func Search[E template.ErrorHandler](req *http.Request) ([]byte, *template.Status) {
 	var e E

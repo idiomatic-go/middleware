@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	uri    = "https://www.facebook.com"
-	search = "/Search"
+	uri = "https://www.facebook.com"
 )
 
 type pkg struct{}
