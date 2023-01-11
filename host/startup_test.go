@@ -97,7 +97,7 @@ func ugly(c chan Message) {
 			}
 			if msg.ReplyTo != nil {
 				time.Sleep(time.Second)
-				msg.ReplyTo(Message{To: msg.From, From: msg.To, Event: StartupEvent, Status: template.StatusInternal})
+				msg.ReplyTo(NewStartupFailureMessage(msg))
 			}
 		default:
 		}

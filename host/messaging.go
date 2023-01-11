@@ -27,3 +27,7 @@ func SendMessage(msg Message) error {
 func NewStartupSuccessfulMessage(from Message) Message {
 	return Message{To: from.From, From: from.To, Event: StartupEvent, Status: template.StatusOk}
 }
+
+func NewStartupFailureMessage(from Message) Message {
+	return Message{To: from.From, From: from.To, Event: StartupEvent, Status: template.StatusInternal}
+}
