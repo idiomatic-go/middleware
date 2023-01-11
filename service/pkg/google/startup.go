@@ -36,6 +36,9 @@ var messageHandler host.MessageHandler = func(msg host.Message) {
 	switch msg.Event {
 	case host.StartupEvent:
 		envMatcher = host.AccessEnvironmentMatcher(&msg)
+		if envMatcher != nil {
+			isStarted = true
+		}
 	case host.ShutdownEvent:
 	}
 }

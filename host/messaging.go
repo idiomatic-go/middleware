@@ -31,3 +31,13 @@ func NewStartupSuccessfulMessage(from Message) Message {
 func NewStartupFailureMessage(from Message) Message {
 	return Message{To: from.From, From: from.To, Event: StartupEvent, Status: template.StatusInternal}
 }
+
+func StartupReplyTo(msg Message, successful bool) {
+	if msg.ReplyTo != nil {
+		if successful {
+			msg.ReplyTo(NewStartupSuccessfulMessage(msg))
+		} else {
+			msg.ReplyTo(NewStartupFailureMessage(msg))
+		}
+	}
+}
