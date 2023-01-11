@@ -2,7 +2,10 @@ package actuator
 
 import (
 	"github.com/idiomatic-go/middleware/accessdata"
+	"net/http"
 )
+
+type Matcher func(req *http.Request) (routeName string)
 
 type LogAccess func(entry *accessdata.Entry)
 

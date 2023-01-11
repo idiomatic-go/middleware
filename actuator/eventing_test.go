@@ -21,7 +21,7 @@ var eventingFn Actuate = func(act Actuator, events []Event) error {
 
 func Example_Actuate() {
 	table := newTable(true)
-	table.Add("test", "/eventing", eventingFn, NewRateLimiterConfig(100, 25, 503))
+	table.Add("test", eventingFn, NewRateLimiterConfig(100, 25, 503))
 	act := table.LookupByName("test")
 
 	r, _ := act.RateLimiter()

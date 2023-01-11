@@ -26,20 +26,20 @@ func Example_newRetry() {
 	fmt.Printf("test: retryState(t2,true,map) -> %v\n", retryState(nil, t2, true))
 
 	//Output:
-	//test: newRetry() -> [name:test-route] [config:{5 10 0 [504]}] [limit:5] [burst:10]
-	//test: newRetry() -> [name:test-route2] [config:{2 20 0 [503 504]}]
+	//test: newRetry() -> [name:test-route] [config:{5 10 0s [504]}] [limit:5] [burst:10]
+	//test: newRetry() -> [name:test-route2] [config:{2 20 0s [503 504]}]
 	//test: cloneRetry() -> [prev-enabled:true] [curr-enabled:false]
 	//test: retryState(nil,false,map) -> map[retry: retryBurst:-1 retryRateLimit:-1]
 	//test: retryState(t,false,map) -> map[retry:false retryBurst:20 retryRateLimit:2]
 	//test: retryState(t2,true,map) -> map[retry:true retryBurst:10 retryRateLimit:99999]
-
+	
 }
 
 func Example_Status() {
 	name := "test-route"
 	config := NewRetryConfig([]int{504}, 5, 10, 0)
 	t := newTable(true)
-	err := t.Add(name, "/retry", nil, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
@@ -68,7 +68,7 @@ func Example_IsRetryable_Disabled() {
 	name := "test-route"
 	config := NewRetryConfig([]int{503, 504}, 100, 10, 0)
 	t := newTable(true)
-	err := t.Add(name, "/retry", nil, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
@@ -95,7 +95,7 @@ func Example_IsRetryable_StatusCode() {
 	name := "test-route"
 	config := NewRetryConfig([]int{503, 504}, 100, 10, 0)
 	t := newTable(true)
-	err := t.Add(name, "/retry", nil, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
@@ -134,7 +134,7 @@ func Example_IsRetryable_RateLimit() {
 	name := "test-route"
 	config := NewRetryConfig([]int{503, 504}, 1, 1, 0)
 	t := newTable(true)
-	err := t.Add(name, "/retry", nil, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)

@@ -46,9 +46,10 @@ type Actuator interface {
 }
 
 type Configuration interface {
+	SetMatcher(fn Matcher)
 	SetDefaultActuator(name string, fn Actuate, config ...any) []error
 	SetHostActuator(fn Actuate, config ...any) []error
-	Add(name, pattern string, fn Actuate, config ...any) []error
+	Add(name string, fn Actuate, config ...any) []error
 }
 
 type Actuators interface {

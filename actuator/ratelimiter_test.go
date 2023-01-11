@@ -60,7 +60,7 @@ func Example_RateLimiter_Set() {
 	name := "test-route"
 	config := NewRateLimiterConfig(10, 100, 503)
 	t := newTable(true)
-	err := t.Add(name, "/ratelimiter", nil, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
@@ -86,7 +86,7 @@ func Example_RateLimiter_Adjust() {
 	name := "test-route"
 	config := NewRateLimiterConfig(10, 1, 503)
 	t := newTable(true)
-	err := t.Add(name, "/ratelimiter", nil, config)
+	err := t.Add(name, nil, config)
 	fmt.Printf("test: Add() -> [%v] [count:%v]\n", err, t.count())
 
 	act := t.LookupByName(name)
