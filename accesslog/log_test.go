@@ -13,11 +13,11 @@ func ExampleLog_Error() {
 	start := time.Now()
 
 	Log(nil)
-	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "handler-route"}, nil, nil, ""))
+	Log(accessdata.NewEgressEntry(start, time.Since(start), map[string]string{accessdata.ActName: "egress-route"}, nil, nil, ""))
 
 	//Output:
 	//test: WriteEgress() -> [{"error": "access data entry is nil"}]
-	//test: WriteEgress() -> [{"error": "handler log entries are empty"}]
+	//test: WriteEgress() -> [{"error": "egress log entries are empty"}]
 
 }
 
@@ -73,7 +73,7 @@ func ExampleLog_Timeout() {
 	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "handler-route", accessdata.TimeoutName: "5000"}, nil, nil, ""))
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"handler","route_name":"handler-route","timeout_ms":5000,"static":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"handler-route","timeout_ms":5000,"static":"value"}]
 
 }
 
@@ -90,7 +90,7 @@ func ExampleLog_RateLimiter_500() {
 	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "handler-route", accessdata.RateLimitName: "500", accessdata.RateBurstName: "10"}, nil, nil, ""))
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration":0,"traffic":"handler","route_name":"handler-route","rate_limit":500,"rate_burst":10,"static2":"value2"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration":0,"traffic":"egress","route_name":"handler-route","rate_limit":500,"rate_burst":10,"static2":"value2"}]
 
 }
 
@@ -108,7 +108,7 @@ func ExampleLog_RateLimiter_Inf() {
 	Log(EgressTraffic, start1, time.Since(start), map[string]string{ActName: "handler-route", RateLimitName: "1000", RateBurstName: "10"}, nil, nil, "")
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"handler","route_name":"handler-route","rate_limit":1000,"rate_burst":10,"static2":"value"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"handler-route","rate_limit":1000,"rate_burst":10,"static2":"value"}]
 
 }
 
@@ -127,7 +127,7 @@ func ExampleLog_Failover() {
 	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "handler-route", accessdata.FailoverName: "true"}, nil, nil, ""))
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration":0,"traffic":"handler","route_name":"handler-route","failover":true,"static2":"value2"}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration":0,"traffic":"egress","route_name":"handler-route","failover":true,"static2":"value2"}]
 
 }
 
@@ -145,7 +145,7 @@ func ExampleLog_Retry() {
 	Log(accessdata.NewEgressEntry(start1, time.Since(start), map[string]string{accessdata.ActName: "handler-route", accessdata.RetryName: "true", accessdata.RetryRateLimitName: "123", accessdata.RetryRateBurstName: "67"}, nil, nil, ""))
 
 	//Output:
-	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"handler","route_name":"handler-route","retry":true,"retry_rate_limit":123,"retry_rate_burst":67}]
+	//test: WriteEgress() -> [{"start_time":"0001-01-01 00:00:00.000000","duration_ms":0,"traffic":"egress","route_name":"handler-route","retry":true,"retry_rate_limit":123,"retry_rate_burst":67}]
 
 }
 

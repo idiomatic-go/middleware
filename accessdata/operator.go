@@ -1,12 +1,12 @@
 package accessdata
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 )
 
 const (
-	HeaderPrefix           = "header"
-	DirectOperator         = "direct"
 	OperatorPrefix         = "%"
 	RequestReferencePrefix = "%REQ("
 
@@ -143,4 +143,49 @@ var Operators = map[string]*Operator{
 	// gRPC
 	GRPCStatusOperator:       {"grpc_status", GRPCStatusOperator},
 	GRPCStatusNumberOperator: {"grpc_number", GRPCStatusNumberOperator},
+}
+
+func CreateOperators(items *[]Operator, config []Operator) error {
+	if items == nil {
+		return errors.New("invalid configuration: operators slice is nil")
+	}
+	if len(config) == 0 {
+		return errors.New("invalid configuration: configuration slice is empty")
+	}
+	dup := make(map[string]string)
+	for _, op := range config {
+		op2, err := createOperator(op)
+		if err != nil {
+			return err
+		}
+		if _, ok := dup[op2.Name]; ok {
+			return errors.New(fmt.Sprintf("invalid operator: name is a duplicate [%v]", op2.Name))
+		}
+		dup[op2.Name] = op2.Name
+		*items = append(*items, op2)
+	}
+	return nil
+}
+
+func createOperator(op Operator) (Operator, error) {
+	if IsEmpty(op.Value) {
+		return Operator{}, errors.New(fmt.Sprintf("invalid operator: value is empty %v", op.Name))
+	}
+	if IsDirectOperator(op) {
+		if IsEmpty(op.Name) {
+			return Operator{}, errors.New(fmt.Sprintf("invalid operator: name is empty [%v]", op.Value))
+		}
+		return Operator{Name: op.Name, Value: op.Value}, nil
+	}
+	if op2, ok := Operators[op.Value]; ok {
+		newOp := Operator{Name: op2.Name, Value: op.Value}
+		if !IsEmpty(op.Name) {
+			newOp.Name = op.Name
+		}
+		return newOp, nil
+	}
+	if IsRequestOperator(op) {
+		return Operator{Name: RequestOperatorHeaderName(op), Value: op.Value}, nil
+	}
+	return Operator{}, errors.New(fmt.Sprintf("invalid operator: value not found or invalid %v", op.Value))
 }

@@ -7,8 +7,7 @@ import (
 
 const (
 	errorNilEntryFmt = "{\"error\": \"access data entry is nil\"}"
-	//errorNilActuatorFmt = "{\"error\": \"actuator is nil or %v route name is empty\"}"
-	errorEmptyFmt = "{\"error\": \"%v log entries are empty\"}"
+	errorEmptyFmt    = "{\"error\": \"%v log entries are empty\"}"
 )
 
 func ingressLog(s string) {

@@ -2,22 +2,22 @@ package host
 
 import (
 	"github.com/idiomatic-go/middleware/service/pkg/resource"
-	"log"
+	"github.com/idiomatic-go/middleware/template"
 	"net/http"
 )
 
-func Startup(r *http.ServeMux) (http.Handler, bool) {
+func Startup[E template.ErrorHandler](r *http.ServeMux) (http.Handler, *template.Status) {
+	var e E
 	resource.ReadFile("")
 	err := initLogging()
 	if err != nil {
-		log.Printf("startup logging error: %v", err)
-		return nil, false
+		return nil, e.Handle("startup", err)
 	}
 	initIngress()
 	initEgress()
 	initRoutes(r)
 
-	return r, true
+	return r, template.NewStatusOk()
 }
 
 func Shutdown() {}

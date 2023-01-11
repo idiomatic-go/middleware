@@ -6,16 +6,19 @@ import (
 	"log"
 )
 
+var ingressOperators []accessdata.Operator
+var egressOperators []accessdata.Operator
+
 // CreateIngressOperators - allows configuration of access log attributes for ingress traffic
 func CreateIngressOperators(config []accessdata.Operator) error {
 	ingressOperators = []accessdata.Operator{}
-	return CreateOperators(&ingressOperators, config)
+	return accessdata.CreateOperators(&ingressOperators, config)
 }
 
 // CreateEgressOperators - allows configuration of access log attributes for handler traffic
 func CreateEgressOperators(config []accessdata.Operator) error {
 	egressOperators = []accessdata.Operator{}
-	return CreateOperators(&egressOperators, config)
+	return accessdata.CreateOperators(&egressOperators, config)
 }
 
 // LogFn - override log output disposition, default is log.Println
