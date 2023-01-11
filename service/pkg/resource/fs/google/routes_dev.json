@@ -1,5 +1,4 @@
-{
-  "routes": [
+[
     {
       "Name": "test-route",
       "Host": "google.com",
@@ -44,5 +43,5 @@
         ]
       }
     }
-  ]
-}
+]
+

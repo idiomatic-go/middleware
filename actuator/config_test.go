@@ -30,10 +30,10 @@ func ExampleConfig_Marshal() {
 	buf, err := json.Marshal(config)
 	fmt.Printf("test: Config{} -> [error:%v] %v\n", err, string(buf))
 
-	//list := []ConfigList{{Package: "package-one", Config: config}, {Package: "package-two", Config: config}}
+	list := []Route{config, config} //{Package: "package-one", Config: config}, {Package: "package-two", Config: config}}
 
-	//buf, err = json.Marshal(list)
-	//fmt.Printf("test: []ConfigList{} -> [error:%v] %v\n", err, string(buf))
+	buf, err = json.Marshal(list)
+	fmt.Printf("test: []Route -> [error:%v] %v\n", err, string(buf))
 
 	//Output:
 	//test: Config{} -> [error:<nil>] {"Name":"test-route","Host":"google.com","Timeout":{"Duration":20000,"StatusCode":504},"RateLimiter":{"Limit":100,"Burst":25,"StatusCode":503},"Retry":{"Limit":100,"Burst":33,"Wait":500,"Codes":[503,504]},"Failover":null}
