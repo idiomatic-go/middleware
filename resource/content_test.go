@@ -7,7 +7,9 @@ func ExampleAccessCredentials() {
 	msg := Message{To: "to-uri", From: "from-uri", Content: []any{
 		"text content",
 		500,
-		Credentials(func() (username, password string, err error) { return "", "", nil }),
+		Credentials(func() (username, password string, err error) {
+			return "", "", nil
+		}),
 	}}
 
 	fmt.Printf("test: AccessCredentials(nil) -> %v\n", AccessCredentials(nil) != nil)

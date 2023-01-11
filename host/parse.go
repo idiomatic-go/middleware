@@ -15,7 +15,7 @@ const (
 	delimiter = ":"
 )
 
-func ParseBuffer(buf []byte) (map[string]string, error) {
+func ParseMap(buf []byte) (map[string]string, error) {
 	m := make(map[string]string)
 	if len(buf) == 0 {
 		return m, nil

@@ -13,7 +13,7 @@ const (
 	FailbackEvent  = "event:failback"
 	PingEvent      = "event:ping"
 	ProfileEvent   = "event:profile"
-	VirtualHost    = "host"
+	HostName       = "host"
 )
 
 type MessageHandler func(msg Message)

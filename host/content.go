@@ -20,3 +20,25 @@ func AccessCredentials(msg *Message) Credentials {
 	}
 	return nil
 }
+
+const (
+	DevEnv = iota + 1
+	ReviewEnv
+	TestEnv
+	StageEnv
+	ProdEnv
+)
+
+type EnvironmentMatcher func(env int) bool
+
+func AccessEnvironmentMatcher(msg *Message) EnvironmentMatcher {
+	if msg == nil || msg.Content == nil {
+		return nil
+	}
+	for _, c := range msg.Content {
+		if fn, ok := c.(EnvironmentMatcher); ok {
+			return fn
+		}
+	}
+	return nil
+}
