@@ -2,6 +2,7 @@ package google
 
 import (
 	"github.com/idiomatic-go/middleware/host"
+	"sync/atomic"
 )
 
 const (
@@ -10,9 +11,9 @@ const (
 
 var c = make(chan host.Message, 1)
 var envMatcher host.EnvironmentMatcher
-var isStarted bool
+var started int64
 
-func IsStarted() bool { return isStarted }
+func IsStarted() bool { return atomic.LoadInt64(&started) != 0 }
 
 func isDevEnv() bool {
 	if envMatcher == nil {
@@ -20,6 +21,7 @@ func isDevEnv() bool {
 	}
 	return envMatcher(host.DevEnv)
 }
+
 func isTestEnv() bool {
 	if envMatcher == nil {
 		return false
@@ -37,7 +39,10 @@ var messageHandler host.MessageHandler = func(msg host.Message) {
 	case host.StartupEvent:
 		envMatcher = host.AccessEnvironmentMatcher(&msg)
 		if envMatcher != nil {
-			isStarted = true
+			atomic.StoreInt64(&started, 1)
+			host.StartupReplyTo(msg, true)
+		} else {
+			host.StartupReplyTo(msg, false)
 		}
 	case host.ShutdownEvent:
 	}
@@ -47,18 +52,10 @@ func receive() {
 	for {
 		select {
 		case msg, open := <-c:
-			// Exit on a closed channel
 			if !open {
 				return
 			}
 			messageHandler(msg)
-			if msg.ReplyTo != nil {
-				if IsStarted() {
-					msg.ReplyTo(host.NewStartupSuccessfulMessage(msg))
-				} else {
-
-				}
-			}
 		}
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/idiomatic-go/middleware/accesslog"
 )
 
-func initLogging() {
+func initLogging() error {
 	// accessdata options
 	//   SetOrigin() - part of the access log data, and will show on each log entry
 	//   SetPingRoutes() - determine which routes/actuator are health liveness check routes
@@ -29,7 +29,7 @@ func initLogging() {
 	//actuator.SetLoggerAccess(accesslog.Log)
 
 	// Access log attributes for ingress and handler
-	accesslog.CreateIngressOperators([]accessdata.Operator{
+	err := accesslog.CreateIngressOperators([]accessdata.Operator{
 		{Name: "", Value: accessdata.StartTimeOperator},
 		{Name: "", Value: accessdata.DurationOperator},
 		{Name: "", Value: accessdata.TrafficOperator},
@@ -55,8 +55,11 @@ func initLogging() {
 		{Name: "", Value: accessdata.RateLimitOperator},
 		{Name: "", Value: accessdata.RateBurstOperator},
 	})
+	if err != nil {
+		return err
+	}
 
-	accesslog.CreateEgressOperators([]accessdata.Operator{
+	err = accesslog.CreateEgressOperators([]accessdata.Operator{
 		{Name: "", Value: accessdata.StartTimeOperator},
 		{Name: "", Value: accessdata.DurationOperator},
 		{Name: "", Value: accessdata.TrafficOperator},
@@ -86,4 +89,5 @@ func initLogging() {
 		{Name: "", Value: accessdata.RetryRateBurstOperator},
 		{Name: "", Value: accessdata.FailoverOperator},
 	})
+	return err
 }
