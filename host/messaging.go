@@ -33,7 +33,7 @@ func NewStartupFailureMessage(from Message) Message {
 }
 
 func StartupReplyTo(msg Message, successful bool) {
-	if msg.ReplyTo != nil {
+	if msg.ReplyTo != nil && msg.Event == StartupEvent {
 		if successful {
 			msg.ReplyTo(NewStartupSuccessfulMessage(msg))
 		} else {
