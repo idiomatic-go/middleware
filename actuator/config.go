@@ -1,6 +1,6 @@
 package actuator
 
-type Config struct {
+type Route struct {
 	Name        string
 	Host        string
 	Timeout     *TimeoutConfig

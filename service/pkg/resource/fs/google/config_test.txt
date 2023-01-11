@@ -1,3 +1,0 @@
-env : test
-// Another comment
-thelast : line of the file

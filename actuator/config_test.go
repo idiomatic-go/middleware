@@ -6,7 +6,7 @@ import (
 )
 
 func ExampleConfig_Marshal() {
-	config := Config{Name: "test-route", Host: "google.com",
+	config := Route{Name: "test-route", Host: "google.com",
 		Timeout: &TimeoutConfig{
 			StatusCode: 504,
 			Duration:   20000,
@@ -41,7 +41,7 @@ func ExampleConfig_Marshal() {
 }
 
 func _ExampleConfig_Unmarshal() {
-	var config = Config{}
+	var config = Route{}
 	s := "{\"Name\":\"test-route\",\"Timeout\":{\"StatusCode\":504,\"Timeout\":20000},\"RateLimiter\":{\"Limit\":100,\"Burst\":25,\"StatusCode\":503},\"Retry\":{\"Limit\":100,\"Burst\":33,\"Wait\":500,\"Codes\":[503,504]}}"
 
 	err := json.Unmarshal([]byte(s), &config)
