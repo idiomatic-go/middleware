@@ -3,6 +3,7 @@ package resource
 import (
 	"embed"
 	"fmt"
+	"github.com/idiomatic-go/middleware/host"
 	"io/fs"
 )
 
@@ -24,6 +25,6 @@ func ReadMap(name string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ParseBuffer(buf)
+	return host.ParseMap(buf)
 
 }

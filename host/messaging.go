@@ -3,17 +3,10 @@ package host
 import "github.com/idiomatic-go/middleware/template"
 
 const (
-	StartupEvent   = "event:startup"
-	ShutdownEvent  = "event:shutdown"
-	StartupPause   = "event:pause"
-	ShutdownResume = "event:resume"
-	ErrorEvent     = "event:error"
-	RestartEvent   = "event:restart"
-	FailoverEvent  = "event:failover"
-	FailbackEvent  = "event:failback"
-	PingEvent      = "event:ping"
-	ProfileEvent   = "event:profile"
-	HostName       = "host"
+	StartupEvent  = "event:startup"
+	ShutdownEvent = "event:shutdown"
+	PingEvent     = "event:ping"
+	Name          = "host"
 )
 
 type MessageHandler func(msg Message)

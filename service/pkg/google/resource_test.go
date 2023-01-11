@@ -3,16 +3,21 @@ package google
 import (
 	"fmt"
 	"github.com/idiomatic-go/middleware/actuator"
-	"github.com/idiomatic-go/middleware/handler"
+	"github.com/idiomatic-go/middleware/host"
 	"github.com/idiomatic-go/middleware/template"
 	"net/http"
 	"time"
 )
 
 func init() {
-	handler.EnableDefaultHttpClient()
+	name := "google:search"
+	host.WrapDefaultTransport()
 	actuator.EgressTable.SetDefaultActuator(actuator.DefaultActuatorName, nil, actuator.NewTimeoutConfig(time.Second*4, http.StatusGatewayTimeout))
-	actuator.EgressTable.Add("google:search", "https://www.google.com/search", nil)
+	actuator.EgressTable.Add(name, nil)
+	actuator.EgressTable.SetMatcher(func(req *http.Request) string {
+		return name
+	},
+	)
 }
 
 func ExampleSearch_Success() {

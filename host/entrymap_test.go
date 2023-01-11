@@ -79,9 +79,9 @@ func ExampleDirectory_Send() {
 	directory.add(uri2, c)
 	directory.add(uri3, c)
 
-	directory.send(Message{To: uri1, From: HostName, Event: StartupEvent})
-	directory.send(Message{To: uri2, From: HostName, Event: StartupEvent})
-	directory.send(Message{To: uri3, From: HostName, Event: StartupEvent})
+	directory.send(Message{To: uri1, From: Name, Event: StartupEvent})
+	directory.send(Message{To: uri2, From: Name, Event: StartupEvent})
+	directory.send(Message{To: uri3, From: Name, Event: StartupEvent})
 
 	time.Sleep(time.Second * 1)
 	resp1 := <-c

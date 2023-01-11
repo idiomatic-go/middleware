@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	EgressTraffic      = "handler"
+	EgressTraffic      = "egress"
 	IngressTraffic     = "ingress"
 	PingTraffic        = "ping"
 	TimeoutName        = "timeout"

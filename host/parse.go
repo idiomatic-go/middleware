@@ -26,7 +26,7 @@ func ParseMap(buf []byte) (map[string]string, error) {
 	var err error
 	for {
 		line, err = reader.ReadString('\n')
-		k, v, err0 := ParseLine(line)
+		k, v, err0 := parseLine(line)
 		if err0 != nil {
 			return m, err0
 		}
@@ -44,7 +44,7 @@ func ParseMap(buf []byte) (map[string]string, error) {
 	return m, nil
 }
 
-func ParseLine(line string) (string, string, error) {
+func parseLine(line string) (string, string, error) {
 	if len(line) == 0 {
 		return "", "", nil
 	}
