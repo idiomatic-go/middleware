@@ -1,4 +1,4 @@
-package google
+package twitter
 
 import (
 	"github.com/idiomatic-go/middleware/template"

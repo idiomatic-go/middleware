@@ -58,7 +58,7 @@ func ExampleActuator_newActuator_config() {
 
 	//Output:
 	//test: newActuator() -> [logger:true] [timeout:true] [rateLimit:true] [retry:false] [failover:false]
-	
+
 }
 
 func ExampleActuator_newActuator_Error() {

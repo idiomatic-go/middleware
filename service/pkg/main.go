@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/idiomatic-go/middleware/service/pkg/host"
+	"github.com/idiomatic-go/middleware/template"
 	"log"
 	"net/http"
 	"os"
@@ -21,8 +22,8 @@ const (
 
 func main() {
 	displayRuntime()
-	handler, ok := host.Startup(http.NewServeMux())
-	if !ok {
+	handler, status := host.Startup[template.LogHandler](http.NewServeMux())
+	if !status.Ok() {
 		os.Exit(1)
 	}
 	defer host.Shutdown()
